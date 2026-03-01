@@ -5,7 +5,9 @@ import { TransactionForm, type Transaction } from "@/components/transaction-form
 import { TransactionList } from "@/components/transaction-list";
 import { AnalyticsSection } from "@/components/analytics-section";
 import { BudgetSection } from "@/components/budget-section";
+import { BudgetSnapshot } from "@/components/budget-snapshot";
 import { BalanceCard } from "@/components/balance-card";
+import { BillReminderBanner } from "@/components/bill-reminder-banner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutDashboard, BarChart3, History, Target, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -89,6 +91,9 @@ export default function DashboardPage() {
           <span className="sm:hidden">Tambah</span>
         </Button>
       </div>
+
+      {/* Bill Reminder Banner */}
+      <BillReminderBanner />
 
       {/* Balance Summary Cards */}
       <BalanceCard totalIncome={totalIncome} totalExpense={totalExpense} />
@@ -190,7 +195,10 @@ export default function DashboardPage() {
 
             {/* Right: Budget Snapshot */}
             <div className="lg:col-span-1">
-              <BudgetSection transactions={transactions} />
+              <BudgetSnapshot
+                transactions={transactions}
+                onSeeAll={() => setActiveTab("budget")}
+              />
             </div>
           </div>
         </TabsContent>

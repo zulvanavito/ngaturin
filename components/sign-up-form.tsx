@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Eye, EyeOff, CheckCircle2, Circle } from "lucide-react";
 
 export function SignUpForm({
   className,
@@ -23,6 +24,8 @@ export function SignUpForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -40,8 +43,14 @@ export function SignUpForm({
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password minimal 6 karakter");
+    const hasMinLength = password.length >= 8;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!(hasMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecial)) {
+      setError("Silakan penuhi semua kriteria password yang diminta.");
       setIsLoading(false);
       return;
     }
@@ -146,27 +155,81 @@ export function SignUpForm({
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Minimal 6 karakter"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-11"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Min 8 karakter (huruf besar, angka, simbol)"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-11 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                      <span className="sr-only">Toggle password visibility</span>
+                    </button>
+                  </div>
+                  {/* Password Complexity Checklist */}
+                  <div className="mt-2 space-y-2 bg-muted/30 p-3 rounded-lg border border-border/50">
+                    <p className="text-xs font-semibold text-muted-foreground">Kriteria Password:</p>
+                    <ul className="text-xs space-y-1.5">
+                      <li className={cn("flex items-center gap-2", password.length >= 8 ? "text-emerald-500" : "text-muted-foreground")}>
+                        {password.length >= 8 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                        Minimal 8 karakter
+                      </li>
+                      <li className={cn("flex items-center gap-2", /[A-Z]/.test(password) ? "text-emerald-500" : "text-muted-foreground")}>
+                        {/[A-Z]/.test(password) ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                        Minimal 1 huruf besar
+                      </li>
+                      <li className={cn("flex items-center gap-2", /[a-z]/.test(password) ? "text-emerald-500" : "text-muted-foreground")}>
+                        {/[a-z]/.test(password) ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                        Minimal 1 huruf kecil
+                      </li>
+                      <li className={cn("flex items-center gap-2", /[0-9]/.test(password) ? "text-emerald-500" : "text-muted-foreground")}>
+                        {/[0-9]/.test(password) ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                        Minimal 1 angka
+                      </li>
+                      <li className={cn("flex items-center gap-2", /[!@#$%^&*(),.?":{}|<>]/.test(password) ? "text-emerald-500" : "text-muted-foreground")}>
+                        {/[!@#$%^&*(),.?":{}|<>]/.test(password) ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                        Minimal 1 karakter spesial (@, !, #)
+                      </li>
+                    </ul>
+                  </div>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="repeat-password">Ulangi Password</Label>
-                  <Input
-                    id="repeat-password"
-                    type="password"
-                    placeholder="Ketik ulang password"
-                    required
-                    value={repeatPassword}
-                    onChange={(e) => setRepeatPassword(e.target.value)}
-                    className="h-11"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="repeat-password"
+                      type={showRepeatPassword ? "text" : "password"}
+                      placeholder="Ketik ulang password"
+                      required
+                      value={repeatPassword}
+                      onChange={(e) => setRepeatPassword(e.target.value)}
+                      className="h-11 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRepeatPassword(!showRepeatPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showRepeatPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                      <span className="sr-only">Toggle repeat password visibility</span>
+                    </button>
+                  </div>
                 </div>
                 {error && (
                   <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg">

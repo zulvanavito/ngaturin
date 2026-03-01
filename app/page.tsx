@@ -1,12 +1,17 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Menu, X } from "lucide-react";
+
 
 export default function Home() {
   return (
     <main className="min-h-screen flex flex-col">
       {/* Nav */}
-      <nav className="w-full border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0 z-50">
+      <nav className="w-full border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0 z-50 relative">
         <div className="max-w-6xl mx-auto flex justify-between items-center px-6 h-16">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
@@ -16,7 +21,9 @@ export default function Home() {
             </div>
             <span className="font-bold text-lg">Ngaturin</span>
           </Link>
-          <div className="flex items-center gap-3">
+
+          {/* Desktop nav — hidden on mobile */}
+          <div className="hidden sm:flex items-center gap-3">
             <ThemeSwitcher />
             <Button asChild variant="ghost" size="sm">
               <Link href="/auth/login">Masuk</Link>
@@ -24,6 +31,11 @@ export default function Home() {
             <Button asChild size="sm" className="gradient-primary text-white hover:opacity-90">
               <Link href="/auth/sign-up">Daftar Gratis</Link>
             </Button>
+          </div>
+
+          {/* Mobile Theme Switcher */}
+          <div className="sm:hidden flex items-center">
+            <ThemeSwitcher showText />
           </div>
         </div>
       </nav>
@@ -59,7 +71,7 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="gradient-primary text-white hover:opacity-90 h-13 px-8 text-base font-semibold shadow-lg shadow-emerald-500/25">
+            <Button asChild size="lg" className="gradient-primary text-white hover:opacity-90 h-14 px-10 text-base font-semibold shadow-lg shadow-emerald-500/25">
               <Link href="/auth/sign-up">
                 Mulai Sekarang
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -67,7 +79,7 @@ export default function Home() {
                 </svg>
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="h-13 px-8 text-base">
+            <Button asChild variant="outline" size="lg" className="h-14 px-10 text-base">
               <Link href="/auth/login">Sudah Punya Akun</Link>
             </Button>
           </div>

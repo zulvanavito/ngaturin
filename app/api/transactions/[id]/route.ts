@@ -27,10 +27,10 @@ export async function PUT(
     );
   }
 
-  const validCategories = ["Makanan", "Transport", "Belanja", "Tagihan", "Gaji", "Lainnya"];
-  if (!validCategories.includes(category)) {
+  // Allow any non-empty category (supports custom categories from user)
+  if (typeof category !== "string" || category.trim().length === 0) {
     return NextResponse.json(
-      { error: "Kategori tidak valid" },
+      { error: "Kategori tidak boleh kosong" },
       { status: 400 }
     );
   }

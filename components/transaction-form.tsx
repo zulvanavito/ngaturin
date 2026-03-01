@@ -50,6 +50,7 @@ export function TransactionForm({
   const [description, setDescription] = useState(editingTransaction?.description || "");
   const [amount, setAmount] = useState(editingTransaction?.amount?.toString() || "");
   const [category, setCategory] = useState(editingTransaction?.category || "");
+  const [customCategory, setCustomCategory] = useState("");
   const [type, setType] = useState<"income" | "expense">(editingTransaction?.type || "expense");
   const [date, setDate] = useState(
     editingTransaction?.date || new Date().toISOString().split("T")[0]
@@ -62,8 +63,13 @@ export function TransactionForm({
     setIsLoading(true);
     setError(null);
 
+    // If category is 'Lainnya', use the custom category text instead.
+    const finalCategory = category === "Lainnya" && customCategory.trim() !== "" 
+      ? customCategory.trim() 
+      : category;
+
     try {
-      const payload = { description, amount: Number(amount), category, type, date };
+      const payload = { description, amount: Number(amount), category: finalCategory, type, date };
 
       const url = isEditing
         ? `/api/transactions/${editingTransaction.id}`
@@ -85,6 +91,7 @@ export function TransactionForm({
         setDescription("");
         setAmount("");
         setCategory("");
+        setCustomCategory("");
         setType("expense");
         setDate(new Date().toISOString().split("T")[0]);
       }
@@ -177,18 +184,30 @@ export function TransactionForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="category">Kategori</Label>
-            <Select value={category} onValueChange={setCategory} required>
-              <SelectTrigger id="category" className="h-11">
-                <SelectValue placeholder="Pilih kategori" />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select value={category} onValueChange={setCategory} required>
+                <SelectTrigger id="category" className={`h-11 ${category === "Lainnya" ? "w-1/3" : "w-full"}`}>
+                  <SelectValue placeholder="Pilih..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {category === "Lainnya" && (
+                <Input
+                  placeholder="Ketik Kategori Baru..."
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  className="h-11 flex-1 animate-in fade-in slide-in-from-right-4"
+                  required
+                />
+              )}
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="date">Tanggal</Label>

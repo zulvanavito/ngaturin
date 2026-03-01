@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,6 +32,8 @@ interface TransactionListProps {
 export function TransactionList({ transactions, onEdit, onDelete }: TransactionListProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -63,40 +65,46 @@ export function TransactionList({ transactions, onEdit, onDelete }: TransactionL
     });
   };
 
+  const totalPages = Math.ceil(transactions.length / itemsPerPage);
+  
+  const paginatedTransactions = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return transactions.slice(startIndex, startIndex + itemsPerPage);
+  }, [transactions, currentPage]);
+
   if (transactions.length === 0) {
     return (
-      <div className="rounded-2xl bg-card border border-border/50 p-12 shadow-sm text-center">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-muted flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <div className="rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40 p-12 shadow-sm text-center flex flex-col items-center justify-center min-h-[300px]">
+        <div className="w-20 h-20 mb-6 rounded-3xl bg-emerald-500/10 flex items-center justify-center animate-pulse">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
         </div>
-        <h3 className="font-semibold text-lg mb-1">Belum ada transaksi</h3>
-        <p className="text-muted-foreground text-sm">
-          Mulai catat pemasukan dan pengeluaranmu di form di atas.
+        <h3 className="font-bold text-xl mb-2 text-foreground/90">Belum Ada Transaksi</h3>
+        <p className="text-muted-foreground text-sm max-w-[250px]">
+          Mulai catat pemasukan dan pengeluaranmu di form sebelah kanan.
         </p>
       </div>
     );
   }
 
   return (
-    <>
-      <div className="rounded-2xl bg-card border border-border/50 shadow-sm overflow-hidden">
-        <div className="p-6 pb-3">
-          <h2 className="text-lg font-semibold">Transaksi Terbaru</h2>
-          <p className="text-sm text-muted-foreground">{transactions.length} transaksi</p>
-        </div>
+    <div className="flex flex-col h-full">
+      <div className="flex flex-col mb-4">
+        <h2 className="text-xl font-bold tracking-tight">Transaksi Terbaru</h2>
+        <p className="text-sm text-muted-foreground">{transactions.length} transaksi tercatat</p>
+      </div>
 
-        <div className="divide-y divide-border/50">
-          {transactions.map((tx) => (
-            <div
-              key={tx.id}
-              className="flex items-center gap-4 px-6 py-4 hover:bg-muted/30 transition-colors group"
-            >
-              {/* Category Icon */}
-              <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-lg shrink-0">
-                {CATEGORY_ICONS[tx.category] || "📦"}
-              </div>
+      <div className="flex flex-col gap-3 flex-1">
+        {paginatedTransactions.map((tx) => (
+          <div
+            key={tx.id}
+            className="flex items-center gap-4 px-5 py-4 bg-card/60 backdrop-blur-sm border border-border/40 rounded-2xl hover:-translate-y-0.5 hover:shadow-md hover:border-emerald-500/20 transition-all duration-300 group"
+          >
+            {/* Category Icon */}
+            <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform duration-300">
+              {CATEGORY_ICONS[tx.category] || "📦"}
+            </div>
 
               {/* Details */}
               <div className="flex-1 min-w-0">
@@ -149,7 +157,35 @@ export function TransactionList({ transactions, onEdit, onDelete }: TransactionL
             </div>
           ))}
         </div>
-      </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6 px-2">
+          <p className="text-sm text-muted-foreground">
+            Halaman {currentPage} dari {totalPages}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="h-9 px-4 rounded-xl border-border/40 hover:bg-muted/50 transition-colors"
+            >
+              Sebelumnya
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="h-9 px-4 rounded-xl border-border/40 hover:bg-muted/50 transition-colors"
+            >
+              Selanjutnya
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Delete confirmation dialog */}
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
@@ -179,6 +215,6 @@ export function TransactionList({ transactions, onEdit, onDelete }: TransactionL
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

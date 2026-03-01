@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useCategories } from "@/hooks/use-categories";
+import { useWallets } from "@/hooks/use-wallets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,10 +35,12 @@ export function TransactionForm({ editingTransaction, onCancel, onSuccess }: Tra
 
   // Dynamic categories from database
   const { categories: allCategories, loading: catLoading } = useCategories();
+  const { wallets } = useWallets();
 
   const [description, setDescription] = useState(editingTransaction?.description || "");
   const [amount, setAmount] = useState(editingTransaction?.amount?.toString() || "");
   const [category, setCategory] = useState(editingTransaction?.category || "");
+  const [walletId, setWalletId] = useState((editingTransaction as any)?.wallet_id || "");
   const [type, setType] = useState<"income" | "expense">(editingTransaction?.type || "expense");
   const [date, setDate] = useState(editingTransaction?.date || new Date().toISOString().split("T")[0]);
   const [isLoading, setIsLoading] = useState(false);
@@ -63,7 +66,7 @@ export function TransactionForm({ editingTransaction, onCancel, onSuccess }: Tra
     setError(null);
 
     try {
-      const payload = { description, amount: Number(amount), category, type, date };
+      const payload = { description, amount: Number(amount), category, type, date, wallet_id: walletId || null };
       const url = isEditing ? `/api/transactions/${editingTransaction.id}` : "/api/transactions";
       const res = await fetch(url, {
         method: isEditing ? "PUT" : "POST",
@@ -80,6 +83,7 @@ export function TransactionForm({ editingTransaction, onCancel, onSuccess }: Tra
         setDescription("");
         setAmount("");
         setCategory("");
+        setWalletId("");
         setType("expense");
         setDate(new Date().toISOString().split("T")[0]);
       }
@@ -217,6 +221,29 @@ export function TransactionForm({ editingTransaction, onCancel, onSuccess }: Tra
             />
           </div>
         </div>
+
+        {/* Wallet Selector */}
+        {wallets.length > 0 && (
+          <div className="space-y-2">
+            <Label htmlFor="wallet" className="flex items-center gap-1">
+              Dompet
+              <span className="text-xs text-muted-foreground font-normal">(opsional)</span>
+            </Label>
+            <Select value={walletId} onValueChange={setWalletId}>
+              <SelectTrigger id="wallet" className="h-11">
+                <SelectValue placeholder="Pilih dompet..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_none">Tanpa Dompet</SelectItem>
+                {wallets.map((w) => (
+                  <SelectItem key={w.id} value={w.id}>
+                    {w.icon} {w.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <div className="mt-auto pt-4">
           {error && (

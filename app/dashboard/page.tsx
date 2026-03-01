@@ -71,20 +71,27 @@ export default function DashboardPage() {
       {/* Balance Cards */}
       <BalanceCard totalIncome={totalIncome} totalExpense={totalExpense} />
 
-      {/* Transaction Form */}
-      <TransactionForm
-        key={editingTransaction?.id || "new"}
-        editingTransaction={editingTransaction}
-        onCancel={() => setEditingTransaction(null)}
-        onSuccess={handleSuccess}
-      />
+      {/* Main Grid: List on Left, Form on Right */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        {/* Left Column: Transaction List */}
+        <div className="lg:col-span-2 order-2 lg:order-1">
+          <TransactionList
+            transactions={transactions}
+            onEdit={handleEdit}
+            onDelete={handleSuccess}
+          />
+        </div>
 
-      {/* Transaction List */}
-      <TransactionList
-        transactions={transactions}
-        onEdit={handleEdit}
-        onDelete={handleSuccess}
-      />
+        {/* Right Column: Transaction Form (Sticky) */}
+        <div className="lg:sticky lg:top-24 order-1 lg:order-2">
+          <TransactionForm
+            key={editingTransaction?.id || "new"}
+            editingTransaction={editingTransaction}
+            onCancel={() => setEditingTransaction(null)}
+            onSuccess={handleSuccess}
+          />
+        </div>
+      </div>
     </div>
   );
 }

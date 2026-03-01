@@ -159,7 +159,7 @@ export function SignUpForm({
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Min 8 karakter (huruf besar, angka, simbol)"
+                      placeholder="Password"
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}

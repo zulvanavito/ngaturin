@@ -2,17 +2,17 @@
 
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { Pencil, Trash2, TrendingUp, TrendingDown } from "lucide-react";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { Pencil, Trash2, TrendingUp, TrendingDown, Search } from "lucide-react";
 import { formatCurrency } from "@/components/balance-card";
 import type { Transaction } from "@/components/transaction-form";
+import { Badge } from "@/components/ui/badge";
 
 const CATEGORY_ICONS: Record<string, string> = {
   Makanan: "🍔",
@@ -33,21 +33,17 @@ export function TransactionList({ transactions, onEdit, onDelete }: TransactionL
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterType, setFilterType] = useState("all");
+  const itemsPerPage = 8;
 
   const handleDelete = async () => {
     if (!deleteId) return;
     setIsDeleting(true);
-
     try {
-      const res = await fetch(`/api/transactions/${deleteId}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        throw new Error("Gagal menghapus transaksi");
-      }
-
+      const res = await fetch(`/api/transactions/${deleteId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Gagal menghapus transaksi");
       setDeleteId(null);
       onDelete();
     } catch (error) {
@@ -57,159 +53,157 @@ export function TransactionList({ transactions, onEdit, onDelete }: TransactionL
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+
+  // Unique categories from transactions
+  const categories = useMemo(() => {
+    const cats = new Set<string>();
+    transactions.forEach((t) => cats.add(t.category));
+    return Array.from(cats).sort();
+  }, [transactions]);
+
+  // Filter + Search logic
+  const filtered = useMemo(() => {
+    return transactions.filter((tx) => {
+      const matchSearch = searchQuery === "" || tx.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchCat = filterCategory === "all" || tx.category === filterCategory;
+      const matchType = filterType === "all" || tx.type === filterType;
+      return matchSearch && matchCat && matchType;
     });
+  }, [transactions, searchQuery, filterCategory, filterType]);
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedTransactions = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filtered.slice(start, start + itemsPerPage);
+  }, [filtered, currentPage]);
+
+  // Reset to page 1 when filters change
+  const handleFilterChange = (fn: () => void) => {
+    fn();
+    setCurrentPage(1);
   };
 
-  const totalPages = Math.ceil(transactions.length / itemsPerPage);
-  
-  const paginatedTransactions = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return transactions.slice(startIndex, startIndex + itemsPerPage);
-  }, [transactions, currentPage]);
-
-  if (transactions.length === 0) {
-    return (
-      <div className="rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40 p-12 shadow-sm text-center flex flex-col items-center justify-center min-h-[300px]">
-        <div className="w-20 h-20 mb-6 rounded-3xl bg-emerald-500/10 flex items-center justify-center animate-pulse">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-        </div>
-        <h3 className="font-bold text-xl mb-2 text-foreground/90">Belum Ada Transaksi</h3>
-        <p className="text-muted-foreground text-sm max-w-[250px]">
-          Mulai catat pemasukan dan pengeluaranmu di form sebelah kanan.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex flex-col mb-4">
-        <h2 className="text-xl font-bold tracking-tight">Transaksi Terbaru</h2>
-        <p className="text-sm text-muted-foreground">{transactions.length} transaksi tercatat</p>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">Riwayat Transaksi</h2>
+          <p className="text-sm text-muted-foreground">
+            {filtered.length} dari {transactions.length} transaksi
+          </p>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-3 flex-1">
-        {paginatedTransactions.map((tx) => (
-          <div
-            key={tx.id}
-            className="flex items-center gap-4 px-5 py-4 bg-card/60 backdrop-blur-sm border border-border/40 rounded-2xl hover:-translate-y-0.5 hover:shadow-md hover:border-emerald-500/20 transition-all duration-300 group"
-          >
-            {/* Category Icon */}
-            <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform duration-300">
-              {CATEGORY_ICONS[tx.category] || "📦"}
-            </div>
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Cari deskripsi..."
+            value={searchQuery}
+            onChange={(e) => handleFilterChange(() => setSearchQuery(e.target.value))}
+            className="pl-9 h-10"
+          />
+        </div>
+        <Select value={filterCategory} onValueChange={(v) => handleFilterChange(() => setFilterCategory(v))}>
+          <SelectTrigger className="h-10 w-full sm:w-40">
+            <SelectValue placeholder="Kategori" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua Kategori</SelectItem>
+            {categories.map((cat) => (
+              <SelectItem key={cat} value={cat}>{CATEGORY_ICONS[cat] || "📦"} {cat}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={filterType} onValueChange={(v) => handleFilterChange(() => setFilterType(v))}>
+          <SelectTrigger className="h-10 w-full sm:w-36">
+            <SelectValue placeholder="Tipe" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua Tipe</SelectItem>
+            <SelectItem value="income">Pemasukan</SelectItem>
+            <SelectItem value="expense">Pengeluaran</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-              {/* Details */}
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">{tx.description}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs text-muted-foreground">{tx.category}</span>
-                  <span className="text-xs text-muted-foreground">•</span>
-                  <span className="text-xs text-muted-foreground">{formatDate(tx.date)}</span>
+      {/* Transaction List */}
+      <div className="rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40 overflow-hidden">
+        {paginatedTransactions.length === 0 ? (
+          <div className="p-12 text-center text-muted-foreground flex flex-col items-center gap-3">
+            <Search className="w-10 h-10 opacity-20" />
+            <div>
+              <p className="font-medium">Tidak ada transaksi ditemukan</p>
+              <p className="text-sm mt-1">Coba ubah filter atau kata kunci pencarian</p>
+            </div>
+          </div>
+        ) : (
+          <div className="divide-y divide-border/30">
+            {paginatedTransactions.map((tx) => (
+              <div key={tx.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-muted/30 transition-colors group">
+                <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center text-lg shrink-0">
+                  {CATEGORY_ICONS[tx.category] || "📦"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{tx.description}</p>
+                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                    <Badge variant="secondary" className="text-xs px-2 py-0 h-5 font-normal">{tx.category}</Badge>
+                    <span className="text-xs text-muted-foreground">{formatDate(tx.date)}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  {tx.type === "income" ? (
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                  ) : (
+                    <TrendingDown className="w-3.5 h-3.5 text-rose-500" />
+                  )}
+                  <span className={`font-semibold text-sm ${tx.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
+                    {tx.type === "income" ? "+" : "-"}{formatCurrency(tx.amount)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => onEdit(tx)}>
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => setDeleteId(tx.id)}>
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
                 </div>
               </div>
+            ))}
+          </div>
+        )}
+      </div>
 
-              {/* Amount */}
-              <div className="flex items-center gap-1 shrink-0">
-                {tx.type === "income" ? (
-                  <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-                ) : (
-                  <TrendingDown className="w-3.5 h-3.5 text-rose-500" />
-                )}
-                <span
-                  className={`font-semibold text-sm ${
-                    tx.type === "income"
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-rose-600 dark:text-rose-400"
-                  }`}
-                >
-                  {tx.type === "income" ? "+" : "-"}
-                  {formatCurrency(tx.amount)}
-                </span>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                  onClick={() => onEdit(tx)}
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  onClick={() => setDeleteId(tx.id)}
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-      {/* Pagination Controls */}
+      {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6 px-2">
-          <p className="text-sm text-muted-foreground">
-            Halaman {currentPage} dari {totalPages}
-          </p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">Halaman {currentPage} dari {totalPages}</p>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="h-9 px-4 rounded-xl border-border/40 hover:bg-muted/50 transition-colors"
-            >
-              Sebelumnya
+            <Button variant="outline" size="sm" className="h-9 px-4 rounded-xl" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>
+              ← Sebelumnya
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="h-9 px-4 rounded-xl border-border/40 hover:bg-muted/50 transition-colors"
-            >
-              Selanjutnya
+            <Button variant="outline" size="sm" className="h-9 px-4 rounded-xl" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
+              Selanjutnya →
             </Button>
           </div>
         </div>
       )}
 
-      {/* Delete confirmation dialog */}
+      {/* Delete Dialog */}
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Hapus Transaksi</DialogTitle>
-            <DialogDescription>
-              Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini tidak
-              dapat dibatalkan.
-            </DialogDescription>
+            <DialogDescription>Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini tidak dapat dibatalkan.</DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setDeleteId(null)}
-              disabled={isDeleting}
-            >
-              Batal
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
+            <Button variant="outline" onClick={() => setDeleteId(null)} disabled={isDeleting}>Batal</Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? "Menghapus..." : "Hapus"}
             </Button>
           </DialogFooter>

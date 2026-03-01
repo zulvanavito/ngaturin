@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { BalanceCard } from "@/components/balance-card";
 import { TransactionForm, type Transaction } from "@/components/transaction-form";
 import { TransactionList } from "@/components/transaction-list";
+import { AnalyticsSection } from "@/components/analytics-section";
 
 export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -70,6 +71,9 @@ export default function DashboardPage() {
 
       {/* Balance Cards */}
       <BalanceCard totalIncome={totalIncome} totalExpense={totalExpense} />
+
+      {/* Analytics & Export Section */}
+      <AnalyticsSection transactions={transactions} />
 
       {/* Main Grid: List on Left, Form on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">

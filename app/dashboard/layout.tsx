@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Tag } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -23,6 +24,13 @@ export default function DashboardLayout({
           </Link>
 
           <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard/categories"
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted/50"
+            >
+              <Tag className="w-4 h-4" />
+              <span className="hidden sm:inline">Kategori</span>
+            </Link>
             <ThemeSwitcher />
             <Suspense>
               <AuthButton />

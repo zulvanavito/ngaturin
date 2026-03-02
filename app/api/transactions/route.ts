@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { description, amount, category, type, date } = body;
+  const { description, amount, category, type, date, wallet_id } = body;
 
   // Validation
   if (!description || !amount || !category || !type) {
@@ -70,6 +70,9 @@ export async function POST(request: Request) {
     );
   }
 
+  // Sanitize wallet_id: treat "_none" or empty string as null
+  const sanitizedWalletId = (wallet_id && wallet_id !== "_none") ? wallet_id : null;
+
   const { data, error } = await supabase
     .from("transactions")
     .insert({
@@ -79,6 +82,7 @@ export async function POST(request: Request) {
       category,
       type,
       date: date || new Date().toISOString().split("T")[0],
+      wallet_id: sanitizedWalletId,
     })
     .select()
     .single();

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Save, X, Settings2 } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/lib/toast-context";
 
 export interface Transaction {
   id: string;
@@ -18,7 +19,7 @@ export interface Transaction {
   description: string;
   amount: number;
   category: string;
-  type: "income" | "expense";
+  type: "income" | "expense" | "transfer";
   date: string;
   created_at: string;
   updated_at: string;
@@ -32,6 +33,7 @@ interface TransactionFormProps {
 
 export function TransactionForm({ editingTransaction, onCancel, onSuccess }: TransactionFormProps) {
   const isEditing = !!editingTransaction;
+  const { showToast } = useToast();
 
   // Dynamic categories from database
   const { categories: allCategories, loading: catLoading } = useCategories();
@@ -41,7 +43,8 @@ export function TransactionForm({ editingTransaction, onCancel, onSuccess }: Tra
   const [amount, setAmount] = useState(editingTransaction?.amount?.toString() || "");
   const [category, setCategory] = useState(editingTransaction?.category || "");
   const [walletId, setWalletId] = useState((editingTransaction as any)?.wallet_id || "");
-  const [type, setType] = useState<"income" | "expense">(editingTransaction?.type || "expense");
+  const initialType = (editingTransaction?.type === "transfer" ? "expense" : editingTransaction?.type) ?? "expense";
+  const [type, setType] = useState<"income" | "expense">(initialType);
   const [date, setDate] = useState(editingTransaction?.date || new Date().toISOString().split("T")[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,9 +90,12 @@ export function TransactionForm({ editingTransaction, onCancel, onSuccess }: Tra
         setType("expense");
         setDate(new Date().toISOString().split("T")[0]);
       }
+      showToast("success", isEditing ? `Transaksi berhasil diperbarui!` : `${type === "income" ? "Pemasukan" : "Pengeluaran"} berhasil ditambahkan!`);
       onSuccess();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Terjadi kesalahan");
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
+      setError(msg);
+      showToast("error", msg);
     } finally {
       setIsLoading(false);
     }
@@ -194,7 +200,7 @@ export function TransactionForm({ editingTransaction, onCancel, onSuccess }: Tra
               </SelectContent>
             </Select>
 
-            {/* Persistent status banner below the select */}
+           
             {catLoading && (
               <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1 animate-pulse">
                 <span>⌛</span> Memuat daftar kategori...
@@ -222,7 +228,7 @@ export function TransactionForm({ editingTransaction, onCancel, onSuccess }: Tra
           </div>
         </div>
 
-        {/* Wallet Selector */}
+       
         {wallets.length > 0 && (
           <div className="space-y-2">
             <Label htmlFor="wallet" className="flex items-center gap-1">

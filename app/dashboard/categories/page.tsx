@@ -14,6 +14,7 @@ import { ChevronLeft } from "lucide-react";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import { useToast } from "@/lib/toast-context";
 
 const COMMON_ICONS = ["🍔","🚗","🛍️","📄","🎬","🏠","💰","📈","📦","✈️","🏥","📚","🎮","☕","🎁","💼","🔧","🐾","⚽","🎵"];
 
@@ -24,6 +25,7 @@ export default function CategoriesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   // Form state
   const [formName, setFormName] = useState("");
@@ -70,8 +72,10 @@ export default function CategoriesPage() {
       setIsAdding(false);
       setEditingId(null);
       resetForm();
+      showToast("success", editingId ? `Kategori "${formName}" berhasil diperbarui!` : `Kategori "${formName}" berhasil ditambahkan!`);
     } catch (err: any) {
       setError(err.message);
+      showToast("error", err.message);
     } finally {
       setSaving(false);
     }
@@ -79,13 +83,16 @@ export default function CategoriesPage() {
 
   const handleDelete = async () => {
     if (!deleteId) return;
+    const catName = categories.find(c => c.id === deleteId)?.name || "Kategori";
     setSaving(true);
     try {
       const res = await fetch(`/api/categories/${deleteId}`, { method: "DELETE" });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
       await refetch();
+      showToast("success", `Kategori "${catName}" berhasil dihapus.`);
     } catch (err: any) {
       setError(err.message);
+      showToast("error", err.message);
     } finally {
       setSaving(false);
       setDeleteId(null);

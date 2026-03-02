@@ -13,6 +13,7 @@ import { Pencil, Trash2, TrendingUp, TrendingDown, Search } from "lucide-react";
 import { formatCurrency } from "@/components/balance-card";
 import type { Transaction } from "@/components/transaction-form";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/lib/toast-context";
 
 const CATEGORY_ICONS: Record<string, string> = {
   Makanan: "🍔",
@@ -32,6 +33,7 @@ interface TransactionListProps {
 export function TransactionList({ transactions, onEdit, onDelete }: TransactionListProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
@@ -45,8 +47,10 @@ export function TransactionList({ transactions, onEdit, onDelete }: TransactionL
       const res = await fetch(`/api/transactions/${deleteId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Gagal menghapus transaksi");
       setDeleteId(null);
+      showToast("success", "Transaksi berhasil dihapus.");
       onDelete();
     } catch (error) {
+      showToast("error", "Gagal menghapus transaksi.");
       console.error("Delete error:", error);
     } finally {
       setIsDeleting(false);

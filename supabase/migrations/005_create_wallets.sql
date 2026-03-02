@@ -1,4 +1,4 @@
--- 1. Create wallets table
+
 create table wallets (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references auth.users not null,
@@ -9,11 +9,9 @@ create table wallets (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- 2. Add wallet_id foreign key to transactions (nullable for backward compat)
 alter table transactions
   add column if not exists wallet_id uuid references wallets(id) on delete set null;
 
--- 3. RLS on wallets
 alter table wallets enable row level security;
 
 create policy "Users can view their own wallets."
@@ -28,7 +26,6 @@ create policy "Users can update their own wallets."
 create policy "Users can delete their own wallets."
   on wallets for delete using ( auth.uid() = user_id );
 
--- 4. Auto-create default wallets for new users
 create or replace function insert_default_wallets()
 returns trigger as $$
 begin
@@ -45,10 +42,3 @@ create trigger on_auth_user_created_insert_wallets
   for each row
   execute function insert_default_wallets();
 
--- 5. MANUAL SEED for existing accounts — run in SQL Editor:
---
--- INSERT INTO wallets (user_id, name, icon, type, color) VALUES
---   (auth.uid(), 'Tunai',         '💵', 'cash',   '#10b981'),
---   (auth.uid(), 'Rekening Bank', '🏦', 'bank',   '#3b82f6'),
---   (auth.uid(), 'E-Money',       '📱', 'emoney', '#8b5cf6')
--- ON CONFLICT DO NOTHING;

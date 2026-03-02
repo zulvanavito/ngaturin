@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, Loader2, Bell, ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/lib/toast-context";
 
 interface RecurringBill {
   id: string;
@@ -42,6 +43,7 @@ export default function BillsPage() {
   const [deletingBill, setDeletingBill] = useState<RecurringBill | null>(null);
   const [saving, setSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
 
   const { categories } = useCategories();
 
@@ -87,25 +89,38 @@ export default function BillsPage() {
       if (!res.ok) throw new Error((await res.json()).error);
       await fetchBills();
       setIsFormOpen(false);
-    } catch (err: any) { alert(err.message); }
+      showToast("success", editingBill ? `Tagihan "${formName}" berhasil diperbarui!` : `Tagihan "${formName}" berhasil ditambahkan!`);
+    } catch (err: any) { showToast("error", err.message || "Gagal menyimpan tagihan"); }
     finally { setSaving(false); }
   };
 
   const handleDelete = async () => {
     if (!deletingBill) return;
+    const billName = deletingBill.name;
     setIsDeleting(true);
-    await fetch(`/api/recurring-bills/${deletingBill.id}`, { method: "DELETE" });
-    await fetchBills();
-    setDeletingBill(null);
-    setIsDeleting(false);
+    try {
+      const res = await fetch(`/api/recurring-bills/${deletingBill.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error((await res.json()).error);
+      await fetchBills();
+      setDeletingBill(null);
+      showToast("success", `Tagihan "${billName}" berhasil dihapus.`);
+    } catch (err: any) {
+      showToast("error", err.message || "Gagal menghapus tagihan");
+      setDeletingBill(null);
+    } finally { setIsDeleting(false); }
   };
 
   const toggleActive = async (bill: RecurringBill) => {
-    await fetch(`/api/recurring-bills/${bill.id}`, {
-      method: "PUT", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...bill, is_active: !bill.is_active }),
-    });
-    await fetchBills();
+    try {
+      await fetch(`/api/recurring-bills/${bill.id}`, {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...bill, is_active: !bill.is_active }),
+      });
+      await fetchBills();
+      showToast("info", `Tagihan "${bill.name}" ${bill.is_active ? "dinonaktifkan" : "diaktifkan"}.`);
+    } catch {
+      showToast("error", "Gagal mengubah status tagihan");
+    }
   };
 
   return (

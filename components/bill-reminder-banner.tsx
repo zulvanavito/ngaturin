@@ -30,7 +30,7 @@ export function BillReminderBanner() {
         const urgent = bills.filter((b) => b.is_active && b.due_day - today >= 0 && b.due_day - today <= 3);
         setUrgentBills(urgent);
       } catch {
-        // silently fail — banner is not critical
+       
       }
     };
     fetchBills();

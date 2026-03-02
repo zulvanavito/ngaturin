@@ -4,6 +4,7 @@ import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Tag, Wallet, Bell, HandCoins } from "lucide-react";
 import { MobileMenuButton } from "@/components/mobile-menu-button";
+import { DashboardTour } from "@/components/dashboard-tour";
 
 export default function DashboardLayout({
   children,
@@ -33,7 +34,7 @@ export default function DashboardLayout({
             <div className="hidden sm:flex items-center gap-1">
               <Link
                 href="/dashboard/wallets"
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted/50"
+                className="tour-wallets flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted/50"
               >
                 <Wallet className="w-4 h-4" />
                 <span>Dompet</span>
@@ -54,7 +55,7 @@ export default function DashboardLayout({
               </Link>
               <Link
                 href="/dashboard/debts"
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted/50"
+                className="tour-debts flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted/50"
               >
                 <HandCoins className="w-4 h-4" />
                 <span>Utang/Piutang</span>
@@ -72,6 +73,7 @@ export default function DashboardLayout({
 
       {/* Content */}
       <main className="flex-1 w-full">
+        <DashboardTour />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
           {children}
         </div>

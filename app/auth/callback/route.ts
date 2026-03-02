@@ -22,6 +22,6 @@ export async function GET(request: Request) {
     }
   }
 
-  // Auth code exchange failed — redirect to error
+  
   return NextResponse.redirect(`${origin}/auth/error?error=Could not authenticate`);
 }

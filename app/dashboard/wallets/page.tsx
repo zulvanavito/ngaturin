@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, Loader2, ArrowLeftRight, ChevronLeft, Wallet as WalletIcon } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/lib/toast-context";
 
 const WALLET_ICONS = ["💳","💵","🏦","📱","💰","🪙","💼","🏧","💲","🎴"];
 const WALLET_COLORS = ["#10b981","#3b82f6","#8b5cf6","#f59e0b","#ef4444","#14b8a6","#f97316","#ec4899","#64748b","#0ea5e9"];
@@ -29,6 +30,7 @@ export default function WalletsPage() {
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
 
   // Form state
   const [formName, setFormName] = useState("");
@@ -69,8 +71,9 @@ export default function WalletsPage() {
       if (!res.ok) throw new Error((await res.json()).error);
       await refetch();
       setIsFormOpen(false);
+      showToast("success", editingWallet ? `Dompet "${formName}" berhasil diperbarui!` : `Dompet "${formName}" berhasil ditambahkan!`);
     } catch (err: any) {
-      alert(err.message);
+      showToast("error", err.message || "Gagal menyimpan dompet");
     } finally {
       setSaving(false);
     }
@@ -78,10 +81,16 @@ export default function WalletsPage() {
 
   const handleDelete = async () => {
     if (!deletingWallet) return;
+    const walletName = deletingWallet.name;
     setIsDeleting(true);
     try {
-      await fetch(`/api/wallets/${deletingWallet.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/wallets/${deletingWallet.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error((await res.json()).error);
       await refetch();
+      setDeletingWallet(null);
+      showToast("success", `Dompet "${walletName}" berhasil dihapus.`);
+    } catch (err: any) {
+      showToast("error", err.message || "Gagal menghapus dompet");
       setDeletingWallet(null);
     } finally { setIsDeleting(false); }
   };
@@ -90,12 +99,25 @@ export default function WalletsPage() {
     e.preventDefault();
     setTransferring(true); setTransferError(null);
     try {
+      const amount = Number(transferAmount.replace(/\D/g, ""));
+      
+      // Validate balance
+      const sourceWallet = wallets.find(w => w.id === fromWallet);
+      if (!sourceWallet) throw new Error("Dompet asal tidak ditemukan");
+      if (sourceWallet.balance < amount) {
+        throw new Error(`Saldo tidak mencukupi. Saldo saat ini: Rp ${sourceWallet.balance.toLocaleString("id-ID")}`);
+      }
+
       const res = await fetch(`/api/wallets/${fromWallet}/transfer`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ toWalletId: toWallet, amount: Number(transferAmount.replace(/\D/g,"")), description: transferDesc }),
+        body: JSON.stringify({ toWalletId: toWallet, amount, description: transferDesc }),
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
       setIsTransferOpen(false); setFromWallet(""); setToWallet(""); setTransferAmount(""); setTransferDesc("");
+      await refetch();
+      const fromName = wallets.find(w => w.id === fromWallet)?.name || "Dompet";
+      const toName = wallets.find(w => w.id === toWallet)?.name || "Dompet";
+      showToast("success", `Transfer Rp ${amount.toLocaleString("id-ID")} dari ${fromName} ke ${toName} berhasil!`);
     } catch (err: any) {
       setTransferError(err.message);
     } finally { setTransferring(false); }
@@ -122,6 +144,23 @@ export default function WalletsPage() {
         </div>
       </div>
 
+      {/* Total Balance Summary */}
+      {!loading && wallets.length > 0 && (
+        <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm px-5 py-4 flex items-center justify-between">
+          <div>
+            <p className="text-xs text-muted-foreground">Total Saldo Semua Dompet</p>
+            <p className="text-2xl font-bold tracking-tight">
+              {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(
+                wallets.reduce((sum, w) => sum + w.balance, 0)
+              )}
+            </p>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <WalletIcon className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+      )}
+
       {/* Wallet Grid */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -130,7 +169,7 @@ export default function WalletsPage() {
       ) : wallets.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border/50 bg-muted/20 p-12 text-center text-muted-foreground text-sm">
           <WalletIcon className="w-10 h-10 mx-auto mb-3 opacity-20" />
-          <p>Belum ada dompet. Klik <strong>"Tambah"</strong> untuk memulai!</p>
+          <p>Belum ada dompet. Klik <strong>&quot;Tambah&quot;</strong> untuk memulai!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -158,10 +197,19 @@ export default function WalletsPage() {
                   </Badge>
                 </div>
               </div>
+
+              {/* Balance */}
+              <div className="mt-2 pt-3 border-t border-border/30">
+                <p className="text-xs text-muted-foreground mb-0.5">Saldo</p>
+                <p className={`text-lg font-bold tabular-nums ${w.balance < 0 ? "text-red-500" : ""}`}>
+                  {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(w.balance)}
+                </p>
+              </div>
             </div>
           ))}
         </div>
       )}
+
 
       {/* Add / Edit Dialog */}
       <Dialog open={isFormOpen} onOpenChange={(o) => { if (!o) setIsFormOpen(false); }}>

@@ -46,6 +46,9 @@ export default function DashboardPage() {
     [transactions]
   );
 
+  // Non-transfer transactions for stats (exclude transfers from income/expense counts)
+  const nonTransferTxs = useMemo(() => transactions.filter(t => t.type !== "transfer"), [transactions]);
+
   const handleSuccess = () => {
     setEditingTransaction(null);
     setShowForm(false);
@@ -140,18 +143,18 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="rounded-2xl bg-card/60 border border-border/40 p-4">
                   <p className="text-xs text-muted-foreground mb-1">Transaksi Total</p>
-                  <p className="text-2xl font-bold">{transactions.length}</p>
+                  <p className="text-2xl font-bold">{nonTransferTxs.length}</p>
                 </div>
                 <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/15 p-4">
                   <p className="text-xs text-muted-foreground mb-1">Pemasukan</p>
                   <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                    {transactions.filter(t => t.type === "income").length} transaksi
+                    {nonTransferTxs.filter(t => t.type === "income").length} transaksi
                   </p>
                 </div>
                 <div className="rounded-2xl bg-rose-500/5 border border-rose-500/15 p-4">
                   <p className="text-xs text-muted-foreground mb-1">Pengeluaran</p>
                   <p className="text-sm font-bold text-rose-600 dark:text-rose-400">
-                    {transactions.filter(t => t.type === "expense").length} transaksi
+                    {nonTransferTxs.filter(t => t.type === "expense").length} transaksi
                   </p>
                 </div>
               </div>
@@ -174,7 +177,8 @@ export default function DashboardPage() {
                     </div>
                   ) : (
                     transactions.slice(0, 5).map((tx) => {
-                      const icons: Record<string, string> = { Makanan: "🍔", Transport: "🚗", Belanja: "🛍️", Tagihan: "📄", Gaji: "💰", Lainnya: "📦" };
+                      const icons: Record<string, string> = { Makanan: "🍔", Transport: "🚗", Belanja: "🛍️", Tagihan: "📄", Gaji: "💰", Lainnya: "📦", Transfer: "⇄" };
+                      const isTransfer = tx.type === "transfer";
                       return (
                         <div key={tx.id} className="flex items-center gap-3 px-5 py-3 hover:bg-muted/30 transition-colors">
                           <span className="text-xl">{icons[tx.category] || "📦"}</span>
@@ -182,8 +186,11 @@ export default function DashboardPage() {
                             <p className="text-sm font-medium truncate">{tx.description}</p>
                             <p className="text-xs text-muted-foreground">{tx.category} · {new Date(tx.date).toLocaleDateString("id-ID", {day:"numeric", month:"short"})}</p>
                           </div>
-                          <span className={`text-sm font-semibold ${tx.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
-                            {tx.type === "income" ? "+" : "-"}{new Intl.NumberFormat("id-ID", {style:"currency", currency:"IDR", minimumFractionDigits:0}).format(tx.amount)}
+                          <span className={`text-sm font-semibold ${
+                            isTransfer ? "text-blue-500" :
+                            tx.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                          }`}>
+                            {isTransfer ? "⇄" : tx.type === "income" ? "+" : "-"}{new Intl.NumberFormat("id-ID", {style:"currency", currency:"IDR", minimumFractionDigits:0}).format(tx.amount)}
                           </span>
                         </div>
                       );

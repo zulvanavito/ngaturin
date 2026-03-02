@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Camera, Save, KeyRound, Loader2 } from "lucide-react";
+import { Camera, Save, KeyRound, Loader2, Eye, EyeOff, CheckCircle2, Circle } from "lucide-react";
+import { useToast } from "@/lib/toast-context";
 
 interface ProfileFormProps {
   user: User;
@@ -17,14 +19,17 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const [fullName, setFullName] = useState(user.user_metadata?.full_name || "");
   const [avatarUrl, setAvatarUrl] = useState(user.user_metadata?.avatar_url || "");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   
   const supabase = createClient();
+  const { showToast } = useToast();
 
-  // Handle Profile Update (Name)
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUpdatingProfile(true);
@@ -37,18 +42,32 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
       if (error) throw error;
       setMessage({ type: 'success', text: 'Profil berhasil diperbarui!' });
+      showToast('success', 'Profil berhasil diperbarui!');
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || 'Gagal memperbarui profil' });
+      showToast('error', err.message || 'Gagal memperbarui profil');
     } finally {
       setIsUpdatingProfile(false);
     }
   };
 
-  // Handle Password Update
+  const hasMinLength = password.length >= 8;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  const isPasswordValid = hasMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
+
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 8) {
-      setMessage({ type: 'error', text: 'Password minimal 8 karakter!' });
+
+    if (!isPasswordValid) {
+      setMessage({ type: 'error', text: 'Silakan penuhi semua kriteria password yang diminta.' });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setMessage({ type: 'error', text: 'Konfirmasi password tidak cocok!' });
       return;
     }
 
@@ -59,15 +78,17 @@ export function ProfileForm({ user }: ProfileFormProps) {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
       setMessage({ type: 'success', text: 'Kata sandi berhasil diperbarui!' });
+      showToast('success', 'Kata sandi berhasil diperbarui!');
       setPassword("");
+      setConfirmPassword("");
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || 'Gagal memperbarui kata sandi' });
+      showToast('error', err.message || 'Gagal memperbarui kata sandi');
     } finally {
       setIsUpdatingPassword(false);
     }
   };
 
-  // Handle Avatar Upload
   const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       if (!e.target.files || e.target.files.length === 0) return;
@@ -79,18 +100,18 @@ export function ProfileForm({ user }: ProfileFormProps) {
       setIsUploading(true);
       setMessage(null);
 
-      // Upload to Supabase Storage 'avatars' bucket
+     
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
+      
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
       const publicUrl = data.publicUrl;
 
-      // Update User Metadata
+     
       const { error: updateError } = await supabase.auth.updateUser({
         data: { avatar_url: publicUrl }
       });
@@ -99,8 +120,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
       setAvatarUrl(publicUrl);
       setMessage({ type: 'success', text: 'Foto profil berhasil diunggah!' });
+      showToast('success', 'Foto profil berhasil diunggah!');
     } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Gagal mengunggah foto profil. Pastikan bucket "avatars" sudah ada dan public.' });
+      setMessage({ type: 'error', text: err.message || 'Gagal mengunggah foto profil.' });
+      showToast('error', err.message || 'Gagal mengunggah foto profil.');
     } finally {
       setIsUploading(false);
     }
@@ -116,7 +139,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         </div>
       )}
 
-      {/* Profil Pribadi */}
+     
       <Card className="bg-card/60 backdrop-blur-xl border border-border/40 shadow-sm rounded-2xl overflow-hidden">
         <CardHeader className="bg-muted/30 pb-4">
           <CardTitle className="text-xl">Informasi Dasar</CardTitle>
@@ -125,7 +148,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         <CardContent className="p-6">
           <form onSubmit={handleUpdateProfile} className="space-y-6">
             
-            {/* Foto Profil Area */}
+           
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <div className="relative group">
                 <div className="w-24 h-24 rounded-full overflow-hidden bg-muted border-2 border-border/50 flex items-center justify-center">
@@ -137,7 +160,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     </span>
                   )}
                 </div>
-                {/* Upload Button overlaying avatar */}
+               
                 <label className="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer">
                   {isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Camera className="w-6 h-6" />}
                   <input type="file" accept="image/*" className="hidden" onChange={handleUploadAvatar} disabled={isUploading} />
@@ -178,7 +201,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         </CardContent>
       </Card>
 
-      {/* Keamanan & Password */}
+      
       <Card className="bg-card/60 backdrop-blur-xl border border-border/40 shadow-sm rounded-2xl overflow-hidden mt-6">
         <CardHeader className="bg-muted/30 pb-4">
           <CardTitle className="text-xl flex items-center gap-2">
@@ -190,17 +213,86 @@ export function ProfileForm({ user }: ProfileFormProps) {
           <form onSubmit={handleUpdatePassword} className="space-y-4">
             <div className="grid gap-2">
               <Label htmlFor="newPassword">Kata Sandi Baru</Label>
-              <Input 
-                id="newPassword" 
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimal 8 karakter"
-                className="h-11"
-              />
+              <div className="relative">
+                <Input 
+                  id="newPassword" 
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Buat kata sandi baru"
+                  className="h-11 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  <span className="sr-only">Toggle password visibility</span>
+                </button>
+              </div>
+              {/* Password Complexity Checklist */}
+              <div className="mt-1 space-y-2 bg-muted/30 p-3 rounded-lg border border-border/50">
+                <p className="text-xs font-semibold text-muted-foreground">Kriteria Password:</p>
+                <ul className="text-xs space-y-1.5">
+                  <li className={cn("flex items-center gap-2", hasMinLength ? "text-emerald-500" : "text-muted-foreground")}>
+                    {hasMinLength ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                    Minimal 8 karakter
+                  </li>
+                  <li className={cn("flex items-center gap-2", hasUppercase ? "text-emerald-500" : "text-muted-foreground")}>
+                    {hasUppercase ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                    Minimal 1 huruf besar
+                  </li>
+                  <li className={cn("flex items-center gap-2", hasLowercase ? "text-emerald-500" : "text-muted-foreground")}>
+                    {hasLowercase ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                    Minimal 1 huruf kecil
+                  </li>
+                  <li className={cn("flex items-center gap-2", hasNumber ? "text-emerald-500" : "text-muted-foreground")}>
+                    {hasNumber ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                    Minimal 1 angka
+                  </li>
+                  <li className={cn("flex items-center gap-2", hasSpecial ? "text-emerald-500" : "text-muted-foreground")}>
+                    {hasSpecial ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                    Minimal 1 karakter spesial (@, !, #)
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="confirmPassword">Konfirmasi Kata Sandi</Label>
+              <div className="relative">
+                <Input 
+                  id="confirmPassword" 
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Ketik ulang kata sandi baru"
+                  className={cn(
+                    "h-11 pr-10",
+                    confirmPassword && password !== confirmPassword && "border-red-500/50 focus-visible:ring-red-500/30"
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  <span className="sr-only">Toggle confirm password visibility</span>
+                </button>
+              </div>
+              {confirmPassword && password !== confirmPassword && (
+                <p className="text-xs text-red-500">Password tidak cocok</p>
+              )}
             </div>
             
-            <Button type="submit" variant="outline" className="h-11 w-full sm:w-auto border-emerald-500/30 text-emerald-600 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20" disabled={isUpdatingPassword || !password}>
+            <Button 
+              type="submit" 
+              variant="outline" 
+              className="h-11 w-full sm:w-auto border-emerald-500/30 text-emerald-600 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20" 
+              disabled={isUpdatingPassword || !password || !confirmPassword}
+            >
               {isUpdatingPassword ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
               {isUpdatingPassword ? 'Memperbarui...' : 'Perbarui Kata Sandi'}
             </Button>

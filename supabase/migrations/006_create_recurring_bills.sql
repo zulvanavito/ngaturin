@@ -1,4 +1,4 @@
--- 1. Create recurring_bills table
+
 create table recurring_bills (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references auth.users not null,
@@ -10,7 +10,7 @@ create table recurring_bills (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- 2. RLS
+
 alter table recurring_bills enable row level security;
 
 create policy "Users can view their own bills."

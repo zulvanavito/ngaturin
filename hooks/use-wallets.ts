@@ -8,6 +8,7 @@ export interface Wallet {
   icon: string;
   type: "cash" | "bank" | "emoney" | "credit";
   color: string;
+  balance: number;
 }
 
 export function useWallets() {

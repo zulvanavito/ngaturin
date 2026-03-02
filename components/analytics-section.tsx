@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DownloadCloud, PieChart as PieChartIcon, FileText, FileSpreadsheet, FileIcon, TrendingUp, Wallet as WalletIcon } from "lucide-react";
+import { DownloadCloud, PieChart as PieChartIcon, FileText, FileSpreadsheet, FileIcon, TrendingUp, Wallet as WalletIcon, UploadCloud, HardDrive, RefreshCw } from "lucide-react";
 import type { Transaction } from "@/components/transaction-form";
 import { formatCurrency } from "@/components/balance-card";
 import { useWallets } from "@/hooks/use-wallets";
@@ -28,6 +28,9 @@ const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#14b8a6"
 export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
   const [trendInterval, setTrendInterval] = useState<"daily" | "weekly" | "monthly" | "yearly">("daily");
+  const [backupLoading, setBackupLoading] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importResult, setImportResult] = useState<string | null>(null);
 
   const { wallets } = useWallets();
   const totalWalletBalance = useMemo(() => wallets.reduce((acc, w) => acc + (w.balance || 0), 0), [wallets]);
@@ -444,6 +447,98 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
                 <p>Belum ada dompet</p>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Backup & Restore */}
+      <div className="rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-5">
+          <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+            <HardDrive className="w-4 h-4 text-indigo-500" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold">Backup &amp; Pemulihan Data</h2>
+            <p className="text-xs text-muted-foreground">Ekspor semua data ke JSON atau impor dari backup sebelumnya.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Export JSON */}
+          <div className="rounded-xl border border-border/30 bg-muted/20 p-4">
+            <h3 className="text-sm font-medium mb-1">📦 Ekspor Backup</h3>
+            <p className="text-xs text-muted-foreground mb-3">
+              Unduh semua transaksi, anggaran, dompet, tagihan, dan utang/piutang dalam satu file JSON.
+            </p>
+            <Button
+              className="w-full h-10 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white border-0"
+              disabled={backupLoading}
+              onClick={async () => {
+                setBackupLoading(true);
+                try {
+                  const res = await fetch("/api/backup");
+                  const data = await res.json();
+                  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `ngaturin_backup_${new Date().toISOString().split("T")[0]}.json`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                } finally { setBackupLoading(false); }
+              }}
+            >
+              {backupLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <DownloadCloud className="w-4 h-4" />}
+              {backupLoading ? "Menyiapkan..." : "Unduh Backup JSON"}
+            </Button>
+          </div>
+
+          {/* Import JSON */}
+          <div className="rounded-xl border border-border/30 bg-muted/20 p-4">
+            <h3 className="text-sm font-medium mb-1">🔄 Impor Transaksi</h3>
+            <p className="text-xs text-muted-foreground mb-3">
+              Import transaksi dari file backup JSON. Data lain (anggaran, dompet, dll) tidak akan diubah.
+            </p>
+            {importResult && (
+              <p className="text-xs text-emerald-500 mb-2">{importResult}</p>
+            )}
+            <label className="w-full cursor-pointer">
+              <div className={`w-full h-10 rounded-md border border-input bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2 text-sm font-medium transition-colors ${
+                importLoading ? "opacity-50 pointer-events-none" : ""
+              }`}>
+                {importLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
+                {importLoading ? "Mengimpor..." : "Pilih File Backup"}
+              </div>
+              <input
+                type="file"
+                accept=".json"
+                className="hidden"
+                disabled={importLoading}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setImportLoading(true);
+                  setImportResult(null);
+                  try {
+                    const text = await file.text();
+                    const json = JSON.parse(text);
+                    const res = await fetch("/api/backup", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ transactions: json.transactions || [] }),
+                    });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.error);
+                    setImportResult(`✅ ${result.imported} transaksi berhasil diimpor!`);
+                  } catch (err: any) {
+                    setImportResult(`❌ Gagal: ${err.message}`);
+                  } finally {
+                    setImportLoading(false);
+                    e.target.value = "";
+                  }
+                }}
+              />
+            </label>
           </div>
         </div>
       </div>

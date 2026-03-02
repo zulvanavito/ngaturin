@@ -76,22 +76,22 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Page Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm mt-0.5 hidden sm:block">
             Pantau, analisa, dan kelola keuanganmu
           </p>
         </div>
         <Button
           onClick={() => { setShowForm(prev => !prev); setEditingTransaction(null); }}
-          className="gradient-primary text-white gap-2 h-10"
+          className="gradient-primary text-white gap-2 h-9 sm:h-10 text-sm"
         >
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">Tambah Transaksi</span>
-          <span className="sm:hidden">Tambah</span>
+          <span className="sm:hidden">+ Tambah</span>
         </Button>
       </div>
 
@@ -115,45 +115,45 @@ export default function DashboardPage() {
 
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-4 h-12 rounded-2xl bg-muted/50 border border-border/30 p-1">
-          <TabsTrigger value="overview" className="rounded-xl text-sm font-medium flex items-center gap-2">
-            <LayoutDashboard className="w-4 h-4" />
-            <span className="hidden sm:inline">Ringkasan</span>
+        <TabsList className="w-full mb-4 h-11 rounded-2xl bg-muted/50 border border-border/30 p-1 flex sm:grid sm:grid-cols-4 overflow-x-auto gap-1">
+          <TabsTrigger value="overview" className="rounded-xl font-medium flex items-center gap-1.5 shrink-0 sm:shrink px-3">
+            <LayoutDashboard className="w-4 h-4 shrink-0" />
+            <span className="text-xs sm:text-sm whitespace-nowrap">Ringkasan</span>
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="rounded-xl text-sm font-medium flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
-            <span className="hidden sm:inline">Analitik</span>
+          <TabsTrigger value="analytics" className="rounded-xl font-medium flex items-center gap-1.5 shrink-0 sm:shrink px-3">
+            <BarChart3 className="w-4 h-4 shrink-0" />
+            <span className="text-xs sm:text-sm whitespace-nowrap">Analitik</span>
           </TabsTrigger>
-          <TabsTrigger value="budget" className="rounded-xl text-sm font-medium flex items-center gap-2">
-            <Target className="w-4 h-4" />
-            <span className="hidden sm:inline">Anggaran</span>
+          <TabsTrigger value="budget" className="rounded-xl font-medium flex items-center gap-1.5 shrink-0 sm:shrink px-3">
+            <Target className="w-4 h-4 shrink-0" />
+            <span className="text-xs sm:text-sm whitespace-nowrap">Anggaran</span>
           </TabsTrigger>
-          <TabsTrigger value="history" className="rounded-xl text-sm font-medium flex items-center gap-2">
-            <History className="w-4 h-4" />
-            <span className="hidden sm:inline">Riwayat</span>
+          <TabsTrigger value="history" className="rounded-xl font-medium flex items-center gap-1.5 shrink-0 sm:shrink px-3">
+            <History className="w-4 h-4 shrink-0" />
+            <span className="text-xs sm:text-sm whitespace-nowrap">Riwayat</span>
           </TabsTrigger>
         </TabsList>
 
         {/* Ringkasan Tab */}
         <TabsContent value="overview" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Left: Quick Stats + Recent transactions */}
             <div className="lg:col-span-2 space-y-4">
               {/* At-a-glance stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="rounded-2xl bg-card/60 border border-border/40 p-4">
-                  <p className="text-xs text-muted-foreground mb-1">Transaksi Total</p>
-                  <p className="text-2xl font-bold">{nonTransferTxs.length}</p>
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <div className="rounded-2xl bg-card/60 border border-border/40 p-3 sm:p-4">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Total Transaksi</p>
+                  <p className="text-xl sm:text-2xl font-bold">{nonTransferTxs.length}</p>
                 </div>
-                <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/15 p-4">
-                  <p className="text-xs text-muted-foreground mb-1">Pemasukan</p>
-                  <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/15 p-3 sm:p-4">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Masuk</p>
+                  <p className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
                     {nonTransferTxs.filter(t => t.type === "income").length} transaksi
                   </p>
                 </div>
-                <div className="rounded-2xl bg-rose-500/5 border border-rose-500/15 p-4">
-                  <p className="text-xs text-muted-foreground mb-1">Pengeluaran</p>
-                  <p className="text-sm font-bold text-rose-600 dark:text-rose-400">
+                <div className="rounded-2xl bg-rose-500/5 border border-rose-500/15 p-3 sm:p-4">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Keluar</p>
+                  <p className="text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400">
                     {nonTransferTxs.filter(t => t.type === "expense").length} transaksi
                   </p>
                 </div>

@@ -1,7 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { ToastProvider } from "@/lib/toast-context";
 
 export function ClientProviders({ children }: { children: React.ReactNode }) {
-  return <ToastProvider>{children}</ToastProvider>;
+  return (
+    <Suspense fallback={null}>
+      <ToastProvider>{children}</ToastProvider>
+    </Suspense>
+  );
 }

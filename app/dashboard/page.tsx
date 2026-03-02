@@ -87,7 +87,7 @@ export default function DashboardPage() {
         </div>
         <Button
           onClick={() => { setShowForm(prev => !prev); setEditingTransaction(null); }}
-          className="gradient-primary text-white gap-2 h-9 sm:h-10 text-sm"
+          className="tour-add-tx gradient-primary text-white gap-2 h-9 sm:h-10 text-sm"
         >
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">Tambah Transaksi</span>
@@ -99,7 +99,9 @@ export default function DashboardPage() {
       <BillReminderBanner />
 
       {/* Balance Summary Cards */}
-      <BalanceCard totalIncome={totalIncome} totalExpense={totalExpense} />
+      <div className="tour-balance">
+        <BalanceCard totalIncome={totalIncome} totalExpense={totalExpense} />
+      </div>
 
       {/* Inline Add / Edit Form */}
       {(showForm || editingTransaction) && (
@@ -114,7 +116,7 @@ export default function DashboardPage() {
       )}
 
       {/* Tabbed Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="tour-tabs w-full">
         <TabsList className="w-full mb-4 h-11 rounded-2xl bg-muted/50 border border-border/30 p-1 flex sm:grid sm:grid-cols-4 overflow-x-auto gap-1">
           <TabsTrigger value="overview" className="rounded-xl font-medium flex items-center gap-1.5 shrink-0 sm:shrink px-3">
             <LayoutDashboard className="w-4 h-4 shrink-0" />
@@ -140,7 +142,7 @@ export default function DashboardPage() {
             {/* Left: Quick Stats + Recent transactions */}
             <div className="lg:col-span-2 space-y-4">
               {/* At-a-glance stats */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="tour-quick-stats grid grid-cols-3 gap-2 sm:gap-3">
                 <div className="rounded-2xl bg-card/60 border border-border/40 p-3 sm:p-4">
                   <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Total Transaksi</p>
                   <p className="text-xl sm:text-2xl font-bold">{nonTransferTxs.length}</p>

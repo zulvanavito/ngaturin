@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Parser } from "json2csv";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
@@ -14,9 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DownloadCloud, PieChart as PieChartIcon, FileText, FileSpreadsheet, FileIcon } from "lucide-react";
+import { DownloadCloud, PieChart as PieChartIcon, FileText, FileSpreadsheet, FileIcon, TrendingUp, Wallet as WalletIcon } from "lucide-react";
 import type { Transaction } from "@/components/transaction-form";
 import { formatCurrency } from "@/components/balance-card";
+import { useWallets } from "@/hooks/use-wallets";
 
 interface AnalyticsSectionProps {
   transactions: Transaction[];
@@ -26,6 +27,10 @@ const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#14b8a6"
 
 export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
+  const [trendInterval, setTrendInterval] = useState<"daily" | "weekly" | "monthly" | "yearly">("daily");
+
+  const { wallets } = useWallets();
+  const totalWalletBalance = useMemo(() => wallets.reduce((acc, w) => acc + (w.balance || 0), 0), [wallets]);
 
   // Generate available months for filter from existing transactions, sorted descending
   const availableMonths = useMemo(() => {
@@ -152,8 +157,54 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
     return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
   };
 
+  const trendData = useMemo(() => {
+    const expenses = transactions.filter(t => t.type === "expense");
+    
+    const grouped = expenses.reduce((acc, tx) => {
+      const d = new Date(tx.date);
+      let key = "";
+      if (trendInterval === "daily") {
+        key = tx.date;
+      } else if (trendInterval === "weekly") {
+        const firstDayOfYear = new Date(d.getFullYear(), 0, 1);
+        const pastDaysOfYear = (d.getTime() - firstDayOfYear.getTime()) / 86400000;
+        const weekNum = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+        key = `${d.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
+      } else if (trendInterval === "monthly") {
+        key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      } else {
+        key = String(d.getFullYear());
+      }
+      acc[key] = (acc[key] || 0) + tx.amount;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(grouped)
+      .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+      .map(([date, amount]) => ({ date, amount }));
+  }, [transactions, trendInterval]);
+
+  const formatTrendTick = (tickItem: any) => {
+    if (!tickItem || typeof tickItem !== 'string') return "";
+    if (trendInterval === "daily") {
+      const d = new Date(tickItem);
+      return d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+    }
+    if (trendInterval === "weekly") {
+      const [year, week] = tickItem.split("-W");
+      return `Mg ${week} ${year}`;
+    }
+    if (trendInterval === "monthly") {
+      const [year, month] = tickItem.split("-");
+      const d = new Date(Number(year), Number(month) - 1);
+      return d.toLocaleDateString("id-ID", { month: "short", year: "2-digit" });
+    }
+    return tickItem;
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Chart Section */}
       <div className="md:col-span-2 rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 p-6 shadow-sm flex flex-col h-full min-h-[400px]">
         <div className="flex items-center gap-2 mb-6">
@@ -163,23 +214,37 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
           <h2 className="text-lg font-semibold">Pengeluaran per Kategori</h2>
         </div>
         
-        <div className="flex-1 flex items-center justify-center -ml-4">
-          {expenseData.length > 0 ? (
+        <div className="flex-1 flex items-center justify-center -ml-4 min-w-0">
+          {expenseData.filter(d => d.value > 0).length > 0 ? (
             <ResponsiveContainer width="100%" height="100%" minHeight={300}>
               <PieChart>
                 <Pie
-                  data={expenseData}
+                  data={expenseData.filter(d => d.value > 0)}
                   cx="50%"
                   cy="50%"
-                  innerRadius={80}
+                  innerRadius={70}
                   outerRadius={110}
                   paddingAngle={3}
                   dataKey="value"
                   stroke="none"
+                  labelLine={false}
+                  label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                    if (percent === undefined || midAngle === undefined) return null;
+                    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                    const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
+                    const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
+                    return percent > 0.05 ? (
+                      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="text-xs font-bold font-sans drop-shadow-md">
+                        {`${(percent * 100).toFixed(0)}%`}
+                      </text>
+                    ) : null;
+                  }}
                 >
-                  {expenseData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
+                  {expenseData.filter(d => d.value > 0).map((entry, index) => {
+                    // Match original color index based on the full array, or just use sequence
+                    const originalIndex = expenseData.findIndex(e => e.name === entry.name);
+                    return <Cell key={`cell-${index}`} fill={COLORS[originalIndex % COLORS.length]} />;
+                  })}
                 </Pie>
                 <Tooltip 
                   formatter={(value: any) => formatCurrency(Number(value))}
@@ -189,9 +254,17 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
                 />
                 <Legend 
                   verticalAlign="bottom" 
-                  height={36} 
+                  height={48} 
                   iconType="circle"
-                  formatter={(value) => <span className="text-sm font-medium ml-1 text-foreground">{value}</span>}
+                  formatter={(value, entry: any) => {
+                    const total = expenseData.reduce((sum, item) => sum + item.value, 0);
+                    const percent = total > 0 ? ((entry.payload.value / total) * 100).toFixed(1) : 0;
+                    return (
+                      <span className="text-sm font-medium ml-1 text-foreground inline-flex items-center gap-1">
+                        {value} <span className="text-xs text-muted-foreground">({percent}%)</span>
+                      </span>
+                    );
+                  }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -215,7 +288,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
                 <SelectTrigger className="h-11">
                   <SelectValue placeholder="Pilih Bulan" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper">
                   <SelectItem value="all">Semua Waktu</SelectItem>
                   {availableMonths.map(month => (
                     <SelectItem key={month} value={month}>{formatMonthLabel(month)}</SelectItem>
@@ -262,6 +335,115 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
               <FileIcon className="w-4 h-4 mr-2" />
               CSV
             </Button>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Trend Chart */}
+        <div className="rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 p-6 shadow-sm flex flex-col h-full min-h-[400px]">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-blue-500" />
+              </div>
+              <h2 className="text-lg font-semibold">Tren Pengeluaran</h2>
+            </div>
+            <Select value={trendInterval} onValueChange={(v: any) => setTrendInterval(v)}>
+              <SelectTrigger className="w-[120px] h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectItem value="daily">Harian</SelectItem>
+                <SelectItem value="weekly">Mingguan</SelectItem>
+                <SelectItem value="monthly">Bulanan</SelectItem>
+                <SelectItem value="yearly">Tahunan</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1 -ml-6 mt-2">
+            {trendData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%" minHeight={300}>
+                <LineChart data={trendData} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis 
+                    dataKey="date" 
+                    tickFormatter={formatTrendTick} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#a1a1aa', fontSize: 12 }} 
+                    dy={10}
+                  />
+                  <YAxis 
+                    tickFormatter={(value) => value === 0 ? "0" : `Rp${(value/1000).toLocaleString('id-ID')}k`} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#a1a1aa', fontSize: 12 }}
+                  />
+                  <Tooltip 
+                    formatter={(value: any) => [formatCurrency(Number(value)), "Pengeluaran"]}
+                    labelFormatter={formatTrendTick}
+                    contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(24, 24, 27, 0.9)' }}
+                    itemStyle={{ color: '#fff' }}
+                    labelStyle={{ color: '#a1a1aa', marginBottom: '4px' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="amount" 
+                    stroke="#3b82f6" 
+                    strokeWidth={3} 
+                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }} 
+                    activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-muted-foreground flex-col gap-2 min-h-[300px]">
+                <TrendingUp className="w-8 h-8 opacity-20" />
+                <p>Belum ada data tren pengeluaran</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Wallet Analytics */}
+        <div className="rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 p-6 shadow-sm flex flex-col h-full min-h-[400px]">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+              <WalletIcon className="w-4 h-4 text-orange-500" />
+            </div>
+            <h2 className="text-lg font-semibold">Analitik Dompet</h2>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+            {wallets.length > 0 ? (
+              wallets.map(w => (
+                <div key={w.id} className="p-4 rounded-xl border border-border/30 bg-muted/10 hover:bg-muted/20 transition-colors">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="font-medium text-sm flex items-center gap-2">
+                      <span className="text-xl">{w.icon || "💳"}</span>
+                      {w.name}
+                    </span>
+                    <span className="font-semibold">{formatCurrency(w.balance || 0)}</span>
+                  </div>
+                  <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full" 
+                      style={{ width: `${totalWalletBalance > 0 ? Math.max(0, Math.min(100, ((w.balance || 0) / totalWalletBalance) * 100)) : 0}%` }} 
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2 text-right">
+                    {totalWalletBalance > 0 ? (((w.balance || 0) / totalWalletBalance) * 100).toFixed(1) : 0}% dari total
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="h-full flex items-center justify-center text-muted-foreground flex-col gap-2 min-h-[300px]">
+                <WalletIcon className="w-8 h-8 opacity-20" />
+                <p>Belum ada dompet</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

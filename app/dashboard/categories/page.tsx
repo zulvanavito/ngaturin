@@ -100,8 +100,8 @@ export default function CategoriesPage() {
   };
 
   const typeLabel: Record<string, { label: string; color: string }> = {
-    expense: { label: "Pengeluaran", color: "bg-rose-500/10 text-rose-600 border-rose-500/20" },
-    income: { label: "Pemasukan", color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
+    expense: { label: "Pengeluaran", color: "bg-expense/10 text-expense border-expense/20" },
+    income: { label: "Pemasukan", color: "bg-income/10 text-income border-income/20" },
     all: { label: "Keduanya", color: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
   };
 
@@ -119,7 +119,7 @@ export default function CategoriesPage() {
             Kelola kategori untuk transaksi dan anggaran Anda.
           </p>
         </div>
-        <Button onClick={startAdd} className="gradient-primary text-white gap-2 h-10">
+        <Button onClick={startAdd} className="bg-brand-naval hover:bg-blue-900 text-white gap-2 h-11 rounded-xl shadow-md">
           <Plus className="w-4 h-4" />
           Tambah
         </Button>
@@ -127,8 +127,8 @@ export default function CategoriesPage() {
 
       {/* Add / Edit Form */}
       {(isAdding || editingId) && (
-        <Card className="border border-primary/20 bg-card/60 backdrop-blur-xl rounded-2xl animate-in fade-in slide-in-from-top-4">
-          <CardHeader className="pb-3">
+        <Card className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] animate-in fade-in slide-in-from-top-4 overflow-hidden">
+          <CardHeader className="pb-3 bg-muted/20">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">{editingId ? "Edit Kategori" : "Kategori Baru"}</CardTitle>
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setIsAdding(false); setEditingId(null); resetForm(); }}>
@@ -183,7 +183,7 @@ export default function CategoriesPage() {
 
             {error && <p className="text-sm text-destructive bg-destructive/10 rounded-lg p-3">{error}</p>}
 
-            <Button onClick={handleSave} disabled={saving || !formName.trim()} className="w-full gradient-primary text-white h-10">
+            <Button onClick={handleSave} disabled={saving || !formName.trim()} className="w-full bg-brand-naval hover:bg-blue-900 text-white shadow-md h-11 rounded-xl">
               {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
               {saving ? "Menyimpan..." : editingId ? "Simpan Perubahan" : "Tambah Kategori"}
             </Button>
@@ -192,7 +192,7 @@ export default function CategoriesPage() {
       )}
 
       {/* Category List */}
-      <Card className="border-0 bg-card/60 backdrop-blur-xl rounded-2xl overflow-hidden shadow-sm">
+      <Card className="border border-border/40 bg-white dark:bg-card rounded-[2rem] overflow-hidden shadow-sm">
         <CardHeader className="bg-muted/30 pb-4">
           <div className="flex items-center gap-2">
             <Tag className="w-4 h-4 text-primary" />

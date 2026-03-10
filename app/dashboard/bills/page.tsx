@@ -30,7 +30,7 @@ function formatCurrency(n: number) {
 function getDueStatus(dueDay: number): { label: string; color: string } {
   const today = new Date().getDate();
   const diff = dueDay - today;
-  if (diff < 0) return { label: "Sudah lewat", color: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
+  if (diff < 0) return { label: "Sudah lewat", color: "bg-red-500/10 text-red-600 border-red-500/20" };
   if (diff <= 3) return { label: `${diff} hari lagi`, color: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
   return { label: `Tgl ${dueDay}`, color: "bg-muted text-muted-foreground border-border/40" };
 }
@@ -134,12 +134,12 @@ export default function BillsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Tagihan Berulang</h1>
           <p className="text-sm text-muted-foreground mt-1">Pantau tagihan rutin bulanan Anda.</p>
         </div>
-        <Button onClick={openAdd} className="gradient-primary text-white gap-2 h-10">
+        <Button onClick={openAdd} className="bg-brand-naval hover:bg-blue-900 text-white gap-2 h-11 rounded-xl shadow-md">
           <Plus className="w-4 h-4" /> Tambah Tagihan
         </Button>
       </div>
 
-      <Card className="border-0 bg-card/60 backdrop-blur-xl rounded-2xl overflow-hidden shadow-sm">
+      <Card className="border border-border/40 bg-white dark:bg-card rounded-[2rem] overflow-hidden shadow-sm">
         <CardHeader className="bg-muted/30 pb-4">
           <div className="flex items-center gap-2">
             <Bell className="w-4 h-4 text-primary" />
@@ -217,8 +217,8 @@ export default function BillsPage() {
               </Select>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>Batal</Button>
-              <Button type="submit" className="gradient-primary text-white" disabled={saving}>
+              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">Batal</Button>
+              <Button type="submit" className="bg-brand-naval hover:bg-blue-900 text-white rounded-xl shadow-md" disabled={saving}>
                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {editingBill ? "Simpan" : "Tambah"}
               </Button>

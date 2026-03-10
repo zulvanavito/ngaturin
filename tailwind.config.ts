@@ -11,6 +11,13 @@ export default {
   theme: {
     extend: {
       colors: {
+        brand: {
+          dark: "#25282A",
+          serene: "#DDE5ED",
+          mint: "#A7E6D7",
+          lavender: "#685BC7",
+          naval: "#001871",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -41,6 +48,9 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        success: "hsl(var(--success))",
+        income: "hsl(var(--income))",
+        expense: "hsl(var(--expense))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

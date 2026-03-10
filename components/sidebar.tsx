@@ -41,9 +41,9 @@ export function Sidebar() {
       {/* Brand logo */}
       <Link href="/dashboard" className="flex items-center gap-3 mb-8 px-2">
         <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-bold text-lg leading-none pt-0.5">
-          B.
+          N.
         </div>
-        <span className="font-bold text-xl tracking-tight text-foreground">Budggt.</span>
+        <span className="font-bold text-xl tracking-tight text-foreground">Ngaturin</span>
       </Link>
 
       
@@ -81,14 +81,11 @@ export function Sidebar() {
           </Link>
         ))}
 
-      
-        <div className="flex items-center gap-3 px-4 py-2.5 rounded-[1rem] transition-all duration-200 text-sm font-medium text-muted-foreground/80 hover:bg-muted/50 hover:text-foreground">
-          
-          <div className="-ml-3 [&>button]:text-muted-foreground/80">
-             <ThemeSwitcher showText={false} />
-          </div>
-          <span className="-ml-1">Themes</span>
-        </div>
+        <ThemeSwitcher 
+          showText={true} 
+          variant="ghost"
+          className="w-full flex items-center justify-start gap-3 px-4 py-2.5 rounded-[1rem] transition-all duration-200 text-sm font-medium text-muted-foreground/80 hover:bg-muted/50 hover:text-foreground h-auto font-sans"
+        />
 
       
         <button

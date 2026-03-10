@@ -135,10 +135,10 @@ export default function WalletsPage() {
           <p className="text-sm text-muted-foreground mt-1">Kelola semua sumber keuangan Anda.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setIsTransferOpen(true)} className="gap-2 h-10" disabled={wallets.length < 2}>
+          <Button variant="outline" onClick={() => setIsTransferOpen(true)} className="gap-2 h-11 rounded-xl" disabled={wallets.length < 2}>
             <ArrowLeftRight className="w-4 h-4" /> Transfer
           </Button>
-          <Button onClick={openAdd} className="gradient-primary text-white gap-2 h-10">
+          <Button onClick={openAdd} className="bg-brand-naval hover:bg-blue-900 text-white gap-2 h-11 rounded-xl shadow-md">
             <Plus className="w-4 h-4" /> Tambah
           </Button>
         </div>
@@ -146,7 +146,7 @@ export default function WalletsPage() {
 
       {/* Total Balance Summary */}
       {!loading && wallets.length > 0 && (
-        <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm px-5 py-4 flex items-center justify-between">
+        <div className="rounded-[2rem] border border-border/40 bg-white dark:bg-card shadow-sm px-6 py-5 flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Total Saldo Semua Dompet</p>
             <p className="text-2xl font-bold tracking-tight">
@@ -155,8 +155,8 @@ export default function WalletsPage() {
               )}
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <WalletIcon className="w-5 h-5 text-primary" />
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <WalletIcon className="w-6 h-6 text-primary" />
           </div>
         </div>
       )}
@@ -167,16 +167,16 @@ export default function WalletsPage() {
           {[1,2,3].map(i => <div key={i} className="h-28 rounded-2xl bg-muted/40 animate-pulse" />)}
         </div>
       ) : wallets.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border/50 bg-muted/20 p-12 text-center text-muted-foreground text-sm">
+        <div className="rounded-[2rem] border border-dashed border-border/50 bg-white/50 dark:bg-card/50 p-12 text-center text-muted-foreground text-sm shadow-sm">
           <WalletIcon className="w-10 h-10 mx-auto mb-3 opacity-20" />
           <p>Belum ada dompet. Klik <strong>&quot;Tambah&quot;</strong> untuk memulai!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {wallets.map((w) => (
-            <div key={w.id} className="group relative rounded-2xl border border-border/40 p-5 overflow-hidden hover:shadow-md transition-all bg-card/60 backdrop-blur-sm">
+            <div key={w.id} className="group relative rounded-[2rem] border border-border/40 p-6 overflow-hidden hover:shadow-md transition-all bg-white dark:bg-card shadow-sm">
               {/* Color accent */}
-              <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" style={{ background: w.color }} />
+              <div className="absolute top-0 left-0 right-0 h-1.5" style={{ background: w.color }} />
 
               {/* Actions */}
               <div className="absolute top-4 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -257,8 +257,8 @@ export default function WalletsPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>Batal</Button>
-              <Button type="submit" className="gradient-primary text-white" disabled={saving || !formName}>
+              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">Batal</Button>
+              <Button type="submit" className="bg-brand-naval hover:bg-blue-900 text-white rounded-xl shadow-md" disabled={saving || !formName}>
                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {editingWallet ? "Simpan" : "Tambah Dompet"}
               </Button>
@@ -301,8 +301,8 @@ export default function WalletsPage() {
             </div>
             {transferError && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">{transferError}</p>}
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsTransferOpen(false)}>Batal</Button>
-              <Button type="submit" className="gradient-primary text-white" disabled={transferring || !fromWallet || !toWallet || !transferAmount}>
+              <Button type="button" variant="outline" onClick={() => setIsTransferOpen(false)} className="rounded-xl">Batal</Button>
+              <Button type="submit" className="bg-brand-naval hover:bg-blue-900 text-white rounded-xl shadow-md" disabled={transferring || !fromWallet || !toWallet || !transferAmount}>
                 {transferring && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Transfer
               </Button>

@@ -133,14 +133,14 @@ export function ProfileForm({ user }: ProfileFormProps) {
     <div className="space-y-6">
       {message && (
         <div className={`p-4 rounded-xl border text-sm flex items-center gap-2 ${
-          message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400'
+          message.type === 'success' ? 'bg-success/10 border-success/20 text-success' : 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400'
         }`}>
           {message.text}
         </div>
       )}
 
      
-      <Card className="bg-card/60 backdrop-blur-xl border border-border/40 shadow-sm rounded-2xl overflow-hidden">
+      <Card className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] overflow-hidden">
         <CardHeader className="bg-muted/30 pb-4">
           <CardTitle className="text-xl">Informasi Dasar</CardTitle>
           <CardDescription>Ubah foto profil dan nama tampilan Anda.</CardDescription>
@@ -193,7 +193,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
               </div>
             </div>
 
-            <Button type="submit" className="h-11 w-full sm:w-auto gradient-primary text-white" disabled={isUpdatingProfile}>
+            <Button type="submit" className="w-full sm:w-auto bg-brand-naval hover:bg-blue-900 text-white shadow-md h-11 rounded-xl" disabled={isUpdatingProfile}>
               {isUpdatingProfile ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               {isUpdatingProfile ? 'Menyimpan...' : 'Simpan Perubahan'}
             </Button>
@@ -202,10 +202,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
       </Card>
 
       
-      <Card className="bg-card/60 backdrop-blur-xl border border-border/40 shadow-sm rounded-2xl overflow-hidden mt-6">
+      <Card className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] overflow-hidden mt-6">
         <CardHeader className="bg-muted/30 pb-4">
           <CardTitle className="text-xl flex items-center gap-2">
-            <KeyRound className="w-5 h-5 text-emerald-500" /> Keamanan
+            <KeyRound className="w-5 h-5 text-success" /> Keamanan
           </CardTitle>
           <CardDescription>Pastikan akun Anda menggunakan kata sandi yang kuat.</CardDescription>
         </CardHeader>
@@ -235,23 +235,23 @@ export function ProfileForm({ user }: ProfileFormProps) {
               <div className="mt-1 space-y-2 bg-muted/30 p-3 rounded-lg border border-border/50">
                 <p className="text-xs font-semibold text-muted-foreground">Kriteria Password:</p>
                 <ul className="text-xs space-y-1.5">
-                  <li className={cn("flex items-center gap-2", hasMinLength ? "text-emerald-500" : "text-muted-foreground")}>
+                  <li className={cn("flex items-center gap-2", hasMinLength ? "text-success" : "text-muted-foreground")}>
                     {hasMinLength ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
                     Minimal 8 karakter
                   </li>
-                  <li className={cn("flex items-center gap-2", hasUppercase ? "text-emerald-500" : "text-muted-foreground")}>
+                  <li className={cn("flex items-center gap-2", hasUppercase ? "text-success" : "text-muted-foreground")}>
                     {hasUppercase ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
                     Minimal 1 huruf besar
                   </li>
-                  <li className={cn("flex items-center gap-2", hasLowercase ? "text-emerald-500" : "text-muted-foreground")}>
+                  <li className={cn("flex items-center gap-2", hasLowercase ? "text-success" : "text-muted-foreground")}>
                     {hasLowercase ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
                     Minimal 1 huruf kecil
                   </li>
-                  <li className={cn("flex items-center gap-2", hasNumber ? "text-emerald-500" : "text-muted-foreground")}>
+                  <li className={cn("flex items-center gap-2", hasNumber ? "text-success" : "text-muted-foreground")}>
                     {hasNumber ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
                     Minimal 1 angka
                   </li>
-                  <li className={cn("flex items-center gap-2", hasSpecial ? "text-emerald-500" : "text-muted-foreground")}>
+                  <li className={cn("flex items-center gap-2", hasSpecial ? "text-success" : "text-muted-foreground")}>
                     {hasSpecial ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
                     Minimal 1 karakter spesial (@, !, #)
                   </li>
@@ -289,8 +289,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
             
             <Button 
               type="submit" 
-              variant="outline" 
-              className="h-11 w-full sm:w-auto border-emerald-500/30 text-emerald-600 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20" 
+              className="w-full sm:w-auto bg-brand-naval hover:bg-blue-900 text-white shadow-md h-11 rounded-xl" 
               disabled={isUpdatingPassword || !password || !confirmPassword}
             >
               {isUpdatingPassword ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}

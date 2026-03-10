@@ -162,47 +162,47 @@ export default function DebtsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Utang & Piutang</h1>
           <p className="text-sm text-muted-foreground mt-1">Catat dan pantau utang serta piutang Anda.</p>
         </div>
-        <Button onClick={() => openAdd()} className="gradient-primary text-white gap-2 h-10 shrink-0">
+        <Button onClick={() => openAdd()} className="bg-brand-naval hover:bg-blue-900 text-white gap-2 h-11 rounded-xl shadow-md shrink-0">
           <Plus className="w-4 h-4" /> Tambah
         </Button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <button
           onClick={() => openAdd("hutang")}
-          className="relative overflow-hidden rounded-2xl bg-rose-500/5 border border-rose-500/15 p-4 text-left hover:bg-rose-500/10 transition-colors group"
+          className="relative overflow-hidden rounded-[1.5rem] bg-expense/10 border border-expense/20 p-5 text-left hover:bg-expense/20 transition-colors group shadow-sm"
         >
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 bg-rose-500/15 rounded-lg flex items-center justify-center">
-              <TrendingDown className="w-3.5 h-3.5 text-rose-500" />
+            <div className="w-8 h-8 bg-expense/20 rounded-xl flex items-center justify-center">
+              <TrendingDown className="w-4 h-4 text-expense" />
             </div>
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Hutang</span>
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Hutang</span>
           </div>
-          <p className="text-lg font-bold text-rose-600 dark:text-rose-400 leading-tight">{formatCurrency(totalHutang)}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-xl font-bold text-expense leading-tight">{formatCurrency(totalHutang)}</p>
+          <p className="text-xs text-muted-foreground mt-1">
             {debts.filter(d => d.type === "hutang" && !d.is_settled).length} belum lunas
           </p>
-          <span className="absolute bottom-3 right-3 text-rose-400/30 group-hover:text-rose-400/50 transition-colors">
-            <Plus className="w-4 h-4" />
+          <span className="absolute bottom-3 right-3 text-expense/30 group-hover:text-expense/60 transition-colors">
+            <Plus className="w-5 h-5" />
           </span>
         </button>
         <button
           onClick={() => openAdd("piutang")}
-          className="relative overflow-hidden rounded-2xl bg-emerald-500/5 border border-emerald-500/15 p-4 text-left hover:bg-emerald-500/10 transition-colors group"
+          className="relative overflow-hidden rounded-[1.5rem] bg-income/10 border border-income/20 p-5 text-left hover:bg-income/20 transition-colors group shadow-sm"
         >
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 bg-emerald-500/15 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+            <div className="w-8 h-8 bg-income/20 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-income" />
             </div>
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Piutang</span>
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Piutang</span>
           </div>
-          <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 leading-tight">{formatCurrency(totalPiutang)}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-xl font-bold text-income leading-tight">{formatCurrency(totalPiutang)}</p>
+          <p className="text-xs text-muted-foreground mt-1">
             {debts.filter(d => d.type === "piutang" && !d.is_settled).length} belum lunas
           </p>
-          <span className="absolute bottom-3 right-3 text-emerald-400/30 group-hover:text-emerald-400/50 transition-colors">
-            <Plus className="w-4 h-4" />
+          <span className="absolute bottom-3 right-3 text-income/30 group-hover:text-income/60 transition-colors">
+            <Plus className="w-5 h-5" />
           </span>
         </button>
       </div>
@@ -239,7 +239,7 @@ export default function DebtsPage() {
       </div>
 
       {/* List */}
-      <Card className="border-0 bg-card/60 backdrop-blur-xl rounded-2xl overflow-hidden shadow-sm">
+      <Card className="border border-border/40 bg-white dark:bg-card rounded-[2rem] overflow-hidden shadow-sm">
         <CardHeader className="bg-muted/30 pb-3">
           <CardTitle className="text-base flex items-center justify-between">
             <span>Daftar Catatan</span>
@@ -267,11 +267,11 @@ export default function DebtsPage() {
                   >
                     {/* Icon */}
                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
-                      d.type === "hutang" ? "bg-rose-500/10" : "bg-emerald-500/10"
+                      d.type === "hutang" ? "bg-expense/10" : "bg-income/10"
                     }`}>
                       {d.type === "hutang"
-                        ? <TrendingDown className="w-4 h-4 text-rose-500" />
-                        : <TrendingUp className="w-4 h-4 text-emerald-500" />
+                        ? <TrendingDown className="w-4 h-4 text-expense" />
+                        : <TrendingUp className="w-4 h-4 text-income" />
                       }
                     </div>
 
@@ -282,8 +282,8 @@ export default function DebtsPage() {
                         <Badge
                           variant="outline"
                           className={`text-[10px] px-1.5 py-0 h-4 ${d.type === "hutang"
-                            ? "border-rose-500/30 text-rose-500"
-                            : "border-emerald-500/30 text-emerald-500"}`}
+                            ? "border-expense/30 text-expense"
+                            : "border-income/30 text-income"}`}
                         >
                           {d.type === "hutang" ? "Hutang" : "Piutang"}
                         </Badge>
@@ -297,7 +297,7 @@ export default function DebtsPage() {
                         <p className="text-xs text-muted-foreground mt-0.5 truncate">{d.description}</p>
                       )}
                       {d.due_date && (
-                        <div className={`flex items-center gap-1 mt-0.5 text-xs ${isOverdue ? "text-rose-500" : "text-muted-foreground"}`}>
+                        <div className={`flex items-center gap-1 mt-0.5 text-xs ${isOverdue ? "text-red-500" : "text-muted-foreground"}`}>
                           <Clock className="w-3 h-3" />
                           {isOverdue ? "Jatuh tempo: " : "Tenggat: "}{formatDate(d.due_date)}
                           {isOverdue && " ⚠️"}
@@ -308,14 +308,14 @@ export default function DebtsPage() {
                     {/* Amount + actions */}
                     <div className="flex flex-col items-end gap-2 shrink-0">
                       <p className={`text-sm font-bold ${d.type === "hutang"
-                        ? "text-rose-600 dark:text-rose-400"
-                        : "text-emerald-600 dark:text-emerald-400"}`}>
+                        ? "text-expense"
+                        : "text-income"}`}>
                         {formatCurrency(d.amount)}
                       </p>
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost" size="icon"
-                          className={`h-7 w-7 ${d.is_settled ? "text-muted-foreground" : "text-emerald-500"}`}
+                          className={`h-7 w-7 ${d.is_settled ? "text-muted-foreground" : "text-brand-mint"}`}
                           title={d.is_settled ? "Tandai belum lunas" : "Tandai lunas"}
                           onClick={() => handleToggleSettle(d)}
                         >
@@ -379,8 +379,8 @@ export default function DebtsPage() {
               <Input value={formDesc} onChange={e => setFormDesc(e.target.value)} placeholder="Contoh: untuk bayar kontrakan" className="h-10" />
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>Batal</Button>
-              <Button type="submit" className="gradient-primary text-white" disabled={saving}>
+              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">Batal</Button>
+              <Button type="submit" className="bg-brand-naval hover:bg-blue-900 text-white rounded-xl shadow-md" disabled={saving}>
                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {editingDebt ? "Simpan" : "Tambah"}
               </Button>

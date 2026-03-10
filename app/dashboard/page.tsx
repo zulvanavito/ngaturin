@@ -87,8 +87,8 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center animate-pulse">
-           <span className="text-rose-500 font-bold text-xl pt-0.5">B.</span>
+        <div className="w-12 h-12 rounded-2xl bg-brand-naval/10 flex items-center justify-center animate-pulse">
+           <span className="text-brand-naval font-bold text-xl pt-0.5">N.</span>
         </div>
         <p className="text-muted-foreground font-medium text-sm">Memuat data...</p>
       </div>
@@ -101,15 +101,15 @@ export default function DashboardPage() {
       {/* Bill Reminder Banner */}
       <BillReminderBanner />
 
-      {/* Floating Add Button for Mobile - Desktop can have an inline one if desired, or reuse the big button */}
+      {/* Add Transaction Action */}
       {!showForm && !editingTransaction && (
-         <div className="fixed sm:absolute bottom-6 sm:top-8 right-6 sm:right-8 z-40">
+         <div className="flex justify-start sm:justify-end mb-4">
            <Button
              onClick={() => { setShowForm(prev => !prev); setEditingTransaction(null); }}
-             className="w-14 h-14 sm:w-auto sm:h-10 rounded-full sm:rounded-[1rem] bg-rose-500 hover:bg-rose-600 text-white shadow-lg sm:px-4 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95"
+             className="w-full sm:w-auto h-12 sm:h-10 rounded-xl sm:rounded-[1rem] bg-brand-naval hover:bg-blue-900 text-white shadow-md px-4 flex items-center justify-center gap-2 transition-transform hover:-translate-y-0.5"
            >
-             <Plus className="w-6 h-6 sm:w-4 sm:h-4 stroke-[3px]" />
-             <span className="hidden sm:inline font-semibold">Tambah Transaksi</span>
+             <Plus className="w-5 h-5 sm:w-4 sm:h-4 stroke-[3px]" />
+             <span className="font-semibold">Tambah Transaksi Baru</span>
            </Button>
          </div>
       )}
@@ -139,19 +139,19 @@ export default function DashboardPage() {
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="tour-tabs w-full mt-8">
         <TabsList className="w-full mb-6 h-auto rounded-[1.5rem] bg-muted/30 border border-border/40 p-1.5 flex flex-wrap sm:grid sm:grid-cols-4 gap-2">
-          <TabsTrigger value="overview" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-rose-500 data-[state=active]:shadow-sm transition-all">
+          <TabsTrigger value="overview" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
             <LayoutDashboard className="w-4 h-4 shrink-0" />
             <span className="text-sm whitespace-nowrap">Ringkasan</span>
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-rose-500 data-[state=active]:shadow-sm transition-all">
+          <TabsTrigger value="analytics" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
             <BarChart3 className="w-4 h-4 shrink-0" />
             <span className="text-sm whitespace-nowrap">Analitik</span>
           </TabsTrigger>
-          <TabsTrigger value="budget" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-rose-500 data-[state=active]:shadow-sm transition-all">
+          <TabsTrigger value="budget" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
             <Target className="w-4 h-4 shrink-0" />
             <span className="text-sm whitespace-nowrap">Anggaran</span>
           </TabsTrigger>
-          <TabsTrigger value="history" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-rose-500 data-[state=active]:shadow-sm transition-all">
+          <TabsTrigger value="history" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
             <History className="w-4 h-4 shrink-0" />
             <span className="text-sm whitespace-nowrap">Riwayat</span>
           </TabsTrigger>
@@ -168,15 +168,15 @@ export default function DashboardPage() {
                   <p className="text-[10px] sm:text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Total Transaksi</p>
                   <p className="text-2xl sm:text-3xl font-bold text-foreground">{nonTransferTxs.length}</p>
                 </div>
-                <div className="rounded-[1.5rem] bg-emerald-50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10 p-4 sm:p-5 shadow-sm text-center flex flex-col items-center justify-center">
+                <div className="rounded-[1.5rem] bg-income/10 border border-income/20 p-4 sm:p-5 shadow-sm text-center flex flex-col items-center justify-center">
                   <p className="text-[10px] sm:text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Masuk</p>
-                  <p className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                  <p className="text-xl sm:text-2xl font-bold text-income">
                     {nonTransferTxs.filter(t => t.type === "income").length}
                   </p>
                 </div>
-                <div className="rounded-[1.5rem] bg-rose-50 dark:bg-rose-500/5 border border-rose-100 dark:border-rose-500/10 p-4 sm:p-5 shadow-sm text-center flex flex-col items-center justify-center">
+                <div className="rounded-[1.5rem] bg-expense/10 border border-expense/20 p-4 sm:p-5 shadow-sm text-center flex flex-col items-center justify-center">
                   <p className="text-[10px] sm:text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Keluar</p>
-                  <p className="text-xl sm:text-2xl font-bold text-rose-600 dark:text-rose-400">
+                  <p className="text-xl sm:text-2xl font-bold text-expense">
                     {nonTransferTxs.filter(t => t.type === "expense").length}
                   </p>
                 </div>

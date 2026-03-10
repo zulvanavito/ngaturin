@@ -172,7 +172,7 @@ export default function InvestmentsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Portofolio Investasi</h1>
           <p className="text-sm text-muted-foreground mt-1">Pantau performa dan alokasi aset Anda.</p>
         </div>
-        <Button onClick={openAdd} className="gradient-primary text-white gap-2 h-10 shrink-0">
+        <Button onClick={openAdd} className="bg-brand-naval hover:bg-blue-900 text-white gap-2 h-11 rounded-xl shadow-md shrink-0">
           <Plus className="w-4 h-4" /> Tambah Aset
         </Button>
       </div>
@@ -180,7 +180,7 @@ export default function InvestmentsPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Total Value */}
-        <Card className="border-0 bg-card/60 backdrop-blur-xl shadow-sm md:col-span-1">
+        <Card className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] overflow-hidden md:col-span-1">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Nilai Saat Ini</CardTitle>
           </CardHeader>
@@ -191,9 +191,9 @@ export default function InvestmentsPage() {
             </div>
             
             {/* Profit/Loss Badge */}
-            <div className={`mt-4 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium ${
+            <div className={`mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-bold ${
               totalProfit === 0 ? "bg-muted text-muted-foreground" :
-              isProfit ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+              isProfit ? "bg-success/10 text-success" : "bg-expense/10 text-expense"
             }`}>
               {totalProfit === 0 ? null : isProfit ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               <span>{isProfit ? "+" : ""}{formatCurrency(totalProfit)}</span>
@@ -203,7 +203,7 @@ export default function InvestmentsPage() {
         </Card>
 
         {/* Allocation Chart */}
-        <Card className="border-0 bg-card/60 backdrop-blur-xl shadow-sm md:col-span-2">
+        <Card className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] overflow-hidden md:col-span-2">
           <CardHeader className="pb-0">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <PieChart className="w-4 h-4" /> Alokasi Aset
@@ -247,7 +247,7 @@ export default function InvestmentsPage() {
       {loading ? (
         <div className="flex justify-center py-10 text-muted-foreground gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Memuat...</div>
       ) : investments.length === 0 ? (
-        <div className="text-center py-14 bg-card/30 rounded-2xl border border-dashed border-border text-muted-foreground text-sm">
+        <div className="rounded-[2rem] border border-dashed border-border/50 bg-white/50 dark:bg-card/50 p-12 text-center text-muted-foreground text-sm shadow-sm">
           <div className="text-4xl mb-3">📈</div>
           <p>Belum ada portofolio investasi. Catat aset pertama Anda!</p>
         </div>
@@ -261,8 +261,8 @@ export default function InvestmentsPage() {
             const isItemProfit = profit >= 0;
 
             return (
-              <Card key={item.id} className={`border border-border/40 overflow-hidden hover:border-border/80 transition-colors shadow-sm`}>
-                <div className="p-4 flex flex-col h-full">
+              <Card key={item.id} className="border border-border/40 rounded-[2rem] overflow-hidden hover:shadow-md transition-all bg-white dark:bg-card shadow-sm">
+                <div className="p-5 flex flex-col h-full">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${config.bg}`}>
@@ -299,7 +299,7 @@ export default function InvestmentsPage() {
                       <span className="text-xs text-muted-foreground">Return (Keuntungan)</span>
                       <span className={`text-xs font-bold flex items-center gap-1 ${
                         profit === 0 ? "text-muted-foreground" :
-                        isItemProfit ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                        isItemProfit ? "text-success" : "text-expense"
                       }`}>
                         {isItemProfit ? "+" : ""}{formatCurrency(profit)} ({isItemProfit ? "+" : ""}{pct.toFixed(2)}%)
                       </span>
@@ -380,8 +380,8 @@ export default function InvestmentsPage() {
             </div>
 
             <DialogFooter className="pt-2">
-              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>Batal</Button>
-              <Button type="submit" className="gradient-primary text-white" disabled={saving}>
+              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">Batal</Button>
+              <Button type="submit" className="bg-brand-naval hover:bg-blue-900 text-white rounded-xl shadow-md" disabled={saving}>
                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {editingItem ? "Simpan Perubahan" : "Tambah Portofolio"}
               </Button>

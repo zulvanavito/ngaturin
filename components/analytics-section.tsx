@@ -144,7 +144,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
         startY: 30,
         theme: 'grid',
         styles: { fontSize: 10, cellPadding: 3 },
-        headStyles: { fillColor: [16, 185, 129] } // emerald-500
+        headStyles: { fillColor: [15, 30, 50] } // naval blue
       });
 
       doc.save(`laporan_pengatur_keuangan_${selectedMonth === 'all' ? 'semua' : selectedMonth}.pdf`);
@@ -209,10 +209,10 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Chart Section */}
-      <div className="md:col-span-2 rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 p-6 shadow-sm flex flex-col h-full min-h-[400px]">
+      <div className="md:col-span-2 border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] p-6 flex flex-col h-full min-h-[400px]">
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-            <PieChartIcon className="w-4 h-4 text-emerald-500" />
+          <div className="w-8 h-8 rounded-xl bg-expense/10 flex items-center justify-center">
+            <PieChartIcon className="w-4 h-4 text-expense" />
           </div>
           <h2 className="text-lg font-semibold">Pengeluaran per Kategori</h2>
         </div>
@@ -281,7 +281,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
       </div>
 
       {/* Filter & Export Section */}
-      <div className="rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 p-6 shadow-sm flex flex-col justify-between">
+      <div className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] p-6 flex flex-col justify-between">
         <div>
           <h3 className="font-medium mb-4 text-sm tracking-wide text-muted-foreground uppercase">Filter Data</h3>
           <div className="space-y-4">
@@ -313,7 +313,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
           <Button 
             onClick={handleExportPDF} 
             disabled={filteredTransactions.length === 0}
-            className="w-full h-11 bg-red-500 hover:bg-red-600 hover:text-white text-white border-0"
+            className="w-full h-11 bg-brand-naval hover:bg-blue-900 text-white border-0 rounded-xl shadow-md"
             variant="outline"
           >
             <FileText className="w-4 h-4 mr-2" />
@@ -323,7 +323,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
             <Button 
               onClick={handleExportExcel} 
               disabled={filteredTransactions.length === 0}
-              className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 hover:text-white text-white border-0"
+              className="w-full h-11 bg-brand-mint hover:bg-emerald-600 text-white border-0 rounded-xl shadow-md"
               variant="outline"
             >
               <FileSpreadsheet className="w-4 h-4 mr-2" />
@@ -332,7 +332,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
             <Button 
               onClick={handleExportCSV} 
               disabled={filteredTransactions.length === 0}
-              className="w-full h-11"
+              className="w-full h-11 rounded-xl"
               variant="outline"
             >
               <FileIcon className="w-4 h-4 mr-2" />
@@ -345,11 +345,11 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Trend Chart */}
-        <div className="rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 p-6 shadow-sm flex flex-col h-full min-h-[400px]">
+        <div className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] p-6 flex flex-col h-full min-h-[400px]">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-blue-500" />
+              <div className="w-8 h-8 rounded-xl bg-expense/10 flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-expense" />
               </div>
               <h2 className="text-lg font-semibold">Tren Pengeluaran</h2>
             </div>
@@ -411,10 +411,10 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
         </div>
 
         {/* Wallet Analytics */}
-        <div className="rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 p-6 shadow-sm flex flex-col h-full min-h-[400px]">
+        <div className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] p-6 flex flex-col h-full min-h-[400px]">
           <div className="flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
-              <WalletIcon className="w-4 h-4 text-orange-500" />
+            <div className="w-8 h-8 rounded-xl bg-income/10 flex items-center justify-center">
+              <WalletIcon className="w-4 h-4 text-income" />
             </div>
             <h2 className="text-lg font-semibold">Analitik Dompet</h2>
           </div>
@@ -452,10 +452,10 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
       </div>
 
       {/* Backup & Restore */}
-      <div className="rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 p-6 shadow-sm">
+      <div className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] p-6">
         <div className="flex items-center gap-2 mb-5">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-            <HardDrive className="w-4 h-4 text-indigo-500" />
+          <div className="w-8 h-8 rounded-xl bg-brand-naval/10 flex items-center justify-center">
+            <HardDrive className="w-4 h-4 text-brand-naval" />
           </div>
           <div>
             <h2 className="text-base font-semibold">Backup &amp; Pemulihan Data</h2>
@@ -471,7 +471,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
               Unduh semua transaksi, anggaran, dompet, tagihan, dan utang/piutang dalam satu file JSON.
             </p>
             <Button
-              className="w-full h-10 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white border-0"
+              className="w-full h-11 gap-2 bg-brand-naval hover:bg-blue-900 text-white border-0 rounded-xl shadow-md"
               disabled={backupLoading}
               onClick={async () => {
                 setBackupLoading(true);
@@ -503,7 +503,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
               <p className="text-xs text-emerald-500 mb-2">{importResult}</p>
             )}
             <label className="w-full cursor-pointer">
-              <div className={`w-full h-10 rounded-md border border-input bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2 text-sm font-medium transition-colors ${
+              <div className={`w-full h-11 rounded-xl border border-input bg-brand-mint hover:bg-emerald-600 text-white shadow-md flex items-center justify-center gap-2 text-sm font-medium transition-colors ${
                 importLoading ? "opacity-50 pointer-events-none" : ""
               }`}>
                 {importLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}

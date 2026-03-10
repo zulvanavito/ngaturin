@@ -12,7 +12,14 @@ import { Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
-const ThemeSwitcher = ({ showText = false }: { showText?: boolean }) => {
+export interface ThemeSwitcherProps {
+  showText?: boolean;
+  className?: string;
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  size?: "default" | "sm" | "lg" | "icon";
+}
+
+const ThemeSwitcher = ({ showText = false, className, variant = "ghost", size = "sm" }: ThemeSwitcherProps) => {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -25,38 +32,38 @@ const ThemeSwitcher = ({ showText = false }: { showText?: boolean }) => {
     return null;
   }
 
-  const ICON_SIZE = 16;
+  const ICON_SIZE = 20; // Matches sidebar icons size (w-5 h-5 is 20px)
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size={"sm"} className={showText ? "gap-2" : ""}>
+        <Button variant={variant} size={size} className={className || (showText ? "gap-2" : "")}>
           {theme === "light" ? (
             <>
               <Sun
                 key="light"
                 size={ICON_SIZE}
-                className={"text-muted-foreground"}
+                className={className ? "" : "text-muted-foreground"}
               />
-              {showText && <span className="text-sm">Light</span>}
+              {showText && <span>Tema: Terang</span>}
             </>
           ) : theme === "dark" ? (
             <>
               <Moon
                 key="dark"
                 size={ICON_SIZE}
-                className={"text-muted-foreground"}
+                className={className ? "" : "text-muted-foreground"}
               />
-              {showText && <span className="text-sm">Dark</span>}
+              {showText && <span>Tema: Gelap</span>}
             </>
           ) : (
             <>
               <Laptop
                 key="system"
                 size={ICON_SIZE}
-                className={"text-muted-foreground"}
+                className={className ? "" : "text-muted-foreground"}
               />
-              {showText && <span className="text-sm">System</span>}
+              {showText && <span>Tema: Sistem</span>}
             </>
           )}
         </Button>

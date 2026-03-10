@@ -4,62 +4,68 @@
 
 @layer base {
   :root {
+    /* Cinza Escuro (Dark Gray) for foregrounds: #25282A -> 204 6% 15% */
+    /* Cinza Sereno (Serene Gray) for subdued backgrounds: #DDE5ED -> 210 27% 90% */
+    /* Verde Menta (Mint Green) for success/income: #A7E6D7 -> 166 54% 78% */
+    /* Lavanda Radiante (Lavender) for accents: #685BC7 -> 247 49% 57% */
+    /* Azul Naval (Naval Blue) for primary actions: #001871 -> 227 100% 22% */
+
     --background: 0 0% 100%;
-    --foreground: 210 20% 10%;
+    --foreground: 204 6% 15%;
     --card: 0 0% 100%;
-    --card-foreground: 210 20% 10%;
+    --card-foreground: 204 6% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 210 20% 10%;
-    --primary: 160 84% 39%;
+    --popover-foreground: 204 6% 15%;
+    --primary: 227 100% 22%; /* Azul Naval */
     --primary-foreground: 0 0% 100%;
-    --secondary: 160 20% 95%;
-    --secondary-foreground: 160 60% 25%;
-    --muted: 210 15% 96%;
-    --muted-foreground: 210 10% 45%;
-    --accent: 160 20% 94%;
-    --accent-foreground: 160 60% 25%;
+    --secondary: 210 27% 90%; /* Cinza Sereno */
+    --secondary-foreground: 227 100% 22%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 204 6% 45%;
+    --accent: 247 49% 57%; /* Lavanda */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 210 15% 90%;
-    --input: 210 15% 90%;
-    --ring: 160 84% 39%;
-    --chart-1: 160 84% 39%;
-    --chart-2: 200 70% 50%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --border: 210 27% 90%;
+    --input: 210 27% 90%;
+    --ring: 247 49% 57%;
+    --chart-1: 227 100% 22%;
+    --chart-2: 247 49% 57%;
+    --chart-3: 166 54% 78%;
+    --chart-4: 210 27% 90%;
+    --chart-5: 204 6% 15%;
     --radius: 0.75rem;
-    --success: 160 84% 39%;
-    --income: 152 69% 40%;
+    --success: 166 54% 78%;
+    --income: 166 54% 78%;
     --expense: 0 84% 60%;
   }
   .dark {
-    --background: 220 20% 6%;
-    --foreground: 210 20% 95%;
-    --card: 220 18% 10%;
-    --card-foreground: 210 20% 95%;
-    --popover: 220 18% 10%;
-    --popover-foreground: 210 20% 95%;
-    --primary: 160 84% 45%;
-    --primary-foreground: 220 20% 6%;
-    --secondary: 220 15% 16%;
-    --secondary-foreground: 210 20% 90%;
-    --muted: 220 15% 16%;
-    --muted-foreground: 210 10% 55%;
-    --accent: 220 15% 16%;
+    --background: 204 10% 8%; /* Very dark gray/blue */
+    --foreground: 210 27% 90%; /* Serene Gray for text */
+    --card: 204 10% 12%; 
+    --card-foreground: 210 27% 95%;
+    --popover: 204 10% 12%;
+    --popover-foreground: 210 27% 95%;
+    --primary: 247 49% 70%; /* Lightened Lavender for better dark contrast */
+    --primary-foreground: 204 10% 8%;
+    --secondary: 204 6% 15%; /* Dark Gray */
+    --secondary-foreground: 210 27% 90%;
+    --muted: 204 6% 15%;
+    --muted-foreground: 210 10% 60%;
+    --accent: 227 70% 30%; /* Lighter Naval Blue */
     --accent-foreground: 210 20% 90%;
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 160 84% 45%;
-    --chart-1: 160 84% 45%;
-    --chart-2: 200 70% 55%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --success: 160 84% 45%;
-    --income: 152 69% 50%;
+    --border: 204 6% 20%;
+    --input: 204 6% 20%;
+    --ring: 247 49% 70%;
+    --chart-1: 247 49% 70%;
+    --chart-2: 227 70% 40%;
+    --chart-3: 166 54% 70%;
+    --chart-4: 204 6% 30%;
+    --chart-5: 210 27% 80%;
+    --success: 166 54% 60%;
+    --income: 166 54% 60%;
     --expense: 0 84% 60%;
   }
 }
@@ -78,12 +84,12 @@
     @apply bg-white/70 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10;
   }
   .gradient-primary {
-    @apply bg-gradient-to-br from-emerald-500 to-teal-600;
+    @apply bg-gradient-to-br from-brand-lavender to-brand-naval;
   }
   .gradient-income {
-    @apply bg-gradient-to-br from-emerald-400 to-emerald-600;
+    @apply bg-gradient-to-br from-brand-mint to-teal-500;
   }
   .gradient-expense {
-    @apply bg-gradient-to-br from-rose-400 to-rose-600;
+    @apply bg-gradient-to-br from-red-400 to-red-600;
   }
 }

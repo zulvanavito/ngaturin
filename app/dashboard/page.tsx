@@ -6,11 +6,18 @@ import { TransactionList } from "@/components/transaction-list";
 import { AnalyticsSection } from "@/components/analytics-section";
 import { BudgetSection } from "@/components/budget-section";
 import { BudgetSnapshot } from "@/components/budget-snapshot";
-import { BalanceCard } from "@/components/balance-card";
 import { BillReminderBanner } from "@/components/bill-reminder-banner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutDashboard, BarChart3, History, Target, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+// New Redesign Components
+import { DashboardSummaryCard } from "@/components/dashboard-summary-card";
+import { DashboardProgressCard } from "@/components/dashboard-progress-card";
+import { DashboardCalendarCard } from "@/components/dashboard-calendar-card";
+import { DashboardRecentTx } from "@/components/dashboard-recent-tx";
+
+import { createClient } from "@/lib/supabase/client";
 
 export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -18,6 +25,17 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [userName, setUserName] = useState("Pengguna");
+
+  const fetchUser = async () => {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.user_metadata?.full_name) {
+      setUserName(user.user_metadata.full_name.split(' ')[0]);
+    } else if (user?.email) {
+      setUserName(user.email.split('@')[0]);
+    }
+  };
 
   const fetchTransactions = useCallback(async () => {
     try {
@@ -33,6 +51,7 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    fetchUser();
     fetchTransactions();
   }, [fetchTransactions]);
 
@@ -45,8 +64,11 @@ export default function DashboardPage() {
     transactions.filter((t) => t.type === "expense").reduce((sum, t) => sum + Number(t.amount), 0),
     [transactions]
   );
+  
+  // Actually calculate the remaining budget based on historical logging
+  const remainingBudget = useMemo(() => totalIncome - totalExpense, [totalIncome, totalExpense]);
 
-  // Non-transfer transactions for stats (exclude transfers from income/expense counts)
+  // Non-transfer transactions for stats
   const nonTransferTxs = useMemo(() => transactions.filter(t => t.type !== "transfer"), [transactions]);
 
   const handleSuccess = () => {
@@ -65,47 +87,36 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center animate-pulse">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+        <div className="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center animate-pulse">
+           <span className="text-rose-500 font-bold text-xl pt-0.5">B.</span>
         </div>
-        <p className="text-muted-foreground text-sm">Memuat data...</p>
+        <p className="text-muted-foreground font-medium text-sm">Memuat data...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground text-xs sm:text-sm mt-0.5 hidden sm:block">
-            Pantau, analisa, dan kelola keuanganmu
-          </p>
-        </div>
-        <Button
-          onClick={() => { setShowForm(prev => !prev); setEditingTransaction(null); }}
-          className="tour-add-tx gradient-primary text-white gap-2 h-9 sm:h-10 text-sm"
-        >
-          <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">Tambah Transaksi</span>
-          <span className="sm:hidden">+ Tambah</span>
-        </Button>
-      </div>
-
+    <div className="space-y-6 max-w-6xl mx-auto pb-10">
+      
       {/* Bill Reminder Banner */}
       <BillReminderBanner />
 
-      {/* Balance Summary Cards */}
-      <div className="tour-balance">
-        <BalanceCard totalIncome={totalIncome} totalExpense={totalExpense} />
-      </div>
+      {/* Floating Add Button for Mobile - Desktop can have an inline one if desired, or reuse the big button */}
+      {!showForm && !editingTransaction && (
+         <div className="fixed sm:absolute bottom-6 sm:top-8 right-6 sm:right-8 z-40">
+           <Button
+             onClick={() => { setShowForm(prev => !prev); setEditingTransaction(null); }}
+             className="w-14 h-14 sm:w-auto sm:h-10 rounded-full sm:rounded-[1rem] bg-rose-500 hover:bg-rose-600 text-white shadow-lg sm:px-4 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95"
+           >
+             <Plus className="w-6 h-6 sm:w-4 sm:h-4 stroke-[3px]" />
+             <span className="hidden sm:inline font-semibold">Tambah Transaksi</span>
+           </Button>
+         </div>
+      )}
 
       {/* Inline Add / Edit Form */}
       {(showForm || editingTransaction) && (
-        <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="animate-in fade-in slide-in-from-top-4 duration-300 mb-6 bg-white dark:bg-card p-6 rounded-[2rem] border border-border/40 shadow-sm">
           <TransactionForm
             key={editingTransaction?.id || "new"}
             editingTransaction={editingTransaction}
@@ -115,115 +126,97 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Summary Header Card (Replacing old BalanceCard, but unified at top) */}
+      <div className="tour-balance">
+        <DashboardSummaryCard 
+           remainingBudget={remainingBudget}
+           totalIncome={totalIncome}
+           totalExpense={totalExpense}
+           userName={userName}
+        />
+      </div>
+
       {/* Tabbed Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="tour-tabs w-full">
-        <TabsList className="w-full mb-4 h-11 rounded-2xl bg-muted/50 border border-border/30 p-1 flex sm:grid sm:grid-cols-4 overflow-x-auto gap-1">
-          <TabsTrigger value="overview" className="rounded-xl font-medium flex items-center gap-1.5 shrink-0 sm:shrink px-3">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="tour-tabs w-full mt-8">
+        <TabsList className="w-full mb-6 h-auto rounded-[1.5rem] bg-muted/30 border border-border/40 p-1.5 flex flex-wrap sm:grid sm:grid-cols-4 gap-2">
+          <TabsTrigger value="overview" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-rose-500 data-[state=active]:shadow-sm transition-all">
             <LayoutDashboard className="w-4 h-4 shrink-0" />
-            <span className="text-xs sm:text-sm whitespace-nowrap">Ringkasan</span>
+            <span className="text-sm whitespace-nowrap">Ringkasan</span>
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="rounded-xl font-medium flex items-center gap-1.5 shrink-0 sm:shrink px-3">
+          <TabsTrigger value="analytics" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-rose-500 data-[state=active]:shadow-sm transition-all">
             <BarChart3 className="w-4 h-4 shrink-0" />
-            <span className="text-xs sm:text-sm whitespace-nowrap">Analitik</span>
+            <span className="text-sm whitespace-nowrap">Analitik</span>
           </TabsTrigger>
-          <TabsTrigger value="budget" className="rounded-xl font-medium flex items-center gap-1.5 shrink-0 sm:shrink px-3">
+          <TabsTrigger value="budget" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-rose-500 data-[state=active]:shadow-sm transition-all">
             <Target className="w-4 h-4 shrink-0" />
-            <span className="text-xs sm:text-sm whitespace-nowrap">Anggaran</span>
+            <span className="text-sm whitespace-nowrap">Anggaran</span>
           </TabsTrigger>
-          <TabsTrigger value="history" className="rounded-xl font-medium flex items-center gap-1.5 shrink-0 sm:shrink px-3">
+          <TabsTrigger value="history" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-rose-500 data-[state=active]:shadow-sm transition-all">
             <History className="w-4 h-4 shrink-0" />
-            <span className="text-xs sm:text-sm whitespace-nowrap">Riwayat</span>
+            <span className="text-sm whitespace-nowrap">Riwayat</span>
           </TabsTrigger>
         </TabsList>
 
         {/* Ringkasan Tab */}
         <TabsContent value="overview" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* Left: Quick Stats + Recent transactions */}
-            <div className="lg:col-span-2 space-y-4">
-              {/* At-a-glance stats */}
-              <div className="tour-quick-stats grid grid-cols-3 gap-2 sm:gap-3">
-                <div className="rounded-2xl bg-card/60 border border-border/40 p-3 sm:p-4">
-                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Total Transaksi</p>
-                  <p className="text-xl sm:text-2xl font-bold">{nonTransferTxs.length}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+            {/* Left Column (Stats + Progress + Calendar) */}
+            <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+              
+              <div className="tour-quick-stats grid grid-cols-3 gap-3 sm:gap-4">
+                <div className="rounded-[1.5rem] bg-white dark:bg-card border border-border/40 p-4 sm:p-5 shadow-sm text-center flex flex-col items-center justify-center">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Total Transaksi</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-foreground">{nonTransferTxs.length}</p>
                 </div>
-                <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/15 p-3 sm:p-4">
-                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Masuk</p>
-                  <p className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                    {nonTransferTxs.filter(t => t.type === "income").length} transaksi
+                <div className="rounded-[1.5rem] bg-emerald-50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10 p-4 sm:p-5 shadow-sm text-center flex flex-col items-center justify-center">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Masuk</p>
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                    {nonTransferTxs.filter(t => t.type === "income").length}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-rose-500/5 border border-rose-500/15 p-3 sm:p-4">
-                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Keluar</p>
-                  <p className="text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400">
-                    {nonTransferTxs.filter(t => t.type === "expense").length} transaksi
+                <div className="rounded-[1.5rem] bg-rose-50 dark:bg-rose-500/5 border border-rose-100 dark:border-rose-500/10 p-4 sm:p-5 shadow-sm text-center flex flex-col items-center justify-center">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Keluar</p>
+                  <p className="text-xl sm:text-2xl font-bold text-rose-600 dark:text-rose-400">
+                    {nonTransferTxs.filter(t => t.type === "expense").length}
                   </p>
                 </div>
               </div>
 
-              {/* 5 most recent transactions preview */}
-              <div className="rounded-2xl bg-card/60 border border-border/40 overflow-hidden">
-                <div className="p-5 border-b border-border/30 flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-sm">Transaksi Terbaru</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">5 transaksi terakhir</p>
-                  </div>
-                  <Button variant="ghost" size="sm" className="text-xs h-8" onClick={() => setActiveTab("history")}>
-                    Lihat Semua →
-                  </Button>
-                </div>
-                <div className="divide-y divide-border/30">
-                  {transactions.length === 0 ? (
-                    <div className="p-8 text-center text-muted-foreground text-sm">
-                      Belum ada transaksi. Mulai tambahkan di atas!
-                    </div>
-                  ) : (
-                    transactions.slice(0, 5).map((tx) => {
-                      const icons: Record<string, string> = { Makanan: "🍔", Transport: "🚗", Belanja: "🛍️", Tagihan: "📄", Gaji: "💰", Lainnya: "📦", Transfer: "⇄" };
-                      const isTransfer = tx.type === "transfer";
-                      return (
-                        <div key={tx.id} className="flex items-center gap-3 px-5 py-3 hover:bg-muted/30 transition-colors">
-                          <span className="text-xl">{icons[tx.category] || "📦"}</span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{tx.description}</p>
-                            <p className="text-xs text-muted-foreground">{tx.category} · {new Date(tx.date).toLocaleDateString("id-ID", {day:"numeric", month:"short"})}</p>
-                          </div>
-                          <span className={`text-sm font-semibold ${
-                            isTransfer ? "text-blue-500" :
-                            tx.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
-                          }`}>
-                            {isTransfer ? "⇄" : tx.type === "income" ? "+" : "-"}{new Intl.NumberFormat("id-ID", {style:"currency", currency:"IDR", minimumFractionDigits:0}).format(tx.amount)}
-                          </span>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
+              <DashboardProgressCard transactions={transactions} />
+
+              <DashboardCalendarCard transactions={transactions} />
+              
             </div>
 
-            {/* Right: Budget Snapshot */}
-            <div className="lg:col-span-1">
-              <BudgetSnapshot
-                transactions={transactions}
-                onSeeAll={() => setActiveTab("budget")}
-              />
+            {/* Right Column (Budget Snapshot + Recent Tx) */}
+            <div className="lg:col-span-1 space-y-6 sm:space-y-8">
+              <div className="bg-white dark:bg-card rounded-[2rem] border border-border/40 p-5 shadow-sm">
+                <div className="mb-4">
+                  <h3 className="font-bold text-foreground">Sekilas Anggaran</h3>
+                </div>
+                <BudgetSnapshot
+                  transactions={transactions}
+                  onSeeAll={() => setActiveTab("budget")}
+                />
+              </div>
+
+              <DashboardRecentTx transactions={transactions} />
             </div>
           </div>
         </TabsContent>
 
         {/* Analitik Tab */}
-        <TabsContent value="analytics" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+        <TabsContent value="analytics" className="mt-0 focus-visible:outline-none focus-visible:ring-0 bg-white dark:bg-card rounded-[2rem] border border-border/40 p-4 sm:p-6 shadow-sm">
           <AnalyticsSection transactions={transactions} />
         </TabsContent>
 
         {/* Anggaran Tab */}
-        <TabsContent value="budget" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+        <TabsContent value="budget" className="mt-0 focus-visible:outline-none focus-visible:ring-0 bg-white dark:bg-card rounded-[2rem] border border-border/40 p-4 sm:p-6 shadow-sm">
           <BudgetSection transactions={transactions} />
         </TabsContent>
 
         {/* Riwayat Tab */}
-        <TabsContent value="history" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+        <TabsContent value="history" className="mt-0 focus-visible:outline-none focus-visible:ring-0 bg-white dark:bg-card rounded-[2rem] border border-border/40 p-4 sm:p-6 shadow-sm">
           <TransactionList
             transactions={transactions}
             onEdit={handleEdit}

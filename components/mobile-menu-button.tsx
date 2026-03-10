@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Wallet, Bell, Tag, User, LogOut, Sun, Moon, HandCoins } from "lucide-react";
+import { MoreVertical, Wallet, Bell, Tag, User, LogOut, Sun, Moon, HandCoins, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "next-themes";
 
@@ -93,6 +93,12 @@ export function MobileMenuButton() {
             <Link href="/dashboard/debts" className="flex items-center gap-2 cursor-pointer w-full">
               <HandCoins className="w-4 h-4" />
               Utang/Piutang
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/investments" className="flex items-center gap-2 cursor-pointer w-full text-indigo-600 dark:text-indigo-400">
+              <TrendingUp className="w-4 h-4" />
+              Investasi
             </Link>
           </DropdownMenuItem>
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { Tag, Wallet, Bell, HandCoins } from "lucide-react";
+import { Tag, Wallet, Bell, HandCoins, TrendingUp } from "lucide-react";
 import { MobileMenuButton } from "@/components/mobile-menu-button";
 import { DashboardTour } from "@/components/dashboard-tour";
 
@@ -59,6 +59,13 @@ export default function DashboardLayout({
               >
                 <HandCoins className="w-4 h-4" />
                 <span>Utang/Piutang</span>
+              </Link>
+              <Link
+                href="/dashboard/investments"
+                className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors px-3 py-1.5 rounded-lg"
+              >
+                <TrendingUp className="w-4 h-4" />
+                <span>Investasi</span>
               </Link>
             </div>
             <div className="hidden sm:flex items-center gap-1">

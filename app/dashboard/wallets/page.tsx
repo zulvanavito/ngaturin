@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Plus, Pencil, Trash2, Loader2, ArrowLeftRight, ChevronLeft, Wallet as WalletIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
+import { FeatureTip } from "@/components/feature-tip";
 
 const WALLET_ICONS = ["💳","💵","🏦","📱","💰","🪙","💼","🏧","💲","🎴"];
 const WALLET_COLORS = ["#10b981","#3b82f6","#8b5cf6","#f59e0b","#ef4444","#14b8a6","#f97316","#ec4899","#64748b","#0ea5e9"];
@@ -143,6 +144,17 @@ export default function WalletsPage() {
           </Button>
         </div>
       </div>
+
+      <FeatureTip
+        id="wallets"
+        title="💡 Tips: Dompet & Akun"
+        tips={[
+          "Tambahkan semua sumber keuanganmu: rekening bank, dompet tunai, kartu kredit, atau e-wallet seperti GoPay dan OVO.",
+          "Gunakan fitur Transfer untuk memindahkan saldo antar dompet — transaksinya otomatis tercatat di kedua sisi.",
+          "Saldo kartu kredit bisa diisi negatif untuk mencerminkan tagihan yang belum dibayar.",
+          "Klik ikon pensil pada kartu dompet untuk mengubah nama, ikon, atau warna kapan saja.",
+        ]}
+      />
 
       {/* Total Balance Summary */}
       {!loading && wallets.length > 0 && (

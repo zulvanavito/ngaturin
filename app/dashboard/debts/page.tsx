@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
+import { FeatureTip } from "@/components/feature-tip";
 
 interface Debt {
   id: string;
@@ -166,6 +167,17 @@ export default function DebtsPage() {
           <Plus className="w-4 h-4" /> Tambah
         </Button>
       </div>
+
+      <FeatureTip
+        id="debts"
+        title="💡 Tips: Utang & Piutang"
+        tips={[
+          "Hutang = kamu yang berhutang ke orang lain. Piutang = orang lain yang berhutang ke kamu.",
+          "Klik kartu ringkasan Hutang atau Piutang di bagian atas untuk langsung membuka form tambah catatan.",
+          "Tandai lunas dengan ikon centang (✓) pada setiap catatan — data tetap tersimpan sebagai histori.",
+          "Tambahkan tanggal jatuh tempo agar mendapat peringatan otomatis jika sudah melewati batas waktu.",
+        ]}
+      />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-4">

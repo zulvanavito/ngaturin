@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Plus, Pencil, Trash2, Loader2, Bell, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
+import { FeatureTip } from "@/components/feature-tip";
 
 interface RecurringBill {
   id: string;
@@ -139,7 +140,19 @@ export default function BillsPage() {
         </Button>
       </div>
 
-      <Card className="border border-border/40 bg-white dark:bg-card rounded-[2rem] overflow-hidden shadow-sm">
+      <FeatureTip
+        id="bills"
+        title="💡 Tips: Tagihan Berulang"
+        tips={[
+          "Catat semua tagihan rutin (listrik, internet, langganan streaming) agar tidak ada yang terlewat.",
+          "Notifikasi muncul otomatis di dashboard 3 hari sebelum tanggal jatuh tempo.",
+          "Gunakan toggle aktif/nonaktif untuk menonaktifkan sementara tagihan yang sedang dipause — datanya tetap tersimpan.",
+          "Kaitkan tagihan dengan kategori agar pengeluaran rutin tercatat otomatis di laporan analitik.",
+        ]}
+      />
+
+      <Card
+ className="border border-border/40 bg-white dark:bg-card rounded-[2rem] overflow-hidden shadow-sm">
         <CardHeader className="bg-muted/30 pb-4">
           <div className="flex items-center gap-2">
             <Bell className="w-4 h-4 text-primary" />

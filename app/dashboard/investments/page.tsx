@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
+import { FeatureTip } from "@/components/feature-tip";
 
 interface Investment {
   id: string;
@@ -176,6 +177,17 @@ export default function InvestmentsPage() {
           <Plus className="w-4 h-4" /> Tambah Aset
         </Button>
       </div>
+
+      <FeatureTip
+        id="investments"
+        title="💡 Tips: Portofolio Investasi"
+        tips={[
+          "Isi \"Nilai Pasar Saat Ini\" secara berkala (misalnya mingguan) untuk memperbarui profit/loss portofoliomu.",
+          "Modal Ditanam adalah total uang yang sudah kamu setor; Nilai Saat Ini adalah harga pasar terkini.",
+          "Grafik alokasi aset di atas membantu melihat seberapa terdiversifikasi portofoliomu antar jenis instrumen.",
+          "Gunakan kolom Simbol (BBCA, BTC, dll.) untuk memudahkan identifikasi aset saat portofolio mulai banyak.",
+        ]}
+      />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

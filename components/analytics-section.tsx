@@ -23,7 +23,7 @@ interface AnalyticsSectionProps {
   transactions: Transaction[];
 }
 
-const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#14b8a6", "#64748b"];
+const COLORS = ["#6B93D6", "#BAAFE0", "#85DABB", "#F4B8C0", "#F5C89A", "#93C9E0", "#C0BFCE"];
 
 export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
@@ -313,7 +313,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
           <Button 
             onClick={handleExportPDF} 
             disabled={filteredTransactions.length === 0}
-            className="w-full h-11 bg-brand-naval hover:bg-blue-900 text-white border-0 rounded-xl shadow-md"
+            className="w-full h-11 bg-brand-naval hover:opacity-90 text-white border-0 rounded-xl shadow-md"
             variant="outline"
           >
             <FileText className="w-4 h-4 mr-2" />
@@ -323,7 +323,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
             <Button 
               onClick={handleExportExcel} 
               disabled={filteredTransactions.length === 0}
-              className="w-full h-11 bg-brand-mint hover:bg-emerald-600 text-white border-0 rounded-xl shadow-md"
+              className="w-full h-11 bg-brand-mint hover:opacity-90 text-brand-dark border-0 rounded-xl shadow-md"
               variant="outline"
             >
               <FileSpreadsheet className="w-4 h-4 mr-2" />
@@ -394,9 +394,9 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
                   <Line 
                     type="monotone" 
                     dataKey="amount" 
-                    stroke="#3b82f6" 
+                    stroke="#6B93D6" 
                     strokeWidth={3} 
-                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }} 
+                    dot={{ fill: '#6B93D6', strokeWidth: 2, r: 4 }} 
                     activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }}
                   />
                 </LineChart>
@@ -432,7 +432,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
                   </div>
                   <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full" 
+                      className="h-full bg-gradient-to-r from-brand-lavender to-brand-naval rounded-full" 
                       style={{ width: `${totalWalletBalance > 0 ? Math.max(0, Math.min(100, ((w.balance || 0) / totalWalletBalance) * 100)) : 0}%` }} 
                     />
                   </div>
@@ -471,7 +471,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
               Unduh semua transaksi, anggaran, dompet, tagihan, dan utang/piutang dalam satu file JSON.
             </p>
             <Button
-              className="w-full h-11 gap-2 bg-brand-naval hover:bg-blue-900 text-white border-0 rounded-xl shadow-md"
+              className="w-full h-11 gap-2 bg-brand-naval hover:opacity-90 text-white border-0 rounded-xl shadow-md"
               disabled={backupLoading}
               onClick={async () => {
                 setBackupLoading(true);
@@ -500,10 +500,10 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
               Import transaksi dari file backup JSON. Data lain (anggaran, dompet, dll) tidak akan diubah.
             </p>
             {importResult && (
-              <p className="text-xs text-emerald-500 mb-2">{importResult}</p>
+              <p className="text-xs text-income mb-2">{importResult}</p>
             )}
             <label className="w-full cursor-pointer">
-              <div className={`w-full h-11 rounded-xl border border-input bg-brand-mint hover:bg-emerald-600 text-white shadow-md flex items-center justify-center gap-2 text-sm font-medium transition-colors ${
+              <div className={`w-full h-11 rounded-xl border border-input bg-brand-mint hover:opacity-90 text-brand-dark shadow-md flex items-center justify-center gap-2 text-sm font-medium transition-colors ${
                 importLoading ? "opacity-50 pointer-events-none" : ""
               }`}>
                 {importLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}

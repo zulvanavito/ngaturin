@@ -4,69 +4,77 @@
 
 @layer base {
   :root {
-    /* Cinza Escuro (Dark Gray) for foregrounds: #25282A -> 204 6% 15% */
-    /* Cinza Sereno (Serene Gray) for subdued backgrounds: #DDE5ED -> 210 27% 90% */
-    /* Verde Menta (Mint Green) for success/income: #A7E6D7 -> 166 54% 78% */
-    /* Lavanda Radiante (Lavender) for accents: #685BC7 -> 247 49% 57% */
-    /* Azul Naval (Naval Blue) for primary actions: #001871 -> 227 100% 22% */
+    /* ── Color Palette ───────────────────────────────────────── */
+    /* Background : #FFFFFF → hsl(0 0% 100%)                    */
+    /* Card       : #F8FAFC → hsl(210 40% 98%)                  */
+    /* Primary    : #6366F1 → hsl(239 84% 67%)  (Indigo-500)   */
+    /* Text       : #0F172A → hsl(222 47% 11%)                  */
 
     --background: 0 0% 100%;
-    --foreground: 204 6% 15%;
-    --card: 0 0% 100%;
-    --card-foreground: 204 6% 15%;
+    --foreground: 222 47% 11%;          /* #0F172A */
+    --card: 210 40% 98%;                /* #F8FAFC */
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 204 6% 15%;
-    --primary: 227 100% 22%; /* Azul Naval */
+    --popover-foreground: 222 47% 11%;
+    --primary: 239 84% 67%;             /* #6366F1 Indigo */
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 27% 90%; /* Cinza Sereno */
-    --secondary-foreground: 227 100% 22%;
-    --muted: 210 20% 96%;
-    --muted-foreground: 204 6% 45%;
-    --accent: 247 49% 57%; /* Lavanda */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    --secondary: 220 14% 94%;
+    --secondary-foreground: 222 47% 20%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 239 84% 96%;              /* very light indigo tint for ghost hover */
+    --accent-foreground: 239 84% 40%;   /* dark indigo text */
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 210 27% 90%;
-    --input: 210 27% 90%;
-    --ring: 247 49% 57%;
-    --chart-1: 227 100% 22%;
-    --chart-2: 247 49% 57%;
-    --chart-3: 166 54% 78%;
-    --chart-4: 210 27% 90%;
-    --chart-5: 204 6% 15%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 239 84% 67%;
+    /* Charts — distinct indigo family */
+    --chart-1: 239 84% 67%;             /* indigo */
+    --chart-2: 262 83% 68%;             /* violet */
+    --chart-3: 162 52% 57%;             /* teal-green */
+    --chart-4: 32  95% 65%;             /* amber */
+    --chart-5: 336 69% 65%;             /* rose */
     --radius: 0.75rem;
-    --success: 166 54% 78%;
-    --income: 166 54% 78%;
-    --expense: 0 84% 60%;
+    --success: 162 52% 50%;
+    --income:  162 52% 50%;
+    --expense: 0 72% 60%;
   }
+
   .dark {
-    --background: 204 10% 8%; /* Very dark gray/blue */
-    --foreground: 210 27% 90%; /* Serene Gray for text */
-    --card: 204 10% 12%; 
-    --card-foreground: 210 27% 95%;
-    --popover: 204 10% 12%;
-    --popover-foreground: 210 27% 95%;
-    --primary: 247 49% 70%; /* Lightened Lavender for better dark contrast */
-    --primary-foreground: 204 10% 8%;
-    --secondary: 204 6% 15%; /* Dark Gray */
-    --secondary-foreground: 210 27% 90%;
-    --muted: 204 6% 15%;
-    --muted-foreground: 210 10% 60%;
-    --accent: 227 70% 30%; /* Lighter Naval Blue */
-    --accent-foreground: 210 20% 90%;
-    --destructive: 0 62% 50%;
+    /* Background : #0B0F19 → hsl(226 44% 7%)                   */
+    /* Card       : #111827 → hsl(221 39% 11%)                  */
+    /* Primary    : #6366F1 → same indigo                        */
+    /* Text       : #F8FAFC → hsl(210 40% 98%)                  */
+
+    --background: 226 44% 7%;           /* #0B0F19 */
+    --foreground: 210 40% 98%;          /* #F8FAFC */
+    --card: 221 39% 11%;                /* #111827 */
+    --card-foreground: 210 40% 96%;
+    --popover: 221 39% 11%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 239 84% 67%;             /* #6366F1 same indigo */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 20% 18%;
+    --secondary-foreground: 210 40% 90%;
+    --muted: 222 20% 16%;
+    --muted-foreground: 220 9% 55%;
+    --accent: 239 40% 20%;              /* subtle dark indigo tint for hover */
+    --accent-foreground: 239 80% 85%;   /* light indigo text — readable on dark accent */
+    --destructive: 0 63% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 204 6% 20%;
-    --input: 204 6% 20%;
-    --ring: 247 49% 70%;
-    --chart-1: 247 49% 70%;
-    --chart-2: 227 70% 40%;
-    --chart-3: 166 54% 70%;
-    --chart-4: 204 6% 30%;
-    --chart-5: 210 27% 80%;
-    --success: 166 54% 60%;
-    --income: 166 54% 60%;
-    --expense: 0 84% 60%;
+    --border: 222 20% 19%;
+    --input: 222 20% 19%;
+    --ring: 239 84% 67%;
+    /* Dark mode charts */
+    --chart-1: 239 75% 72%;
+    --chart-2: 262 75% 72%;
+    --chart-3: 162 52% 60%;
+    --chart-4: 32  90% 65%;
+    --chart-5: 336 65% 65%;
+    --success: 162 52% 55%;
+    --income:  162 52% 55%;
+    --expense: 0 65% 62%;
   }
 }
 
@@ -84,10 +92,10 @@
     @apply bg-white/70 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10;
   }
   .gradient-primary {
-    @apply bg-gradient-to-br from-brand-lavender to-brand-naval;
+    background-color: #6366F1;
   }
   .gradient-income {
-    @apply bg-gradient-to-br from-brand-mint to-teal-500;
+    @apply bg-gradient-to-br from-teal-400 to-teal-600;
   }
   .gradient-expense {
     @apply bg-gradient-to-br from-red-400 to-red-600;

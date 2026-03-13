@@ -42,7 +42,7 @@ export function DashboardProgressCard({ transactions }: DashboardProgressCardPro
   const topCategories = useMemo(() => {
     // Generate a default visual total budget if none exists per category (mock logic to show progress bar UX)
     // Normally, this 'total' would come from user-defined Budgets in the DB.
-    const colors = ["bg-indigo-400", "bg-orange-400", "bg-emerald-400", "bg-rose-400", "bg-blue-400"];
+    const colors = ["bg-[#6B93D6]", "bg-[#BAAFE0]", "bg-[#85DABB]", "bg-[#F4B8C0]", "bg-[#F5C89A]"];
     
     const cats = Object.entries(categoryExpenses)
       .sort(([, a], [, b]) => b - a)

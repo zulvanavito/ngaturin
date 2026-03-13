@@ -54,13 +54,13 @@ function BudgetCard({
 }) {
   const pct = budget.amount > 0 ? Math.min(Math.round((spent / budget.amount) * 100), 100) : 0;
   const barColor =
-    pct >= 90 ? "bg-rose-500" :
-    pct >= 75 ? "bg-amber-500" :
-    "bg-emerald-500";
+    pct >= 90 ? "bg-[#F4B8C0]" :
+    pct >= 75 ? "bg-[#F5C89A]" :
+    "bg-[#85DABB]";
   const textColor =
-    pct >= 90 ? "text-rose-600 dark:text-rose-400" :
-    pct >= 75 ? "text-amber-600 dark:text-amber-400" :
-    "text-emerald-600 dark:text-emerald-400";
+    pct >= 90 ? "text-[#D96B7B] dark:text-[#F4B8C0]" :
+    pct >= 75 ? "text-[#D4924A] dark:text-[#F5C89A]" :
+    "text-[#3DAE8C] dark:text-[#85DABB]";
 
   return (
     <div className="group relative rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40 p-5 hover:shadow-md hover:border-border/60 transition-all duration-200">

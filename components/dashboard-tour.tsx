@@ -49,7 +49,12 @@ const TOUR_STEPS: Step[] = [
 
 export function DashboardTour() {
   const [run, setRun] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { theme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // Cek apakah user sudah pernah menyelesaikan tour dari database
@@ -88,6 +93,9 @@ export function DashboardTour() {
 
   const isDark = theme === "dark";
 
+  // Only render on client to avoid SSR hydration mismatch
+  if (!mounted) return null;
+
   return (
     <Joyride
       steps={TOUR_STEPS}
@@ -99,7 +107,7 @@ export function DashboardTour() {
       callback={handleJoyrideCallback}
       styles={{
         options: {
-          primaryColor: "#059669", 
+          primaryColor: "#6366F1",
           textColor: isDark ? "#f3f4f6" : "#1f2937",
           backgroundColor: isDark ? "#1f2937" : "#ffffff",
           arrowColor: isDark ? "#1f2937" : "#ffffff",

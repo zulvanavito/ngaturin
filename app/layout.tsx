@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ClientProviders } from "@/components/client-providers";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -38,6 +39,7 @@ export default function RootLayout({
           <ClientProviders>
             {children}
           </ClientProviders>
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>

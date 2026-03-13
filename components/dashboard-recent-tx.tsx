@@ -31,12 +31,12 @@ export function DashboardRecentTx({ transactions }: DashboardRecentTxProps) {
   const renderList = transactions.length > 0 ? transactions.slice(0, 4) : [];
 
   return (
-    <div className="bg-white dark:bg-card rounded-[2rem] border border-border/40 p-6 sm:p-8 shadow-sm h-full flex flex-col">
-      <div className="mb-8 flex items-center justify-between">
-        <h3 className="font-bold text-foreground text-lg">Transaksi Terbaru</h3>
+    <div className="bg-white dark:bg-card rounded-[2rem] border border-border/40 p-5 shadow-sm flex flex-col overflow-hidden">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="font-bold text-foreground text-base">Transaksi Terbaru</h3>
       </div>
       
-      <div className="flex-1 flex flex-col gap-6 w-full max-w-md">
+      <div className="flex flex-col gap-3 w-full overflow-y-auto">
         {renderList.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
             Belum ada transaksi
@@ -47,32 +47,37 @@ export function DashboardRecentTx({ transactions }: DashboardRecentTxProps) {
             const { icon, bg } = getIconAndColor(tx.category, tx.type);
             
             return (
-              <div key={tx.id || idx} className="flex justify-between items-center group">
-                <div className="flex items-center gap-4">
-                  {/* Icon Circle */}
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 ${bg} dark:bg-opacity-20`}>
-                    {icon}
-                  </div>
-                  
-                  {/* Details */}
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-bold text-sm tracking-tight truncate max-w-[150px] sm:max-w-[200px]">
+              <div key={tx.id || idx} className="flex items-start gap-3 py-2.5 border-b border-border/40 last:border-0">
+                {/* Icon */}
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 mt-0.5 ${bg} dark:bg-opacity-20`}>
+                  {icon}
+                </div>
+
+                {/* Info block — full width, wraps naturally */}
+                <div className="flex-1 min-w-0">
+                  {/* Row 1: category + amount */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-sm text-foreground truncate">
                       {tx.category || tx.description}
                     </span>
-                    <span className="text-xs text-muted-foreground font-medium mt-0.5 truncate">
-                      {tx.type === 'transfer' ? tx.description : tx.description || new Date(tx.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    <span className={`text-sm font-bold shrink-0 ${
+                      isIncome ? 'text-income' :
+                      tx.type === 'transfer' ? 'text-primary' : 'text-foreground'
+                    }`}>
+                      {isIncome ? '+ ' : tx.type === 'expense' ? '- ' : ''}
+                      {formatCurrency(Math.abs(tx.amount))}
+                    </span>
+                  </div>
+                  {/* Row 2: description + date */}
+                  <div className="flex items-center justify-between gap-2 mt-0.5">
+                    <span className="text-xs text-muted-foreground truncate">
+                      {tx.description || '—'}
+                    </span>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {new Date(tx.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                     </span>
                   </div>
                 </div>
-                
-                {/* Amount */}
-                <span className={`text-sm font-bold whitespace-nowrap pl-4 ${
-                  isIncome ? 'text-emerald-500' : 
-                  tx.type === 'transfer' ? 'text-blue-600 dark:text-blue-400' : 'text-foreground'
-                }`}>
-                  {isIncome ? '+ ' : tx.type === 'expense' ? '- ' : ''}
-                  {formatCurrency(Math.abs(tx.amount))}
-                </span>
               </div>
             );
           })

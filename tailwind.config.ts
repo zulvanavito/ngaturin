@@ -12,11 +12,11 @@ export default {
     extend: {
       colors: {
         brand: {
-          dark: "#25282A",
-          serene: "#DDE5ED",
-          mint: "#A7E6D7",
-          lavender: "#685BC7",
-          naval: "#001871",
+          dark: "#0F172A",
+          serene: "#F8FAFC",
+          mint: "#6EE7B7",       /* teal-300 for income */
+          lavender: "#818CF8",   /* indigo-400 */
+          naval: "#6366F1",      /* indigo-500 primary */
         },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

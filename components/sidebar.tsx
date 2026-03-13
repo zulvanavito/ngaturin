@@ -40,7 +40,7 @@ export function Sidebar() {
     <aside className="w-64 h-full bg-white dark:bg-card border-r border-border/40 hidden md:flex flex-col py-6 px-4 shrink-0 overflow-y-auto custom-scrollbar">
       {/* Brand logo */}
       <Link href="/dashboard" className="flex items-center gap-3 mb-8 px-2">
-        <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-bold text-lg leading-none pt-0.5">
+        <div className="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm leading-none">
           N.
         </div>
         <span className="font-bold text-xl tracking-tight text-foreground">Ngaturin</span>
@@ -57,11 +57,11 @@ export function Sidebar() {
               href={link.href}
               className={`flex items-center gap-3 px-4 py-2.5 rounded-[1rem] transition-all duration-200 text-sm ${
                 isActive
-                  ? "bg-rose-100/80 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 font-semibold"
+                  ? "bg-indigo-100/80 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 font-semibold"
                   : "text-muted-foreground/80 hover:bg-muted/50 hover:text-foreground font-medium"
               }`}
             >
-              <link.icon className={`w-5 h-5 ${isActive ? "text-rose-500 dark:text-rose-400" : ""}`} />
+              <link.icon className={`w-5 h-5 ${isActive ? "text-indigo-600 dark:text-indigo-400" : ""}`} />
               {link.name}
             </Link>
           );
@@ -114,10 +114,10 @@ export function MobileHeader() {
   return (
     <header className="md:hidden flex items-center justify-between px-4 h-16 bg-white dark:bg-card border-b border-border/40 shrink-0 sticky top-0 z-50">
       <Link href="/dashboard" className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-bold text-sm pt-0.5">
-          B.
+        <div className="w-7 h-7 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm pt-0.5">
+          N.
         </div>
-        <span className="font-bold text-lg tracking-tight">Budggt.</span>
+        <span className="font-bold text-lg tracking-tight">Ngaturin</span>
       </Link>
 
       <Sheet open={open} onOpenChange={setOpen}>
@@ -129,10 +129,10 @@ export function MobileHeader() {
         <SheetContent side="left" className="w-[280px] p-0 flex flex-col bg-white dark:bg-card">
           <div className="p-4 border-b border-border/40">
             <Link href="/dashboard" className="flex items-center gap-3 px-2" onClick={() => setOpen(false)}>
-              <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-bold text-lg leading-none pt-0.5">
-                B.
+              <div className="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm leading-none">
+                N.
               </div>
-              <span className="font-bold text-xl tracking-tight text-foreground">Budggt.</span>
+              <span className="font-bold text-xl tracking-tight text-foreground">Ngaturin</span>
             </Link>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-1">
@@ -146,11 +146,11 @@ export function MobileHeader() {
                   onClick={() => setOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
                     isActive
-                      ? "bg-rose-100/80 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 font-semibold"
+                      ? "bg-indigo-100/80 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 font-semibold"
                       : "text-muted-foreground/80 hover:bg-muted/50 hover:text-foreground font-medium"
                   }`}
                 >
-                  <link.icon className={`w-5 h-5 ${isActive ? "text-rose-500 dark:text-rose-400" : ""}`} />
+                  <link.icon className={`w-5 h-5 ${isActive ? "text-indigo-600 dark:text-indigo-400" : ""}`} />
                   {link.name}
                 </Link>
               );

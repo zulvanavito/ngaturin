@@ -1,109 +1,203 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Ngaturin 💰
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+Ngaturin adalah aplikasi expense tracker pribadi berbasis web yang membantu Anda mencatat pemasukan dan pengeluaran dengan mudah, cepat, dan aman. Dibangun dengan teknologi modern seperti Next.js, Supabase, dan TailwindCSS, Ngaturin memberikan pengalaman pengguna yang responsif dan intuitif.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## ✨ Fitur Utama (MVP)
 
-## Features
+- **✅ Autentikasi Multi‑Metode** – Registrasi dan login menggunakan email/password atau akun Google (via Supabase Auth).
+- **✅ Manajemen Transaksi CRUD** – Tambah, lihat, edit, dan hapus transaksi pemasukan/pengeluaran.
+- **✅ Kategori Transaksi** – Pilihan kategori: Makanan, Transport, Belanja, Tagihan, Gaji, Lainnya.
+- **✅ Saldo Real‑time** – Saldo terkini dihitung otomatis dari seluruh transaksi.
+- **✅ Dashboard Terproteksi** – Setiap pengguna hanya dapat mengakses data miliknya sendiri berkat Row Level Security (RLS) di database.
+- **✅ Desain Modern** – Antarmuka bersih dengan komponen dari ShadCN UI dan ikon dari Lucide React.
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+## 🛠️ Teknologi yang Digunakan
 
-## Demo
+| Bagian | Teknologi |
+| :--- | :--- |
+| **Frontend** | Next.js 14 (App Router), TailwindCSS |
+| **UI Components** | ShadCN UI, Lucide React |
+| **Backend & Auth** | Supabase (PostgreSQL, Auth, Row Level Security) |
+| **Database** | PostgreSQL (dikelola Supabase) |
+| **Deployment** | Vercel (opsional) |
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+## 📋 Prasyarat
 
-## Deploy to Vercel
+- Node.js versi 18.x atau lebih baru
+- Akun Supabase (gratis)
+- *(Opsional)* Akun Google Cloud Console untuk konfigurasi OAuth Google
 
-Vercel deployment will guide you through creating a Supabase account and project.
+## 🚀 Cara Menjalankan di Lokal
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+### 1. Clone repositori
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+```bash
+git clone https://github.com/username/ngaturin.git
+cd ngaturin
+```
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+### 2. Install dependensi
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+```bash
+npm install
+```
 
-## Clone and run locally
+### 3. Setup environment variables
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+Buat file `.env.local` di root proyek dan isi dengan kredensial Supabase Anda:
 
-2. Create a Next.js app using the Supabase Starter template npx command
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+> **Catatan:** Ganti `your_supabase_project_url` dan `your_supabase_anon_key` dengan nilai yang Anda peroleh dari halaman **Project Settings > API** di dashboard Supabase.
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+### 4. Setup database di Supabase
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+Buka **SQL Editor** di dashboard Supabase dan jalankan perintah SQL berikut untuk membuat tabel `transactions` beserta kebijakan keamanannya:
 
-3. Use `cd` to change into the app's directory
+```sql
+-- Tabel transaksi
+CREATE TABLE transactions (
+  id BIGSERIAL PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  description TEXT NOT NULL,
+  amount DECIMAL(12, 2) NOT NULL,
+  category TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-   ```bash
-   cd with-supabase-app
-   ```
+-- Aktifkan Row Level Security
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 
-4. Rename `.env.example` to `.env.local` and update the following:
+-- Policy SELECT: hanya data milik sendiri
+CREATE POLICY "Users can view their own transactions"
+  ON transactions FOR SELECT
+  TO authenticated
+  USING (auth.uid() = user_id);
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+-- Policy INSERT: hanya boleh insert dengan user_id sendiri
+CREATE POLICY "Users can insert their own transactions"
+  ON transactions FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+-- Policy UPDATE
+CREATE POLICY "Users can update their own transactions"
+  ON transactions FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
-5. You can now run the Next.js local development server:
+-- Policy DELETE
+CREATE POLICY "Users can delete their own transactions"
+  ON transactions FOR DELETE
+  TO authenticated
+  USING (auth.uid() = user_id);
 
-   ```bash
-   npm run dev
-   ```
+-- Index untuk performa
+CREATE INDEX idx_transactions_user_id ON transactions(user_id);
+CREATE INDEX idx_transactions_date ON transactions(date);
+```
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+### 5. Jalankan development server
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+```bash
+npm run dev
+```
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+Akses `http://localhost:3000` di browser. Anda akan diarahkan ke halaman login.
 
-## Feedback and issues
+## 🔧 Konfigurasi Tambahan
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+### Google OAuth (Opsional)
 
-## More Supabase examples
+Jika ingin mengaktifkan login dengan Google:
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+1. Buat project di **Google Cloud Console**.
+2. Aktifkan **OAuth consent screen** (pilih External).
+3. Buat **OAuth Client ID** untuk aplikasi web.
+4. Tambahkan **Authorized redirect URIs**:
+   - `http://localhost:3000/auth/callback`
+   - `https://domain-anda.com/auth/callback` (untuk production)
+5. Di Supabase, buka **Authentication > Providers > Google**, masukkan **Client ID** dan **Client Secret**.
+6. Simpan.
+
+### Template Email Konfirmasi
+
+Anda dapat menyesuaikan tampilan email konfirmasi pendaftaran di **Supabase Dashboard > Authentication > Email Templates**. Gunakan kode HTML berikut sebagai dasar:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konfirmasi Email Ngaturin</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1f2937; }
+    .container { max-width: 560px; margin: 0 auto; padding: 20px; }
+    .button { background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Konfirmasi Pendaftaran Akun Ngaturin</h2>
+    <p>Terima kasih telah mendaftar. Klik tombol di bawah untuk mengonfirmasi email Anda:</p>
+    <p style="text-align: center;">
+      <a href="{{ .ConfirmationURL }}" class="button">Konfirmasi Email</a>
+    </p>
+    <p>Jika tombol tidak berfungsi, salin tautan berikut: <br> {{ .ConfirmationURL }}</p>
+    <p>Abaikan email ini jika Anda tidak mendaftar.</p>
+  </div>
+</body>
+</html>
+```
+
+> **Tips:** Untuk keperluan pengembangan, Anda dapat menonaktifkan konfirmasi email sementara di **Authentication > Providers > Email** dengan mematikan opsi **Confirm email**.
+
+## 📁 Struktur Proyek
+
+```text
+ngaturin/
+├── app/
+│   ├── auth/
+│   │   ├── page.tsx          # Halaman login/register
+│   │   └── callback/
+│   │       └── route.ts       # Handler OAuth callback
+│   ├── dashboard/
+│   │   └── page.tsx           # Halaman utama (terproteksi)
+│   ├── page.tsx                # Redirect ke auth/dashboard
+│   └── layout.tsx
+├── components/
+│   ├── ui/                     # Komponen ShadCN
+│   ├── TransactionForm.tsx
+│   └── TransactionList.tsx
+├── lib/
+│   └── supabase/
+│       ├── client.ts           # Supabase client (browser)
+│       └── server.ts            # Supabase client (server)
+├── middleware.ts                # Proteksi rute
+├── .env.local                   # Environment variables
+└── tailwind.config.ts
+```
+
+## 📈 Fitur Selanjutnya (Rencana Pengembangan)
+
+- 🔍 Filter & pencarian transaksi
+- 📊 Grafik pengeluaran per kategori (Recharts)
+- 💰 Anggaran bulanan (budgeting)
+- 📤 Ekspor data ke CSV/Excel
+- 🏦 Multi‑dompet
+- 🌙 Mode gelap
+- 🔔 Pengingat tagihan berulang
+
+## 📄 Lisensi
+
+MIT
+
+Dibuat dengan ❤️ oleh Zulvan Avito

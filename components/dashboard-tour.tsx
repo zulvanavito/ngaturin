@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Joyride, { CallBackProps, STATUS, Step } from "react-joyride";
+import { Joyride, STATUS } from "react-joyride";
+import type { EventData as CallBackProps, Step } from "react-joyride";
 import { useTheme } from "next-themes";
 
 const TOUR_STEPS: Step[] = [
@@ -102,23 +103,23 @@ export function DashboardTour() {
       run={run}
       continuous
       scrollToFirstStep
-      showProgress
-      showSkipButton
-      callback={handleJoyrideCallback}
+      onEvent={handleJoyrideCallback}
+      options={{
+        primaryColor: "#6366F1",
+        textColor: isDark ? "#f3f4f6" : "#1f2937",
+        backgroundColor: isDark ? "#1f2937" : "#ffffff",
+        arrowColor: isDark ? "#1f2937" : "#ffffff",
+        overlayColor: isDark ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.4)",
+        zIndex: 10000,
+        showProgress: true,
+        buttons: ["back", "primary", "skip"],
+      }}
       styles={{
-        options: {
-          primaryColor: "#6366F1",
-          textColor: isDark ? "#f3f4f6" : "#1f2937",
-          backgroundColor: isDark ? "#1f2937" : "#ffffff",
-          arrowColor: isDark ? "#1f2937" : "#ffffff",
-          overlayColor: isDark ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.4)",
-          zIndex: 10000,
-        },
         tooltip: {
           borderRadius: "16px",
           padding: "20px",
         },
-        buttonNext: {
+        buttonPrimary: {
           borderRadius: "8px",
           padding: "8px 16px",
           fontSize: "14px",

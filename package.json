@@ -16,6 +16,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "exceljs": "^4.4.0",
     "json2csv": "^6.0.0-alpha.2",
     "jspdf": "^4.2.0",
     "jspdf-autotable": "^5.0.7",
@@ -25,10 +26,9 @@
     "radix-ui": "^1.4.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-joyride": "^2.9.3",
+    "react-joyride": "^3.0.0",
     "recharts": "^3.7.0",
-    "tailwind-merge": "^3.3.0",
-    "xlsx": "^0.18.5"
+    "tailwind-merge": "^3.3.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

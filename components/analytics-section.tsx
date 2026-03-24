@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Parser } from "json2csv";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Button } from "@/components/ui/button";
@@ -97,7 +97,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
     }
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     if (filteredTransactions.length === 0) return;
     
     try {
@@ -109,12 +109,39 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
         Jumlah: tx.amount
       }));
 
-      const worksheet = XLSX.utils.json_to_sheet(data);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Transaksi");
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Transaksi");
       
+      worksheet.columns = [
+        { header: "Tanggal", key: "Tanggal", width: 15 },
+        { header: "Kategori", key: "Kategori", width: 20 },
+        { header: "Deskripsi", key: "Deskripsi", width: 30 },
+        { header: "Tipe", key: "Tipe", width: 15 },
+        { header: "Jumlah", key: "Jumlah", width: 15 },
+      ];
+
+      worksheet.addRows(data);
+      
+      // Style the header
+      worksheet.getRow(1).font = { bold: true };
+      worksheet.getRow(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF0F1E32' } // naval blue
+      };
+      worksheet.getRow(1).font = { color: { argb: 'FFFFFFFF' }, bold: true };
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
       const fileName = `laporan_pengatur_keuangan_${selectedMonth === 'all' ? 'semua' : selectedMonth}.xlsx`;
-      XLSX.writeFile(workbook, fileName);
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error generating Excel:", err);
     }

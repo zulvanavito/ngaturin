@@ -16,12 +16,11 @@ interface DashboardProgressCardProps {
 
 export function DashboardProgressCard({ transactions }: DashboardProgressCardProps) {
   
-  // Real dates calculation
+  
   const today = new Date();
   const day = today.getDate();
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   
-  // Calculate expenses by category for the current month
   const categoryExpenses = useMemo(() => {
     const currentMonthTx = transactions.filter(t => {
       const txDate = new Date(t.date);
@@ -40,27 +39,26 @@ export function DashboardProgressCard({ transactions }: DashboardProgressCardPro
 
   // Map into display data, sorting by highest spent
   const topCategories = useMemo(() => {
-    // Generate a default visual total budget if none exists per category (mock logic to show progress bar UX)
-    // Normally, this 'total' would come from user-defined Budgets in the DB.
+
     const colors = ["bg-[#6B93D6]", "bg-[#BAAFE0]", "bg-[#85DABB]", "bg-[#F4B8C0]", "bg-[#F5C89A]"];
     
     const cats = Object.entries(categoryExpenses)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 3) // Show top 3
       .map(([name, spent], index) => {
-        // Fallback target: 15M for visual demo, or 120% of spent if over
+      
         const estimatedBudget = 15000000; 
         const total = spent > estimatedBudget ? spent * 1.2 : estimatedBudget; 
         
         return {
           name,
           spent,
-          total, // Real app: replace with `budgetCategory.limit`
+          total, 
           colorClass: colors[index % colors.length]
         };
       });
       
-    // If no data, show empty state placeholders
+    
     if (cats.length === 0) {
       return [
         { name: "Belum ada", spent: 0, total: 1000, colorClass: "bg-muted" },

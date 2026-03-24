@@ -4,37 +4,33 @@
 
 @layer base {
   :root {
-    /* ── Color Palette ───────────────────────────────────────── */
-    /* Background : #FFFFFF → hsl(0 0% 100%)                    */
-    /* Card       : #F8FAFC → hsl(210 40% 98%)                  */
-    /* Primary    : #6366F1 → hsl(239 84% 67%)  (Indigo-500)   */
-    /* Text       : #0F172A → hsl(222 47% 11%)                  */
+    
 
     --background: 0 0% 100%;
-    --foreground: 222 47% 11%;          /* #0F172A */
-    --card: 210 40% 98%;                /* #F8FAFC */
+    --foreground: 222 47% 11%;          
+    --card: 210 40% 98%;                
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 239 84% 67%;             /* #6366F1 Indigo */
+    --primary: 239 84% 67%;             
     --primary-foreground: 0 0% 100%;
     --secondary: 220 14% 94%;
     --secondary-foreground: 222 47% 20%;
     --muted: 220 14% 96%;
     --muted-foreground: 220 9% 46%;
-    --accent: 239 84% 96%;              /* very light indigo tint for ghost hover */
-    --accent-foreground: 239 84% 40%;   /* dark indigo text */
+    --accent: 239 84% 96%;              
+    --accent-foreground: 239 84% 40%;  
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     --border: 220 13% 91%;
     --input: 220 13% 91%;
     --ring: 239 84% 67%;
-    /* Charts — distinct indigo family */
-    --chart-1: 239 84% 67%;             /* indigo */
-    --chart-2: 262 83% 68%;             /* violet */
-    --chart-3: 162 52% 57%;             /* teal-green */
-    --chart-4: 32  95% 65%;             /* amber */
-    --chart-5: 336 69% 65%;             /* rose */
+    
+    --chart-1: 239 84% 67%;             
+    --chart-2: 262 83% 68%;            
+    --chart-3: 162 52% 57%;             
+    --chart-4: 32  95% 65%;             
+    --chart-5: 336 69% 65%;             
     --radius: 0.75rem;
     --success: 162 52% 50%;
     --income:  162 52% 50%;
@@ -42,31 +38,27 @@
   }
 
   .dark {
-    /* Background : #0B0F19 → hsl(226 44% 7%)                   */
-    /* Card       : #111827 → hsl(221 39% 11%)                  */
-    /* Primary    : #6366F1 → same indigo                        */
-    /* Text       : #F8FAFC → hsl(210 40% 98%)                  */
+    
 
-    --background: 226 44% 7%;           /* #0B0F19 */
-    --foreground: 210 40% 98%;          /* #F8FAFC */
-    --card: 221 39% 11%;                /* #111827 */
+    --background: 226 44% 7%;           
+    --foreground: 210 40% 98%;          
+    --card: 221 39% 11%;                
     --card-foreground: 210 40% 96%;
     --popover: 221 39% 11%;
     --popover-foreground: 210 40% 96%;
-    --primary: 239 84% 67%;             /* #6366F1 same indigo */
+    --primary: 239 84% 67%;             
     --primary-foreground: 0 0% 100%;
     --secondary: 222 20% 18%;
     --secondary-foreground: 210 40% 90%;
     --muted: 222 20% 16%;
     --muted-foreground: 220 9% 55%;
-    --accent: 239 40% 20%;              /* subtle dark indigo tint for hover */
-    --accent-foreground: 239 80% 85%;   /* light indigo text — readable on dark accent */
+    --accent: 239 40% 20%;              
+    --accent-foreground: 239 80% 85%;   
     --destructive: 0 63% 55%;
     --destructive-foreground: 0 0% 100%;
     --border: 222 20% 19%;
     --input: 222 20% 19%;
     --ring: 239 84% 67%;
-    /* Dark mode charts */
     --chart-1: 239 75% 72%;
     --chart-2: 262 75% 72%;
     --chart-3: 162 52% 60%;

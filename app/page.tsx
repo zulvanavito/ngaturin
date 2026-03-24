@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import {
@@ -358,7 +359,25 @@ export default function Home() {
             <span className="text-border">·</span>
             <span>© 2026. All rights reserved.</span>
           </div>
-          <ThemeSwitcher />
+          <div className="flex items-center gap-4">
+            <Link
+              href="/privacy-policy"
+              className="hover:text-foreground transition-colors"
+            >
+              Kebijakan Privasi
+            </Link>
+            <span className="text-border">·</span>
+            <Link
+              href="/terms-of-service"
+              className="hover:text-foreground transition-colors"
+            >
+              Ketentuan Layanan
+            </Link>
+            <span className="text-border hidden sm:inline">·</span>
+            <div className="hidden sm:block">
+              <ThemeSwitcher />
+            </div>
+          </div>
         </div>
       </footer>
     </main>

@@ -23,7 +23,7 @@ interface AnalyticsSectionProps {
   transactions: Transaction[];
 }
 
-const COLORS = ["#6B93D6", "#BAAFE0", "#85DABB", "#F4B8C0", "#F5C89A", "#93C9E0", "#C0BFCE"];
+const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))", "hsl(var(--chart-6))", "hsl(var(--chart-7))"];
 
 export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
@@ -340,7 +340,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
           <Button 
             onClick={handleExportPDF} 
             disabled={filteredTransactions.length === 0}
-            className="w-full h-11 bg-brand-naval hover:opacity-90 text-white border-0 rounded-xl shadow-md"
+            className="w-full h-11 bg-primary hover:brightness-110 text-primary-foreground border-0 rounded-xl shadow-md"
             variant="outline"
           >
             <FileText className="w-4 h-4 mr-2" />
@@ -350,7 +350,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
             <Button 
               onClick={handleExportExcel} 
               disabled={filteredTransactions.length === 0}
-              className="w-full h-11 bg-brand-mint hover:opacity-90 text-brand-dark border-0 rounded-xl shadow-md"
+              className="w-full h-11 bg-secondary hover:brightness-110 text-secondary-foreground border-0 rounded-xl shadow-md"
               variant="outline"
             >
               <FileSpreadsheet className="w-4 h-4 mr-2" />
@@ -459,7 +459,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
                   </div>
                   <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-brand-lavender to-brand-naval rounded-full" 
+                      className="h-full bg-gradient-to-r from-secondary to-primary rounded-full" 
                       style={{ width: `${totalWalletBalance > 0 ? Math.max(0, Math.min(100, ((w.balance || 0) / totalWalletBalance) * 100)) : 0}%` }} 
                     />
                   </div>
@@ -481,8 +481,8 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
       {/* Backup & Restore */}
       <div className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] p-6">
         <div className="flex items-center gap-2 mb-5">
-          <div className="w-8 h-8 rounded-xl bg-brand-naval/10 flex items-center justify-center">
-            <HardDrive className="w-4 h-4 text-brand-naval" />
+          <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center">
+            <HardDrive className="w-4 h-4 text-secondary" />
           </div>
           <div>
             <h2 className="text-base font-semibold">Backup &amp; Pemulihan Data</h2>
@@ -498,7 +498,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
               Unduh semua transaksi, anggaran, dompet, tagihan, dan utang/piutang dalam satu file JSON.
             </p>
             <Button
-              className="w-full h-11 gap-2 bg-brand-naval hover:opacity-90 text-white border-0 rounded-xl shadow-md"
+              className="w-full h-11 gap-2 bg-primary hover:brightness-110 text-primary-foreground border-0 rounded-xl shadow-md"
               disabled={backupLoading}
               onClick={async () => {
                 setBackupLoading(true);
@@ -530,7 +530,7 @@ export function AnalyticsSection({ transactions }: AnalyticsSectionProps) {
               <p className="text-xs text-income mb-2">{importResult}</p>
             )}
             <label className="w-full cursor-pointer">
-              <div className={`w-full h-11 rounded-xl border border-input bg-brand-mint hover:opacity-90 text-brand-dark shadow-md flex items-center justify-center gap-2 text-sm font-medium transition-colors ${
+              <div className={`w-full h-11 rounded-xl border border-input bg-secondary hover:brightness-110 text-secondary-foreground shadow-md flex items-center justify-center gap-2 text-sm font-medium transition-colors ${
                 importLoading ? "opacity-50 pointer-events-none" : ""
               }`}>
                 {importLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}

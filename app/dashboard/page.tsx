@@ -82,8 +82,8 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-brand-naval/10 flex items-center justify-center animate-pulse">
-           <span className="text-brand-naval font-bold text-xl pt-0.5">N.</span>
+        <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center animate-pulse">
+           <span className="text-secondary font-bold text-xl pt-0.5">N.</span>
         </div>
         <p className="text-muted-foreground font-medium text-sm">Memuat data...</p>
       </div>
@@ -99,7 +99,7 @@ export default function DashboardPage() {
          <div className="flex justify-start sm:justify-end mb-4">
            <Button
              onClick={() => { setShowForm(prev => !prev); setEditingTransaction(null); }}
-             className="w-full sm:w-auto h-12 sm:h-10 rounded-xl sm:rounded-[1rem] bg-brand-naval hover:bg-blue-900 text-white shadow-md px-4 flex items-center justify-center gap-2 transition-transform hover:-translate-y-0.5"
+             className="w-full sm:w-auto h-12 sm:h-10 rounded-xl sm:rounded-[1rem] bg-primary text-primary-foreground hover:brightness-110 shadow-md px-4 flex items-center justify-center gap-2 transition-transform hover:-translate-y-0.5"
            >
              <Plus className="w-5 h-5 sm:w-4 sm:h-4 stroke-[3px]" />
              <span className="font-semibold">Tambah Transaksi Baru</span>
@@ -128,20 +128,20 @@ export default function DashboardPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="tour-tabs w-full mt-8">
-        <TabsList className="w-full mb-6 h-auto rounded-[1.5rem] bg-muted/30 border border-border/40 p-1.5 flex flex-wrap sm:grid sm:grid-cols-4 gap-2">
-          <TabsTrigger value="overview" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+        <TabsList className="w-full mb-6 h-auto rounded-xl bg-muted/40 backdrop-blur-md border border-border/40 flex flex-wrap sm:grid sm:grid-cols-4 gap-2">
+          <TabsTrigger value="overview" className="rounded-xl font-semibold flex items-center justify-center gap-2 shrink-0 sm:shrink px-4 py-2.5 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
             <LayoutDashboard className="w-4 h-4 shrink-0" />
             <span className="text-sm whitespace-nowrap">Ringkasan</span>
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+          <TabsTrigger value="analytics" className="rounded-xl font-semibold flex items-center justify-center gap-2 shrink-0 sm:shrink px-4 py-2.5 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
             <BarChart3 className="w-4 h-4 shrink-0" />
             <span className="text-sm whitespace-nowrap">Analitik</span>
           </TabsTrigger>
-          <TabsTrigger value="budget" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+          <TabsTrigger value="budget" className="rounded-xl font-semibold flex items-center justify-center gap-2 shrink-0 sm:shrink px-4 py-2.5 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
             <Target className="w-4 h-4 shrink-0" />
             <span className="text-sm whitespace-nowrap">Anggaran</span>
           </TabsTrigger>
-          <TabsTrigger value="history" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
+          <TabsTrigger value="history" className="rounded-xl font-semibold flex items-center justify-center gap-2 shrink-0 sm:shrink px-4 py-2.5 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
             <History className="w-4 h-4 shrink-0" />
             <span className="text-sm whitespace-nowrap">Riwayat</span>
           </TabsTrigger>

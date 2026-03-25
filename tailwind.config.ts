@@ -12,11 +12,11 @@ export default {
     extend: {
       colors: {
         brand: {
-          dark: "#0F172A",
-          serene: "#F8FAFC",
-          mint: "#6EE7B7",       /* teal-300 for income */
-          lavender: "#818CF8",   /* indigo-400 */
-          naval: "#6366F1",      /* indigo-500 primary */
+          dark: "hsl(var(--foreground))",
+          serene: "hsl(var(--background))",
+          mint: "hsl(var(--chart-3))",       
+          lavender: "hsl(var(--chart-7))",   
+          naval: "hsl(var(--primary))",      
         },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -60,7 +60,21 @@ export default {
           "3": "hsl(var(--chart-3))",
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
+          "6": "hsl(var(--chart-6))",
+          "7": "hsl(var(--chart-7))",
+          "8": "hsl(var(--chart-8))",
+          "9": "hsl(var(--chart-9))",
         },
+      },
+      fontSize: {
+        "display-lg": ["3.5rem", { lineHeight: "1.2", fontWeight: "500" }],
+        "headline-md": ["1.75rem", { lineHeight: "1.3", fontWeight: "600" }],
+        "body-md": ["0.875rem", { lineHeight: "1.5", fontWeight: "400" }],
+        "label-sm": ["0.6875rem", { lineHeight: "1.1", fontWeight: "700" }],
+      },
+      boxShadow: {
+        ambient: "0 20px 50px rgba(44, 47, 48, 0.05)",
+        glow: "0 8px 30px rgba(209, 252, 0, 0.3)",
       },
       borderRadius: {
         lg: "var(--radius)",

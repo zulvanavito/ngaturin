@@ -135,7 +135,7 @@ export default function BillsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Tagihan Berulang</h1>
           <p className="text-sm text-muted-foreground mt-1">Pantau tagihan rutin bulanan Anda.</p>
         </div>
-        <Button onClick={openAdd} className="bg-brand-naval hover:bg-blue-900 text-white gap-2 h-11 rounded-xl shadow-md">
+        <Button onClick={openAdd} className="bg-primary hover:brightness-110 text-primary-foreground gap-2 h-11 rounded-xl shadow-md">
           <Plus className="w-4 h-4" /> Tambah Tagihan
         </Button>
       </div>
@@ -231,7 +231,7 @@ export default function BillsPage() {
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">Batal</Button>
-              <Button type="submit" className="bg-brand-naval hover:bg-blue-900 text-white rounded-xl shadow-md" disabled={saving}>
+              <Button type="submit" className="bg-primary hover:brightness-110 text-primary-foreground rounded-xl shadow-md" disabled={saving}>
                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {editingBill ? "Simpan" : "Tambah"}
               </Button>

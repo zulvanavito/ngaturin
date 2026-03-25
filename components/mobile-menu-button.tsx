@@ -96,7 +96,7 @@ export function MobileMenuButton() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard/investments" className="flex items-center gap-2 cursor-pointer w-full text-indigo-600 dark:text-indigo-400">
+            <Link href="/dashboard/investments" className="flex items-center gap-2 cursor-pointer w-full text-secondary dark:text-primary">
               <TrendingUp className="w-4 h-4" />
               Investasi
             </Link>

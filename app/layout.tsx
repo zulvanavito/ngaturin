@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Lato } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ClientProviders } from "@/components/client-providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -16,10 +16,10 @@ export const metadata: Metadata = {
     "Ngaturin adalah aplikasi expense tracker pribadi yang membantu Anda melacak pemasukan dan pengeluaran dengan mudah.",
 };
 
-const inter = Inter({
-  variable: "--font-inter",
-  display: "swap",
+const lato = Lato({
   subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
 });
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${lato.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

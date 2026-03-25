@@ -38,7 +38,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-64 h-full bg-white dark:bg-card border-r border-border/40 hidden md:flex flex-col py-6 px-4 shrink-0 overflow-y-auto custom-scrollbar">
+    <aside className="w-64 h-full bg-card border-r border-border/40 hidden md:flex flex-col py-6 px-4 shrink-0 overflow-y-auto custom-scrollbar">
       <Link href="/dashboard" className="flex items-center gap-3 mb-8 px-2">
         <Image src="/logo.png" alt="Ngaturin Logo" width={32} height={32} className="rounded-xl object-contain" style={{ width: "auto", height: "auto" }} />
         <span className="font-bold text-xl tracking-tight text-foreground">Ngaturin</span>
@@ -55,11 +55,11 @@ export function Sidebar() {
               href={link.href}
               className={`flex items-center gap-3 px-4 py-2.5 rounded-[1rem] transition-all duration-200 text-sm ${
                 isActive
-                  ? "bg-indigo-100/80 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 font-semibold"
+                  ? "bg-primary/20 text-secondary dark:bg-primary/20 dark:text-primary font-semibold"
                   : "text-muted-foreground/80 hover:bg-muted/50 hover:text-foreground font-medium"
               }`}
             >
-              <link.icon className={`w-5 h-5 ${isActive ? "text-indigo-600 dark:text-indigo-400" : ""}`} />
+              <link.icon className={`w-5 h-5 ${isActive ? "text-secondary dark:text-primary" : ""}`} />
               {link.name}
             </Link>
           );
@@ -88,9 +88,9 @@ export function Sidebar() {
       
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-[1rem] text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors text-sm font-medium mt-2"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-[1rem] text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20 transition-colors text-sm font-medium mt-2"
         >
-          <LogOut className="w-6 h-6 p-1 border border-rose-200 dark:border-rose-900 rounded-md" />
+          <LogOut className="w-6 h-6 p-1 border border-destructive/20 rounded-md" />
           <span>Logout</span>
         </button>
       </div>
@@ -110,7 +110,7 @@ export function MobileHeader() {
   };
 
   return (
-    <header className="md:hidden flex items-center justify-between px-4 h-16 bg-white dark:bg-card border-b border-border/40 shrink-0 sticky top-0 z-50">
+    <header className="md:hidden flex items-center justify-between px-4 h-16 bg-card border-b border-border/40 shrink-0 sticky top-0 z-50">
       <Link href="/dashboard" className="flex items-center gap-2">
         <Image src="/logo.png" alt="Ngaturin Logo" width={28} height={28} className="rounded-xl object-contain" style={{ width: "auto", height: "auto" }} />
         <span className="font-bold text-lg tracking-tight">Ngaturin</span>
@@ -122,7 +122,7 @@ export function MobileHeader() {
             <Menu className="w-5 h-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[280px] p-0 flex flex-col bg-white dark:bg-card">
+        <SheetContent side="left" className="w-[280px] p-0 flex flex-col bg-card">
           <div className="p-4 border-b border-border/40">
             <Link href="/dashboard" className="flex items-center gap-3 px-2" onClick={() => setOpen(false)}>
               <Image src="/logo.png" alt="Ngaturin Logo" width={32} height={32} className="rounded-xl object-contain" style={{ width: "auto", height: "auto" }} />
@@ -140,11 +140,11 @@ export function MobileHeader() {
                   onClick={() => setOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
                     isActive
-                      ? "bg-indigo-100/80 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 font-semibold"
+                      ? "bg-primary/20 text-secondary dark:bg-primary/20 dark:text-primary font-semibold"
                       : "text-muted-foreground/80 hover:bg-muted/50 hover:text-foreground font-medium"
                   }`}
                 >
-                  <link.icon className={`w-5 h-5 ${isActive ? "text-indigo-600 dark:text-indigo-400" : ""}`} />
+                  <link.icon className={`w-5 h-5 ${isActive ? "text-secondary dark:text-primary" : ""}`} />
                   {link.name}
                 </Link>
               );
@@ -157,7 +157,7 @@ export function MobileHeader() {
             </div>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors text-sm font-medium"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20 transition-colors text-sm font-medium"
             >
               <LogOut className="w-5 h-5" />
               <span>Logout</span>

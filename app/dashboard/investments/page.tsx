@@ -173,7 +173,7 @@ export default function InvestmentsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Portofolio Investasi</h1>
           <p className="text-sm text-muted-foreground mt-1">Pantau performa dan alokasi aset Anda.</p>
         </div>
-        <Button onClick={openAdd} className="bg-brand-naval hover:bg-blue-900 text-white gap-2 h-11 rounded-xl shadow-md shrink-0">
+        <Button onClick={openAdd} className="bg-primary hover:brightness-110 text-primary-foreground gap-2 h-11 rounded-xl shadow-md shrink-0">
           <Plus className="w-4 h-4" /> Tambah Aset
         </Button>
       </div>
@@ -393,7 +393,7 @@ export default function InvestmentsPage() {
 
             <DialogFooter className="pt-2">
               <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">Batal</Button>
-              <Button type="submit" className="bg-brand-naval hover:bg-blue-900 text-white rounded-xl shadow-md" disabled={saving}>
+              <Button type="submit" className="bg-primary hover:brightness-110 text-primary-foreground rounded-xl shadow-md" disabled={saving}>
                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {editingItem ? "Simpan Perubahan" : "Tambah Portofolio"}
               </Button>

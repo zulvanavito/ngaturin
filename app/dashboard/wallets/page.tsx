@@ -139,7 +139,7 @@ export default function WalletsPage() {
           <Button variant="outline" onClick={() => setIsTransferOpen(true)} className="gap-2 h-11 rounded-xl" disabled={wallets.length < 2}>
             <ArrowLeftRight className="w-4 h-4" /> Transfer
           </Button>
-          <Button onClick={openAdd} className="bg-brand-naval hover:bg-blue-900 text-white gap-2 h-11 rounded-xl shadow-md">
+          <Button onClick={openAdd} className="bg-primary text-primary-foreground hover:brightness-110 gap-2 h-11 rounded-xl shadow-md">
             <Plus className="w-4 h-4" /> Tambah
           </Button>
         </div>
@@ -270,7 +270,7 @@ export default function WalletsPage() {
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">Batal</Button>
-              <Button type="submit" className="bg-brand-naval hover:bg-blue-900 text-white rounded-xl shadow-md" disabled={saving || !formName}>
+              <Button type="submit" className="bg-primary text-primary-foreground hover:brightness-110 rounded-xl shadow-md" disabled={saving || !formName}>
                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {editingWallet ? "Simpan" : "Tambah Dompet"}
               </Button>
@@ -314,7 +314,7 @@ export default function WalletsPage() {
             {transferError && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">{transferError}</p>}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsTransferOpen(false)} className="rounded-xl">Batal</Button>
-              <Button type="submit" className="bg-brand-naval hover:bg-blue-900 text-white rounded-xl shadow-md" disabled={transferring || !fromWallet || !toWallet || !transferAmount}>
+              <Button type="submit" className="bg-primary text-primary-foreground hover:brightness-110 rounded-xl shadow-md" disabled={transferring || !fromWallet || !toWallet || !transferAmount}>
                 {transferring && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Transfer
               </Button>

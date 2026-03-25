@@ -119,7 +119,7 @@ export default function CategoriesPage() {
             Kelola kategori untuk transaksi dan anggaran Anda.
           </p>
         </div>
-        <Button onClick={startAdd} className="bg-brand-naval hover:bg-blue-900 text-white gap-2 h-11 rounded-xl shadow-md">
+        <Button onClick={startAdd} className="bg-primary hover:brightness-110 text-primary-foreground gap-2 h-11 rounded-xl shadow-md">
           <Plus className="w-4 h-4" />
           Tambah
         </Button>
@@ -183,7 +183,7 @@ export default function CategoriesPage() {
 
             {error && <p className="text-sm text-destructive bg-destructive/10 rounded-lg p-3">{error}</p>}
 
-            <Button onClick={handleSave} disabled={saving || !formName.trim()} className="w-full bg-brand-naval hover:bg-blue-900 text-white shadow-md h-11 rounded-xl">
+            <Button onClick={handleSave} disabled={saving || !formName.trim()} className="w-full bg-primary hover:brightness-110 text-primary-foreground shadow-md h-11 rounded-xl">
               {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
               {saving ? "Menyimpan..." : editingId ? "Simpan Perubahan" : "Tambah Kategori"}
             </Button>

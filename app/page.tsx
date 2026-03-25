@@ -26,54 +26,54 @@ const features = [
     title: "Dashboard & Analitik",
     description:
       "Ringkasan saldo real-time, grafik pengeluaran, dan insight keuangan harian dalam satu tampilan.",
-    color: "text-[#6B93D6]",
-    bg: "bg-[#6B93D6]/15",
-    border: "border-[#6B93D6]/30",
+    color: "text-chart-1",
+    bg: "bg-chart-1/15",
+    border: "border-chart-1/30",
   },
   {
     icon: Wallet,
     title: "Multi-Dompet",
     description:
       "Kelola berbagai rekening, dompet tunai, atau e-wallet dalam satu tempat yang terorganisir.",
-    color: "text-[#BAAFE0]",
-    bg: "bg-[#BAAFE0]/20",
-    border: "border-[#BAAFE0]/35",
+    color: "text-chart-2",
+    bg: "bg-chart-2/20",
+    border: "border-chart-2/35",
   },
   {
     icon: Bell,
     title: "Tagihan Berulang",
     description:
       "Atur pengingat otomatis untuk tagihan bulanan agar tidak pernah terlewat lagi.",
-    color: "text-[#F5C89A]",
-    bg: "bg-[#F5C89A]/20",
-    border: "border-[#F5C89A]/35",
+    color: "text-chart-5",
+    bg: "bg-chart-5/20",
+    border: "border-chart-5/35",
   },
   {
     icon: Target,
     title: "Anggaran Cerdas",
     description:
       "Tetapkan batas pengeluaran per kategori dan pantau progres anggaran secara visual.",
-    color: "text-[#85DABB]",
-    bg: "bg-[#85DABB]/20",
-    border: "border-[#85DABB]/35",
+    color: "text-chart-3",
+    bg: "bg-chart-3/20",
+    border: "border-chart-3/35",
   },
   {
     icon: HandCoins,
     title: "Utang & Piutang",
     description:
       "Catat pinjaman dan hutang dengan mudah, lengkap dengan status pelunasan.",
-    color: "text-[#F4B8C0]",
-    bg: "bg-[#F4B8C0]/20",
-    border: "border-[#F4B8C0]/35",
+    color: "text-chart-6",
+    bg: "bg-chart-6/20",
+    border: "border-chart-6/35",
   },
   {
     icon: TrendingUp,
     title: "Portofolio Investasi",
     description:
       "Lacak nilai investasi saham, reksa dana, atau aset lainnya dan pantau pertumbuhannya.",
-    color: "text-[#93C9E0]",
-    bg: "bg-[#93C9E0]/20",
-    border: "border-[#93C9E0]/35",
+    color: "text-chart-4",
+    bg: "bg-chart-4/20",
+    border: "border-chart-4/35",
   },
 ];
 
@@ -136,14 +136,14 @@ export default function Home() {
       <section className="relative overflow-hidden pt-20 pb-16 md:pt-28 md:pb-24">
         {/* Background blobs */}
         <div className="absolute inset-0 -z-10 pointer-events-none">
-          <div className="absolute -top-24 -left-24 w-[500px] h-[500px] rounded-full bg-brand-naval/10 dark:bg-brand-naval/20 blur-3xl" />
-          <div className="absolute -bottom-24 -right-24 w-[500px] h-[500px] rounded-full bg-brand-lavender/15 dark:bg-brand-lavender/20 blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-brand-mint/10 dark:bg-brand-mint/5 blur-3xl" />
+          <div className="absolute -top-24 -left-24 w-[500px] h-[500px] rounded-full bg-secondary/10 dark:bg-secondary/20 blur-3xl" />
+          <div className="absolute -bottom-24 -right-24 w-[500px] h-[500px] rounded-full bg-primary/10 dark:bg-primary/20 blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-chart-3/10 dark:bg-chart-3/5 blur-3xl" />
         </div>
 
         <div className="max-w-5xl mx-auto px-6 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-naval/10 dark:bg-brand-naval/20 text-brand-naval dark:text-blue-300 text-sm font-semibold mb-8 border border-brand-naval/20 dark:border-blue-400/20">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 dark:bg-secondary/20 text-secondary dark:text-muted-foreground text-sm font-semibold mb-8 border border-secondary/20 dark:border-border/60">
             <Zap className="w-3.5 h-3.5 fill-current" />
             Gratis untuk penggunaan pribadi
           </div>
@@ -154,7 +154,7 @@ export default function Home() {
               Atur Keuanganmu
             </span>
             <br />
-            <span className="gradient-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-secondary to-secondary/80 bg-clip-text text-transparent">
               Lebih Cerdas
             </span>
           </h1>
@@ -170,7 +170,7 @@ export default function Home() {
             <Button
               asChild
               size="lg"
-              className="gradient-primary text-white hover:opacity-95 h-14 px-10 text-base font-semibold shadow-lg shadow-brand-naval/25 transition-all hover:-translate-y-0.5"
+              className="bg-primary text-primary-foreground hover:brightness-110 h-14 px-10 text-base font-semibold shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5"
             >
               <Link href="/auth/sign-up">
                 Mulai Sekarang — Gratis
@@ -213,7 +213,7 @@ export default function Home() {
               { value: "Real-time", label: "Update Saldo" },
             ].map(({ value, label }) => (
               <div key={label}>
-                <p className="text-2xl md:text-3xl font-extrabold bg-gradient-to-br from-brand-naval to-brand-lavender bg-clip-text text-transparent">
+                <p className="text-2xl md:text-3xl font-extrabold bg-gradient-to-br from-secondary to-primary bg-clip-text text-transparent">
                   {value}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1 font-medium">
@@ -230,7 +230,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6">
           {/* Section header */}
           <div className="text-center mb-16">
-            <p className="text-sm font-semibold uppercase tracking-widest text-brand-lavender mb-3">
+            <p className="text-sm font-semibold uppercase tracking-widest text-secondary mb-3">
               Fitur Lengkap
             </p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
@@ -270,7 +270,7 @@ export default function Home() {
       <section className="py-20 md:py-28 bg-muted/20 border-y border-border/50">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
-            <p className="text-sm font-semibold uppercase tracking-widest text-brand-lavender mb-3">
+            <p className="text-sm font-semibold uppercase tracking-widest text-secondary mb-3">
               Cara Kerja
             </p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
@@ -284,13 +284,13 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 relative">
             {/* Connector line (desktop) */}
-            <div className="hidden md:block absolute top-9 left-[calc(16.66%+1.5rem)] right-[calc(16.66%+1.5rem)] h-px bg-gradient-to-r from-brand-naval/30 via-brand-lavender/40 to-brand-naval/30" />
+            <div className="hidden md:block absolute top-9 left-[calc(16.66%+1.5rem)] right-[calc(16.66%+1.5rem)] h-px bg-gradient-to-r from-secondary/30 via-primary/80 to-secondary/30" />
 
             {steps.map((step, idx) => (
               <div key={step.number} className="flex flex-col items-center text-center relative">
                 {/* Number circle */}
-                <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mb-5 shadow-md shadow-brand-naval/20 z-10">
-                  <span className="text-white font-extrabold text-xl">
+                <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mb-5 shadow-lg shadow-primary/20 z-10">
+                  <span className="text-primary-foreground font-extrabold text-xl">
                     {idx + 1}
                   </span>
                 </div>
@@ -309,28 +309,28 @@ export default function Home() {
       {/* ── CTA Banner ──────────────────────────────────────────────────── */}
       <section className="py-20 md:py-28">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="relative overflow-hidden rounded-3xl gradient-primary p-10 md:p-16 text-center shadow-2xl shadow-brand-naval/30">
+          <div className="relative overflow-hidden rounded-3xl bg-secondary p-10 md:p-16 text-center shadow-2xl shadow-secondary/30">
             {/* Decorative circles */}
             <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/10 blur-2xl pointer-events-none" />
             <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-white/10 blur-2xl pointer-events-none" />
 
             <div className="relative z-10">
-              <p className="text-white/80 text-sm font-semibold uppercase tracking-widest mb-4">
+              <p className="text-secondary-foreground text-sm font-semibold uppercase tracking-widest mb-4">
                 Ayo Mulai
               </p>
-              <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-5 leading-tight">
+              <h2 className="text-3xl md:text-5xl font-extrabold text-secondary-foreground mb-5 leading-tight">
                 Kendalikan Keuanganmu
                 <br />
                 Mulai Hari Ini
               </h2>
-              <p className="text-white/75 text-base md:text-lg max-w-lg mx-auto mb-10 leading-relaxed">
+              <p className="text-secondary-foreground/80 text-base md:text-lg max-w-lg mx-auto mb-10 leading-relaxed">
                 Bergabunglah dan nikmati semua fitur Ngaturin tanpa biaya
                 selamanya.
               </p>
               <Button
                 asChild
                 size="lg"
-                className="bg-white text-brand-naval hover:bg-white/90 h-14 px-12 text-base font-bold shadow-lg transition-all hover:-translate-y-0.5"
+                className="bg-primary text-primary-foreground hover:brightness-110 h-14 px-12 text-base font-bold shadow-lg transition-all hover:-translate-y-0.5"
               >
                 <Link href="/auth/sign-up">
                   Daftar Gratis Sekarang

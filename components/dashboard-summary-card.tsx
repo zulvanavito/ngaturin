@@ -50,24 +50,24 @@ export function DashboardSummaryCard({
         </div>
       </div>
 
-      {/* Dark Summary Card */}
-      <div className="relative rounded-[2rem] bg-[#3B3542] dark:bg-[#2C2731] text-white overflow-hidden shadow-xl">
+      {/* Dark Summary Card -> Ethereal Glass Card */}
+      <div className="relative rounded-[2rem] bg-card text-card-foreground overflow-hidden shadow-ambient border border-border/40">
         {/* Subtle decorative glow */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         
         <div className="p-6 sm:p-8 flex flex-col md:flex-row justify-between gap-8 md:gap-4 relative z-10">
           
           {/* Left Side: Balance Focus */}
           <div className="flex-1 space-y-2">
-            <div className="flex items-center gap-2 text-rose-300 text-xs font-semibold tracking-wider uppercase">
-              <Zap className="w-4 h-4 fill-rose-300" />
+            <div className="flex items-center gap-2 text-primary-foreground dark:text-primary text-xs font-semibold tracking-wider uppercase">
+              <Zap className="w-4 h-4 fill-current" />
               Sekilas Hari Ini
             </div>
             <div className="flex flex-col">
               <span className="text-4xl sm:text-5xl font-bold tracking-tight">
                 {formatCurrency(remainingBudget)}
               </span>
-              <div className="flex items-center gap-2 mt-2 text-white/70 text-sm">
+              <div className="flex items-center gap-2 mt-2 text-muted-foreground text-sm">
                 <span className="text-amber-300 text-lg">💰</span> budget harian yang tersisa
               </div>
             </div>
@@ -76,18 +76,18 @@ export function DashboardSummaryCard({
           {/* Right Side: Income vs Expense Minimalist View */}
           <div className="flex gap-8 md:gap-12 md:mr-8 md:self-center">
             <div className="space-y-1">
-              <span className="text-xs text-white/60 font-medium uppercase tracking-wider">Pemasukan</span>
-              <p className="text-xl font-semibold text-rose-300">{formatCurrency(totalIncome)}</p>
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Pemasukan</span>
+              <p className="text-xl font-semibold text-income">{formatCurrency(totalIncome)}</p>
             </div>
             <div className="space-y-1">
-              <span className="text-xs text-white/60 font-medium uppercase tracking-wider">Pengeluaran</span>
-              <p className="text-xl font-semibold text-fuchsia-400">{formatCurrency(totalExpense)}</p>
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Pengeluaran</span>
+              <p className="text-xl font-semibold text-expense">{formatCurrency(totalExpense)}</p>
             </div>
           </div>
         </div>
 
         {/* Footer Alert */}
-        <div className="bg-[#322C38] dark:bg-[#231F28] px-6 sm:px-8 py-4 text-sm text-white/80 border-t border-white/5 relative z-10">
+        <div className="bg-muted/30 px-6 sm:px-8 py-4 text-sm text-muted-foreground border-t border-border/40 relative z-10">
           Superrr! Belum ada pengeluaran hari ini.
         </div>
       </div>

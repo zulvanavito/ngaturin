@@ -19,7 +19,7 @@ export default function AccountDeletedPage() {
           </CardHeader>
           <CardContent className="pb-10 px-6">
             <Link href="/" className="w-full block">
-              <Button className="w-full bg-brand-naval hover:bg-blue-900 text-white shadow-md h-12 rounded-xl text-base font-medium">
+              <Button className="w-full bg-primary hover:brightness-110 text-primary-foreground shadow-md h-12 rounded-xl text-base font-medium">
                 Kembali ke Beranda
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>

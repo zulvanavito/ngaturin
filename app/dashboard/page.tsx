@@ -10,13 +10,10 @@ import { BillReminderBanner } from "@/components/bill-reminder-banner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutDashboard, BarChart3, History, Target, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-// New Redesign Components
 import { DashboardSummaryCard } from "@/components/dashboard-summary-card";
 import { DashboardProgressCard } from "@/components/dashboard-progress-card";
 import { DashboardCalendarCard } from "@/components/dashboard-calendar-card";
 import { DashboardRecentTx } from "@/components/dashboard-recent-tx";
-
 import { createClient } from "@/lib/supabase/client";
 
 export default function DashboardPage() {
@@ -65,10 +62,8 @@ export default function DashboardPage() {
     [transactions]
   );
   
-  // Actually calculate the remaining budget based on historical logging
   const remainingBudget = useMemo(() => totalIncome - totalExpense, [totalIncome, totalExpense]);
 
-  // Non-transfer transactions for stats
   const nonTransferTxs = useMemo(() => transactions.filter(t => t.type !== "transfer"), [transactions]);
 
   const handleSuccess = () => {
@@ -98,10 +93,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-10">
       
-      {/* Bill Reminder Banner */}
       <BillReminderBanner />
 
-      {/* Add Transaction Action */}
       {!showForm && !editingTransaction && (
          <div className="flex justify-start sm:justify-end mb-4">
            <Button
@@ -114,7 +107,6 @@ export default function DashboardPage() {
          </div>
       )}
 
-      {/* Inline Add / Edit Form */}
       {(showForm || editingTransaction) && (
         <div className="animate-in fade-in slide-in-from-top-4 duration-300 mb-6 bg-white dark:bg-card p-6 rounded-[2rem] border border-border/40 shadow-sm">
           <TransactionForm
@@ -126,7 +118,6 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Summary Header Card (Replacing old BalanceCard, but unified at top) */}
       <div className="tour-balance">
         <DashboardSummaryCard 
            remainingBudget={remainingBudget}
@@ -136,7 +127,6 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="tour-tabs w-full mt-8">
         <TabsList className="w-full mb-6 h-auto rounded-[1.5rem] bg-muted/30 border border-border/40 p-1.5 flex flex-wrap sm:grid sm:grid-cols-4 gap-2">
           <TabsTrigger value="overview" className="rounded-xl font-semibold flex items-center gap-2 shrink-0 sm:shrink px-4 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">
@@ -157,10 +147,10 @@ export default function DashboardPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Ringkasan Tab */}
+      
         <TabsContent value="overview" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-            {/* Left Column (Stats + Progress + Calendar) */}
+           
             <div className="lg:col-span-2 space-y-6 sm:space-y-8">
               
               <div className="tour-quick-stats grid grid-cols-3 gap-3 sm:gap-4">

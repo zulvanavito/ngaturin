@@ -260,7 +260,7 @@ export default function InvestmentsPage() {
         <div className="flex justify-center py-10 text-muted-foreground gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Memuat...</div>
       ) : investments.length === 0 ? (
         <div className="rounded-[2rem] border border-dashed border-border/50 bg-white/50 dark:bg-card/50 p-12 text-center text-muted-foreground text-sm shadow-sm">
-          <div className="text-4xl mb-3">📈</div>
+          <TrendingUp className="w-10 h-10 mx-auto mb-3 opacity-20" />
           <p>Belum ada portofolio investasi. Catat aset pertama Anda!</p>
         </div>
       ) : (

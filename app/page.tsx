@@ -105,11 +105,7 @@ export default function Home() {
       <nav className="w-full border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex justify-between items-center px-6 h-16">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl gradient-primary flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-sm leading-none">
-                N.
-              </span>
-            </div>
+            <Image src="/logo.png" alt="Ngaturin Logo" width={32} height={32} className="rounded-xl object-contain drop-shadow-sm" style={{ width: "auto", height: "auto" }} />
             <span className="font-bold text-lg tracking-tight">Ngaturin</span>
           </Link>
 
@@ -350,11 +346,7 @@ export default function Home() {
       <footer className="border-t border-border/50 py-8">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg gradient-primary flex items-center justify-center">
-              <span className="text-white font-bold text-xs leading-none">
-                N.
-              </span>
-            </div>
+            <Image src="/logo.png" alt="Ngaturin Logo" width={24} height={24} className="rounded-lg object-contain drop-shadow-sm" style={{ width: "auto", height: "auto" }} />
             <span className="font-semibold text-foreground">Ngaturin</span>
             <span className="text-border">·</span>
             <span>© 2026. All rights reserved.</span>

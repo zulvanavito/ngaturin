@@ -13,7 +13,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Plus, Pencil, Trash2, Loader2, ChevronLeft, TrendingDown, TrendingUp, CheckCircle2, Clock,
+  Plus, Pencil, Trash2, Loader2, ChevronLeft, TrendingDown, TrendingUp, CheckCircle2, Clock, HandCoins,
 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
@@ -265,7 +265,7 @@ export default function DebtsPage() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-14 text-muted-foreground text-sm">
-              <div className="text-4xl mb-3">💸</div>
+              <HandCoins className="w-10 h-10 mx-auto mb-3 opacity-20" />
               <p>Belum ada catatan. Tambahkan di atas!</p>
             </div>
           ) : (

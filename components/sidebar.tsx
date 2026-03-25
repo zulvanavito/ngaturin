@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { LayoutDashboard, Wallet, Tag, HandCoins, TrendingUp, User, LogOut, Menu, Bell } from "lucide-react";
@@ -38,11 +39,8 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 h-full bg-white dark:bg-card border-r border-border/40 hidden md:flex flex-col py-6 px-4 shrink-0 overflow-y-auto custom-scrollbar">
-      {/* Brand logo */}
       <Link href="/dashboard" className="flex items-center gap-3 mb-8 px-2">
-        <div className="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm leading-none">
-          N.
-        </div>
+        <Image src="/logo.png" alt="Ngaturin Logo" width={32} height={32} className="rounded-xl object-contain" style={{ width: "auto", height: "auto" }} />
         <span className="font-bold text-xl tracking-tight text-foreground">Ngaturin</span>
       </Link>
 
@@ -114,9 +112,7 @@ export function MobileHeader() {
   return (
     <header className="md:hidden flex items-center justify-between px-4 h-16 bg-white dark:bg-card border-b border-border/40 shrink-0 sticky top-0 z-50">
       <Link href="/dashboard" className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm pt-0.5">
-          N.
-        </div>
+        <Image src="/logo.png" alt="Ngaturin Logo" width={28} height={28} className="rounded-xl object-contain" style={{ width: "auto", height: "auto" }} />
         <span className="font-bold text-lg tracking-tight">Ngaturin</span>
       </Link>
 
@@ -129,9 +125,7 @@ export function MobileHeader() {
         <SheetContent side="left" className="w-[280px] p-0 flex flex-col bg-white dark:bg-card">
           <div className="p-4 border-b border-border/40">
             <Link href="/dashboard" className="flex items-center gap-3 px-2" onClick={() => setOpen(false)}>
-              <div className="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm leading-none">
-                N.
-              </div>
+              <Image src="/logo.png" alt="Ngaturin Logo" width={32} height={32} className="rounded-xl object-contain" style={{ width: "auto", height: "auto" }} />
               <span className="font-bold text-xl tracking-tight text-foreground">Ngaturin</span>
             </Link>
           </div>

@@ -231,10 +231,10 @@ export default function PrivacyPolicyPage() {
               Jika Anda memiliki pertanyaan tentang Kebijakan Privasi ini,
               silakan hubungi kami melalui email di{" "}
               <a
-                href="mailto:support@ngaturin.com"
+                href="mailto:shawnanggara@gmail.com"
                 className="text-primary hover:underline font-medium"
               >
-                support@ngaturin.com
+                shawnanggara@gmail.com
               </a>
               .
             </p>

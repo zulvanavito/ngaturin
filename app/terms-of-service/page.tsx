@@ -276,10 +276,10 @@ export default function TermsOfServicePage() {
               Jika Anda memiliki pertanyaan tentang Ketentuan Layanan ini,
               silakan hubungi kami melalui email di{" "}
               <a
-                href="mailto:support@ngaturin.com"
+                href="mailto:shawnanggara@gmail.com"
                 className="text-primary hover:underline font-medium"
               >
-                support@ngaturin.com
+                shawnanggara@gmail.com
               </a>
               .
             </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -8,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Camera, Save, KeyRound, Loader2, Eye, EyeOff, CheckCircle2, Circle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Camera, Save, KeyRound, Loader2, Eye, EyeOff, CheckCircle2, Circle, AlertTriangle, Trash2, RefreshCw } from "lucide-react";
 import { useToast } from "@/lib/toast-context";
 
 interface ProfileFormProps {
@@ -25,10 +27,17 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [resetConfirmText, setResetConfirmText] = useState("");
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   
   const supabase = createClient();
   const { showToast } = useToast();
+  const router = useRouter();
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,6 +135,39 @@ export function ProfileForm({ user }: ProfileFormProps) {
       showToast('error', err.message || 'Gagal mengunggah foto profil.');
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleResetAccount = async () => {
+    if (resetConfirmText !== "RESET") return;
+    setIsResetting(true);
+    try {
+      const res = await fetch("/api/user/reset", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal mereset akun");
+      showToast("success", "Akun berhasil direset! Semua data Anda telah dihapus.");
+      setIsResetDialogOpen(false);
+      setResetConfirmText("");
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err: any) {
+      showToast("error", err.message);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "HAPUS") return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/user/delete", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal menghapus akun");
+      setIsDeleteDialogOpen(false);
+      router.push("/auth/account-deleted"); // Redirect ke halaman informasi hapus akun berhasil
+    } catch (err: any) {
+      showToast("error", err.message);
+      setIsDeleting(false);
     }
   };
 
@@ -296,6 +338,117 @@ export function ProfileForm({ user }: ProfileFormProps) {
               {isUpdatingPassword ? 'Memperbarui...' : 'Perbarui Kata Sandi'}
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Danger Zone */}
+      <Card className="border border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/10 shadow-sm rounded-[2rem] overflow-hidden mt-6">
+        <CardHeader className="bg-red-100/50 dark:bg-red-900/20 pb-4">
+          <CardTitle className="text-xl flex items-center gap-2 text-red-600 dark:text-red-500">
+            <AlertTriangle className="w-5 h-5" /> Zona Berbahaya
+          </CardTitle>
+          <CardDescription className="text-red-600/80 dark:text-red-400/80">
+            Tindakan di bawah ini tidak dapat dibatalkan. Harap berhati-hati.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6 space-y-4">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-red-200 dark:border-red-900/50 bg-white dark:bg-card">
+            <div>
+              <h4 className="font-semibold text-foreground">Reset Akun</h4>
+              <p className="text-sm text-muted-foreground mt-1">
+                Menghapus semua data (transaksi, dompet, dll) tetapi tetap mempertahankan akun Anda.
+              </p>
+            </div>
+            <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="border-red-200 hover:bg-red-50 hover:text-red-600 dark:border-red-900/50 dark:hover:bg-red-950/30 whitespace-nowrap">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Reset Akun
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="text-red-600 dark:text-red-500 flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5" /> Konfirmasi Reset Akun
+                  </DialogTitle>
+                  <DialogDescription>
+                    Apakah Anda yakin ingin mereset akun? Semua data transaksi, dompet, tabungan, dan hutang Anda akan <strong>dihapus secara permanen</strong>.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4 space-y-3">
+                  <Label htmlFor="reset-confirm" className="text-sm">Ketik <strong>RESET</strong> untuk mengonfirmasi:</Label>
+                  <Input 
+                    id="reset-confirm" 
+                    value={resetConfirmText} 
+                    onChange={(e) => setResetConfirmText(e.target.value)} 
+                    placeholder="RESET"
+                    autoComplete="off"
+                  />
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => { setIsResetDialogOpen(false); setResetConfirmText(""); }}>Batal</Button>
+                  <Button 
+                    variant="destructive" 
+                    disabled={resetConfirmText !== "RESET" || isResetting} 
+                    onClick={handleResetAccount}
+                  >
+                    {isResetting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                    Ya, Reset Akun
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-red-200 dark:border-red-900/50 bg-white dark:bg-card">
+            <div>
+              <h4 className="font-semibold text-red-600 dark:text-red-500">Hapus Akun Permanen</h4>
+              <p className="text-sm text-muted-foreground mt-1">
+                Menghapus seluruh akun dan data Anda dari sistem tanpa sisa.
+              </p>
+            </div>
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="destructive" className="whitespace-nowrap">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Hapus Akun
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="text-red-600 dark:text-red-500 flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5" /> Konfirmasi Hapus Akun
+                  </DialogTitle>
+                  <DialogDescription>
+                    Tindakan ini <strong>tidak dapat dibatalkan</strong>. Akun Anda beserta seluruh data di dalamnya akan dihapus permanen dari server kami.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4 space-y-3">
+                  <Label htmlFor="delete-confirm" className="text-sm">Ketik <strong>HAPUS</strong> untuk mengonfirmasi:</Label>
+                  <Input 
+                    id="delete-confirm" 
+                    value={deleteConfirmText} 
+                    onChange={(e) => setDeleteConfirmText(e.target.value)} 
+                    placeholder="HAPUS"
+                    autoComplete="off"
+                  />
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => { setIsDeleteDialogOpen(false); setDeleteConfirmText(""); }}>Batal</Button>
+                  <Button 
+                    variant="destructive" 
+                    disabled={deleteConfirmText !== "HAPUS" || isDeleting} 
+                    onClick={handleDeleteAccount}
+                  >
+                    {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                    Ya, Hapus Permanen
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+
         </CardContent>
       </Card>
     </div>

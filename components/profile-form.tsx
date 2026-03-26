@@ -373,7 +373,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     <AlertTriangle className="w-5 h-5" /> Konfirmasi Reset Akun
                   </DialogTitle>
                   <DialogDescription>
-                    Apakah Anda yakin ingin mereset akun? Semua data transaksi, dompet, tabungan, dan hutang Anda akan <strong>dihapus secara permanen</strong>.
+                    Apakah Anda yakin ingin mereset akun? Semua data transaksi, dompet, tabungan, hutang, <strong>serta seluruh data PARA (Projects, Areas, Resources, dan Tasks)</strong> Anda akan <strong>dihapus secara permanen</strong>.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-3">

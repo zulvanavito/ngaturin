@@ -10,12 +10,18 @@ export async function POST() {
   }
 
   const tables = [
+    // Financial tables
     "transactions",
     "wallets",
     "categories",
     "investments",
     "debts",
-    "recurring_bills"
+    "recurring_bills",
+    // PARA tables (children first due to FK constraints)
+    "para_resources",
+    "para_tasks",
+    "para_projects",
+    "para_areas",
   ];
 
   try {

@@ -235,7 +235,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
               </div>
             </div>
 
-            <Button type="submit" className="w-full sm:w-auto bg-brand-naval hover:bg-blue-900 text-white shadow-md h-11 rounded-xl" disabled={isUpdatingProfile}>
+            <Button type="submit" className="w-full sm:w-auto bg-primary text-primary-foreground hover:brightness-110 shadow-md h-11 rounded-xl" disabled={isUpdatingProfile}>
               {isUpdatingProfile ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               {isUpdatingProfile ? 'Menyimpan...' : 'Simpan Perubahan'}
             </Button>
@@ -331,7 +331,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
             
             <Button 
               type="submit" 
-              className="w-full sm:w-auto bg-brand-naval hover:bg-blue-900 text-white shadow-md h-11 rounded-xl" 
+              className="w-full sm:w-auto bg-primary text-primary-foreground hover:brightness-110 shadow-md h-11 rounded-xl" 
               disabled={isUpdatingPassword || !password || !confirmPassword}
             >
               {isUpdatingPassword ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}

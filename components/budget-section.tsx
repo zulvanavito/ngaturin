@@ -54,13 +54,13 @@ function BudgetCard({
 }) {
   const pct = budget.amount > 0 ? Math.min(Math.round((spent / budget.amount) * 100), 100) : 0;
   const barColor =
-    pct >= 90 ? "bg-[#F4B8C0]" :
-    pct >= 75 ? "bg-[#F5C89A]" :
-    "bg-[#85DABB]";
+    pct >= 90 ? "bg-destructive" :
+    pct >= 75 ? "bg-chart-5" :
+    "bg-success";
   const textColor =
-    pct >= 90 ? "text-[#D96B7B] dark:text-[#F4B8C0]" :
-    pct >= 75 ? "text-[#D4924A] dark:text-[#F5C89A]" :
-    "text-[#3DAE8C] dark:text-[#85DABB]";
+    pct >= 90 ? "text-destructive" :
+    pct >= 75 ? "text-chart-5" :
+    "text-success";
 
   return (
     <div className="group relative rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40 p-5 hover:shadow-md hover:border-border/60 transition-all duration-200">
@@ -258,7 +258,7 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
               {budgets.length} anggaran aktif · Bulan Ini
             </CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={openAdd} className="h-9 gap-1">
+          <Button variant="default" size="sm" onClick={openAdd} className="h-9 gap-1 hover:bg-primary/70">
             <Plus className="w-4 h-4" /> Set Anggaran
           </Button>
         </CardHeader>
@@ -366,7 +366,7 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
               <Button type="button" variant="outline" onClick={closeForm}>Batal</Button>
               <Button
                 type="submit"
-                className="gradient-primary text-white"
+                className="gradient-primary text-secondary"
                 disabled={saving || !formCategory || !formAmount}
               >
                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

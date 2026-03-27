@@ -64,7 +64,7 @@ export function DashboardProgressCard({ transactions }: DashboardProgressCardPro
   // Map into display data, sorting by highest spent
   const topCategories = useMemo(() => {
 
-    const colors = ["bg-[#6B93D6]", "bg-[#BAAFE0]", "bg-[#85DABB]", "bg-[#F4B8C0]", "bg-[#F5C89A]"];
+    const colors = ["bg-chart-1", "bg-chart-2", "bg-chart-3", "bg-chart-4", "bg-chart-5"];
     
     const cats = Object.entries(categoryExpenses)
       .sort(([, a], [, b]) => b - a)

@@ -163,7 +163,7 @@ export default function DebtsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Utang & Piutang</h1>
           <p className="text-sm text-muted-foreground mt-1">Catat dan pantau utang serta piutang Anda.</p>
         </div>
-        <Button onClick={() => openAdd()} className="bg-brand-naval hover:bg-blue-900 text-white gap-2 h-11 rounded-xl shadow-md shrink-0">
+        <Button onClick={() => openAdd()} className="bg-primary hover:brightness-110 text-primary-foreground gap-2 h-11 rounded-xl shadow-md shrink-0">
           <Plus className="w-4 h-4" /> Tambah
         </Button>
       </div>
@@ -327,7 +327,7 @@ export default function DebtsPage() {
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost" size="icon"
-                          className={`h-7 w-7 ${d.is_settled ? "text-muted-foreground" : "text-brand-mint"}`}
+                          className={`h-7 w-7 ${d.is_settled ? "text-muted-foreground" : "text-success"}`}
                           title={d.is_settled ? "Tandai belum lunas" : "Tandai lunas"}
                           onClick={() => handleToggleSettle(d)}
                         >
@@ -392,7 +392,7 @@ export default function DebtsPage() {
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">Batal</Button>
-              <Button type="submit" className="bg-brand-naval hover:bg-blue-900 text-white rounded-xl shadow-md" disabled={saving}>
+              <Button type="submit" className="bg-primary hover:brightness-110 text-primary-foreground rounded-xl shadow-md" disabled={saving}>
                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {editingDebt ? "Simpan" : "Tambah"}
               </Button>

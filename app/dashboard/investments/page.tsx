@@ -20,6 +20,7 @@ import {
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
 import { FeatureTip } from "@/components/feature-tip";
+import { LoadingState } from "@/components/loading-state";
 
 interface Investment {
   id: string;
@@ -258,7 +259,7 @@ export default function InvestmentsPage() {
       <h2 className="text-lg font-bold mt-8 mb-4">Daftar Aset</h2>
       
       {loading ? (
-        <div className="flex justify-center py-10 text-muted-foreground gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Memuat...</div>
+        <LoadingState message="Memuat portofolio investasi..." className="min-h-[200px]" />
       ) : investments.length === 0 ? (
         <div className="rounded-[2rem] border border-dashed border-border/50 bg-white/50 dark:bg-card/50 p-12 text-center text-muted-foreground text-sm shadow-sm">
           <TrendingUp className="w-10 h-10 mx-auto mb-3 opacity-20" />

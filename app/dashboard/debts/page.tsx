@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
 import { FeatureTip } from "@/components/feature-tip";
+import { LoadingState } from "@/components/loading-state";
 
 interface Debt {
   id: string;
@@ -260,9 +261,7 @@ export default function DebtsPage() {
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
-            <div className="flex items-center justify-center py-14 text-muted-foreground gap-2">
-              <Loader2 className="w-5 h-5 animate-spin" /> Memuat...
-            </div>
+            <LoadingState message="Memuat data..." className="min-h-[200px]" />
           ) : filtered.length === 0 ? (
             <div className="text-center py-14 text-muted-foreground text-sm">
               <HandCoins className="w-10 h-10 mx-auto mb-3 opacity-20" />

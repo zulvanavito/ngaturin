@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ClientProviders } from "@/components/client-providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -36,6 +37,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <NextTopLoader color="#D1FC00" height={3} showSpinner={false} shadow="0 0 10px #D1FC00,0 0 5px #D1FC00" />
           <ClientProviders>
             {children}
           </ClientProviders>

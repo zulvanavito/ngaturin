@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import type { Transaction } from "./transaction-form";
+import { createClient } from "@/lib/supabase/client";
 
 interface CategoryProgress {
   name: string;
@@ -15,11 +16,34 @@ interface DashboardProgressCardProps {
 }
 
 export function DashboardProgressCard({ transactions }: DashboardProgressCardProps) {
-  
+  const [budgets, setBudgets] = useState<any[]>([]);
+  const supabase = createClient();
   
   const today = new Date();
   const day = today.getDate();
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  
+  const fetchBudgets = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const currentMonth = new Date().toISOString().substring(0, 7);
+      const { data } = await supabase.from("budgets").select("*")
+        .eq("user_id", user.id)
+        .eq("month", currentMonth);
+      setBudgets(data || []);
+    } catch { /* silent */ }
+  }, [supabase]);
+
+  useEffect(() => { fetchBudgets(); }, [fetchBudgets]);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
   
   const categoryExpenses = useMemo(() => {
     const currentMonthTx = transactions.filter(t => {
@@ -47,7 +71,8 @@ export function DashboardProgressCard({ transactions }: DashboardProgressCardPro
       .slice(0, 3) // Show top 3
       .map(([name, spent], index) => {
       
-        const estimatedBudget = 15000000; 
+        const budgetForCat = budgets.find(b => b.category === name);
+        const estimatedBudget = budgetForCat ? Number(budgetForCat.amount) : 1000000; 
         const total = spent > estimatedBudget ? spent * 1.2 : estimatedBudget; 
         
         return {
@@ -145,7 +170,10 @@ export function DashboardProgressCard({ transactions }: DashboardProgressCardPro
                   </span>
                   <span className="text-[10px] text-muted-foreground">{labelDisplay}</span>
                 </div>
-                <span className="text-[10px] font-bold">{cat.spent > cat.total && cat.total !== 1000 ? Math.round((cat.spent/cat.total)*100) : percentage}%</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-muted-foreground">{formatCurrency(cat.spent)}</span>
+                  <span className="text-[10px] font-bold">{cat.spent > cat.total && cat.total !== 1000 ? Math.round((cat.spent/cat.total)*100) : percentage}%</span>
+                </div>
               </div>
               <div className="h-2 w-full bg-muted/50 rounded-full overflow-hidden">
                 <div 

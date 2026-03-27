@@ -186,6 +186,7 @@ export default function InvestmentsPage() {
           "Modal Ditanam adalah total uang yang sudah kamu setor; Nilai Saat Ini adalah harga pasar terkini.",
           "Grafik alokasi aset di atas membantu melihat seberapa terdiversifikasi portofoliomu antar jenis instrumen.",
           "Gunakan kolom Simbol (BBCA, BTC, dll.) untuk memudahkan identifikasi aset saat portofolio mulai banyak.",
+          "Membeli Saham IPO? Catat Modal & Nilai Saat Ini dengan angka yang sama persis (misal: Rp 850.000). Saat saham sudah mulai ditradingkan di bursa, baru update Nilai Saat Ini menyesuaikan nilainya.",
         ]}
       />
 

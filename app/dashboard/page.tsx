@@ -36,7 +36,9 @@ export default function DashboardPage() {
 
   const fetchTransactions = useCallback(async () => {
     try {
-      const res = await fetch("/api/transactions");
+      const res = await fetch(`/api/transactions?_t=${Date.now()}`, {
+        cache: "no-store"
+      });
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setTransactions(data);

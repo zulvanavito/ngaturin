@@ -56,14 +56,13 @@ const DashboardMockup = () => (
       </div>
       <div className="flex items-center gap-2 px-3 py-1 bg-background/50 rounded-full text-[10px] font-semibold text-muted-foreground border border-border/20">
         <Lock className="w-3 h-3" />
-        app.ngaturin.com
+        ngaturin.web.id
       </div>
       <div className="w-16" />
     </div>
 
-    {/* App Content */}
     <div className="p-6 md:p-8 flex flex-col md:flex-row gap-6">
-      {/* Sidebar Mock */}
+      
       <div className="hidden border-r border-border/20 md:flex flex-col gap-6 w-48 shrink-0 pr-6">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -118,7 +117,7 @@ const DashboardMockup = () => (
           </div>
         </div>
 
-        {/* Chart Mock */}
+    
         <div className="p-6 rounded-[1.5rem] bg-card border border-border/20 shadow-sm flex-1 min-h-[200px] flex items-end justify-between gap-1.5 md:gap-3">
           {[40, 60, 30, 80, 50, 90, 70, 45, 65, 85, 55, 75].map((h, i) => (
             <div
@@ -214,7 +213,6 @@ const MobileMockup = () => (
 export default function Home() {
   return (
     <main className="min-h-screen flex flex-col bg-background font-sans">
-      {/* ── Floating Navbar ────────────────────────────────────────────── */}
       <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none transition-all duration-300">
         <nav className="w-full max-w-4xl border border-border/40 bg-background/80 dark:bg-background/60 backdrop-blur-3xl shadow-2xl shadow-black/5 dark:shadow-primary/5 rounded-full pointer-events-auto">
           <div className="flex justify-between items-center px-4 md:px-6 h-14 md:h-16">
@@ -224,7 +222,7 @@ export default function Home() {
                 alt="Ngaturin Logo"
                 width={28}
                 height={28}
-                className="rounded-lg object-contain drop-shadow transition-transform group-hover:scale-105"
+                className="object-contain drop-shadow transition-transform group-hover:scale-105"
               />
               <span className="font-extrabold text-lg tracking-tight text-foreground hidden sm:block">
                 Ngaturin

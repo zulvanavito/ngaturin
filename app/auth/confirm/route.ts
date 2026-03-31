@@ -8,6 +8,8 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const next = searchParams.get("next") ?? "/";
+  // Protect against open redirect: ensure it's a relative path starting with '/' but not '//'
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
   if (token_hash && type) {
     const supabase = await createClient();
@@ -18,7 +20,7 @@ export async function GET(request: NextRequest) {
     });
     if (!error) {
   
-      redirect(next);
+      redirect(safeNext);
     } else {
       
       redirect(`/auth/error?error=${error?.message}`);

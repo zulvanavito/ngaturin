@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import {
@@ -14,12 +15,13 @@ import {
   Shield,
   Zap,
   CheckCircle2,
-  Users,
+  
   PieChart,
-  Smartphone,
+  
   RefreshCw,
   HandCoins,
-  ChevronRight,
+ 
+  ChevronDown,
 } from "lucide-react";
 
 const featuresData = [
@@ -210,6 +212,83 @@ const MobileMockup = () => (
   </div>
 );
 
+const faqs = [
+  {
+    question: "Apa itu Ngaturin?",
+    answer: "Ngaturin adalah platform terpadu untuk mengelola kehidupan finansial dan produktivitas Anda. Kami menggunakan kerangka kerja PARA (Projects, Areas, Resources, Archives) yang disatukan dengan kemampuan pencatatan keuangan dan Habit Tracker."
+  },
+  {
+    question: "Apakah Ngaturin benar-benar gratis?",
+    answer: "Ya! Kami menyediakan platform manajemen holistik ini 100% tanpa biaya langganan apapun, dengan akses fitur yang bebas Anda eksplorasi."
+  },
+  {
+    question: "Apakah data keuangan saya aman di sini?",
+    answer: "Tentu. Keamanan privasi Anda adalah prioritas kami. Data Anda dikelola menggunakan standar kontrol akses yang ketat agar privasi terjamin."
+  },
+  {
+    question: "Bisakah diakses di banyak perangkat?",
+    answer: "Tentu saja. Sistem kami berbasis Cloud sehingga seluruh aset, utang-piutang, dan progres Anda dapat dipantau dari smartphone maupun laptop secara real-time."
+  },
+  {
+    question: "Bagaimana integrasi dengan Habit Tracker bekerja?",
+    answer: "Habit tracker membantu Anda melacak kebiasaan baik harian, seperti mencatat pengeluaran. Dengan mengakumulasi rekor beruntun, Anda akan lebih termotivasi mengontrol hidup."
+  }
+];
+
+const FAQSection = () => {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggleFAQ = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  return (
+    <section className="py-24 bg-muted/5 border-y border-border/10">
+      <div className="max-w-4xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-foreground mb-4">
+            Pertanyaan yang Sering Diajukan.
+          </h2>
+          <p className="text-muted-foreground text-lg font-medium">
+            Temukan jawaban atas berbagai fungsi dan penggunaan Ngaturin sehari-hari.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {faqs.map((faq, index) => {
+            const isOpen = openIndex === index;
+            return (
+              <div 
+                key={index} 
+                className={`p-6 rounded-[1.5rem] bg-card border transition-all duration-300 ${isOpen ? 'border-primary/50 shadow-[0_10px_40px_rgba(209,252,0,0.1)] dark:shadow-[0_10px_40px_rgba(209,252,0,0.05)]' : 'border-border/20 shadow-sm hover:border-primary/30'}`}
+              >
+                <button
+                  onClick={() => toggleFAQ(index)}
+                  className="w-full flex items-center justify-between gap-4 text-left focus:outline-none"
+                >
+                  <span className="text-lg font-extrabold text-foreground">{faq.question}</span>
+                  <div className={`w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 bg-primary text-primary-foreground' : 'text-primary'}`}>
+                    <ChevronDown className="w-5 h-5" />
+                  </div>
+                </button>
+                <div 
+                  className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100 mt-4' : 'grid-rows-[0fr] opacity-0 mt-0'}`}
+                >
+                  <div className="overflow-hidden">
+                    <p className="text-muted-foreground font-medium leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 export default function Home() {
   return (
     <main className="min-h-screen flex flex-col bg-background font-sans">
@@ -223,6 +302,7 @@ export default function Home() {
                 width={28}
                 height={28}
                 className="object-contain drop-shadow transition-transform group-hover:scale-105"
+                style={{ width: "auto", height: "auto" }}
               />
               <span className="font-extrabold text-lg tracking-tight text-foreground hidden sm:block">
                 Ngaturin
@@ -519,6 +599,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── FAQ Section ─────────────────────────────────────────────────── */}
+      <FAQSection />
+
       {/* ── CTA Banner ──────────────────────────────────────────────────── */}
       <section className="pb-24 pt-12">
         <div className="max-w-6xl mx-auto px-6">
@@ -595,6 +678,7 @@ export default function Home() {
                     width={28}
                     height={28}
                     className="rounded-lg object-contain drop-shadow transition-transform group-hover:scale-105"
+                    style={{ width: "auto", height: "auto" }}
                   />
                   <span className="font-extrabold text-xl tracking-tight text-foreground">
                     Ngaturin

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { getSafeRedirectUrl } from "./auth-helpers.ts";
+import { getSafeRedirectUrl } from "./auth-helpers";
 
 describe("getSafeRedirectUrl", () => {
   it("should return /dashboard if no url is provided", () => {

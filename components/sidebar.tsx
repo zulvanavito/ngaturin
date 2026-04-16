@@ -16,12 +16,12 @@ import { useState } from "react";
 
 const mainLinks = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Smart Analytics", href: "/dashboard/insights", icon: Sparkles },
   { name: "Dompet", href: "/dashboard/wallets", icon: Wallet },
   { name: "Tagihan", href: "/dashboard/bills", icon: Bell },
   { name: "Kategori", href: "/dashboard/categories", icon: Tag },
   { name: "Utang/Piutang", href: "/dashboard/debts", icon: HandCoins },
   { name: "Investasi", href: "/dashboard/investments", icon: TrendingUp },
-  { name: "Insight", href: "/dashboard/insights", icon: Sparkles },
 ];
 
 const paraLinks = [

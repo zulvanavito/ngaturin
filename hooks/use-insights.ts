@@ -11,9 +11,15 @@ export interface InsightSummary {
   averageDailySpend: number;
 }
 
-export function useInsights(transactions: Transaction[], selectedMonth: string, selectedCategory: string = "all", selectedWallet: string = "all") {
+export function useInsights(
+  transactions: Transaction[], 
+  selectedMonth: string, 
+  selectedCategory: string = "all", 
+  selectedWallet: string = "all",
+  selectedType: string = "all"
+) {
   
-  // 1. Global Transactions (Ignore category filter)
+  // 1. Global Transactions (Ignore category & type filter for health metrics)
   const globalFilteredTxs = useMemo(() => {
     return transactions.filter((tx) => {
       const date = new Date(tx.date);
@@ -24,12 +30,14 @@ export function useInsights(transactions: Transaction[], selectedMonth: string, 
     });
   }, [transactions, selectedMonth, selectedWallet]);
 
-  // 2. Deep Filtered Transactions (Include category filter)
+  // 2. Deep Filtered Transactions (Include category & type filter)
   const filteredTxs = useMemo(() => {
     return globalFilteredTxs.filter((tx) => {
-      return selectedCategory === "all" || tx.category === selectedCategory;
+      const categoryMatch = selectedCategory === "all" || tx.category === selectedCategory;
+      const typeMatch = selectedType === "all" || tx.type === selectedType;
+      return categoryMatch && typeMatch;
     });
-  }, [globalFilteredTxs, selectedCategory]);
+  }, [globalFilteredTxs, selectedCategory, selectedType]);
 
   const calculateSummary = (txs: Transaction[]): InsightSummary => {
     const income = txs
@@ -104,7 +112,7 @@ export function useInsights(transactions: Transaction[], selectedMonth: string, 
 
   useEffect(() => {
     fetchAiInsight();
-  }, [selectedMonth, transactions.length, selectedCategory, selectedWallet]);
+  }, [selectedMonth, transactions.length, selectedCategory, selectedWallet, selectedType]);
 
   return {
     filteredTransactions: filteredTxs,

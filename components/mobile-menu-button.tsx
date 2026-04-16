@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Wallet, Bell, Tag, User, LogOut, Sun, Moon, HandCoins, TrendingUp } from "lucide-react";
+import { MoreVertical, Wallet, Bell, Tag, User, LogOut, Sun, Moon, HandCoins, TrendingUp, LayoutDashboard, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "next-themes";
 
@@ -71,6 +71,19 @@ export function MobileMenuButton() {
           )}
 
           {/* Navigation Links */}
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer w-full font-bold">
+              <LayoutDashboard className="w-4 h-4" />
+              Dashboard
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/insights" className="flex items-center gap-2 cursor-pointer w-full text-secondary dark:text-primary font-bold">
+              <Sparkles className="w-4 h-4" />
+              Smart Analytics
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link href="/dashboard/wallets" className="flex items-center gap-2 cursor-pointer w-full">
               <Wallet className="w-4 h-4" />

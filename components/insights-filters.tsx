@@ -14,6 +14,8 @@ interface InsightsFiltersProps {
   setSelectedCategory: (c: string) => void;
   selectedWallet: string;
   setSelectedWallet: (w: string) => void;
+  selectedType: string;
+  setSelectedType: (t: string) => void;
 }
 
 export function InsightsFilters({
@@ -24,6 +26,8 @@ export function InsightsFilters({
   setSelectedCategory,
   selectedWallet,
   setSelectedWallet,
+  selectedType,
+  setSelectedType,
 }: InsightsFiltersProps) {
   
   const { wallets } = useWallets();
@@ -51,14 +55,14 @@ export function InsightsFilters({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       {/* Month Filter */}
       <div className="space-y-2">
         <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2 px-1">
           <Calendar className="w-3 h-3" /> Periode
         </label>
         <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-          <SelectTrigger className="h-12 rounded-2xl bg-white/50 dark:bg-card/50 backdrop-blur-xl border-border/40 shadow-sm focus:ring-primary/20">
+          <SelectTrigger className="h-12 rounded-2xl bg-white/50 dark:bg-card/50 backdrop-blur-xl border-border/40 shadow-sm focus:ring-primary/20 hover:bg-white/60 dark:hover:bg-card/60 transition-colors">
             <SelectValue placeholder="Pilih Bulan" />
           </SelectTrigger>
           <SelectContent className="rounded-2xl border-border/40 backdrop-blur-3xl">
@@ -78,7 +82,7 @@ export function InsightsFilters({
           <Tag className="w-3 h-3" /> Kategori
         </label>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="h-12 rounded-2xl bg-white/50 dark:bg-card/50 backdrop-blur-xl border-border/40 shadow-sm focus:ring-primary/20">
+          <SelectTrigger className="h-12 rounded-2xl bg-white/50 dark:bg-card/50 backdrop-blur-xl border-border/40 shadow-sm focus:ring-primary/20 hover:bg-white/60 dark:hover:bg-card/60 transition-colors">
             <SelectValue placeholder="Semua Kategori" />
           </SelectTrigger>
           <SelectContent className="rounded-2xl border-border/40 backdrop-blur-3xl">
@@ -98,7 +102,7 @@ export function InsightsFilters({
           <Wallet className="w-3 h-3" /> Dompet
         </label>
         <Select value={selectedWallet} onValueChange={setSelectedWallet}>
-          <SelectTrigger className="h-12 rounded-2xl bg-white/50 dark:bg-card/50 backdrop-blur-xl border-border/40 shadow-sm focus:ring-primary/20">
+          <SelectTrigger className="h-12 rounded-2xl bg-white/50 dark:bg-card/50 backdrop-blur-xl border-border/40 shadow-sm focus:ring-primary/20 hover:bg-white/60 dark:hover:bg-card/60 transition-colors">
             <SelectValue placeholder="Semua Dompet" />
           </SelectTrigger>
           <SelectContent className="rounded-2xl border-border/40 backdrop-blur-3xl">
@@ -108,6 +112,23 @@ export function InsightsFilters({
                 {w.icon} {w.name}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Type Filter */}
+      <div className="space-y-2">
+        <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2 px-1">
+          <div className="w-3 h-3 rounded-full border-2 border-muted-foreground" /> Tipe Transaksi
+        </label>
+        <Select value={selectedType} onValueChange={setSelectedType} >
+          <SelectTrigger className="h-12 rounded-2xl bg-white/50 dark:bg-card/50 backdrop-blur-xl border-border/40 shadow-sm focus:ring-primary/20 hover:bg-white/60 dark:hover:bg-card/60 transition-colors">
+            <SelectValue placeholder="Semua Tipe" />
+          </SelectTrigger>
+          <SelectContent className="rounded-2xl border-border/40 backdrop-blur-3xl">
+            <SelectItem value="all">Semua Tipe</SelectItem>
+            <SelectItem value="income">📈 Pemasukan</SelectItem>
+            <SelectItem value="expense">📉 Pengeluaran</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -3,12 +3,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { TransactionForm, type Transaction } from "@/components/transaction-form";
 import { TransactionList } from "@/components/transaction-list";
-import { AnalyticsSection } from "@/components/analytics-section";
 import { BudgetSection } from "@/components/budget-section";
 import { BudgetSnapshot } from "@/components/budget-snapshot";
 import { BillReminderBanner } from "@/components/bill-reminder-banner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutDashboard, BarChart3, History, Target, Plus } from "lucide-react";
+import { LayoutDashboard, History, Target, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardSummaryCard } from "@/components/dashboard-summary-card";
 import { DashboardProgressCard } from "@/components/dashboard-progress-card";
@@ -130,14 +129,10 @@ export default function DashboardPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="tour-tabs w-full mt-8">
-        <TabsList className="w-full mb-6 h-auto rounded-xl bg-muted/40 backdrop-blur-md border border-border/40 flex flex-wrap sm:grid sm:grid-cols-4 gap-2">
+        <TabsList className="w-full mb-6 h-auto rounded-xl bg-muted/40 backdrop-blur-md border border-border/40 flex flex-wrap sm:grid sm:grid-cols-3 gap-2">
           <TabsTrigger value="overview" className="rounded-xl font-semibold flex items-center justify-center gap-2 shrink-0 sm:shrink px-4 py-2.5 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
             <LayoutDashboard className="w-4 h-4 shrink-0" />
             <span className="text-sm whitespace-nowrap">Ringkasan</span>
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="rounded-xl font-semibold flex items-center justify-center gap-2 shrink-0 sm:shrink px-4 py-2.5 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
-            <BarChart3 className="w-4 h-4 shrink-0" />
-            <span className="text-sm whitespace-nowrap">Analitik</span>
           </TabsTrigger>
           <TabsTrigger value="budget" className="rounded-xl font-semibold flex items-center justify-center gap-2 shrink-0 sm:shrink px-4 py-2.5 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
             <Target className="w-4 h-4 shrink-0" />
@@ -197,10 +192,7 @@ export default function DashboardPage() {
           </div>
         </TabsContent>
 
-        {/* Analitik Tab */}
-        <TabsContent value="analytics" className="mt-0 focus-visible:outline-none focus-visible:ring-0 bg-white dark:bg-card rounded-[2rem] border border-border/40 p-4 sm:p-6 shadow-sm">
-          <AnalyticsSection transactions={transactions} />
-        </TabsContent>
+
 
         {/* Anggaran Tab */}
         <TabsContent value="budget" className="mt-0 focus-visible:outline-none focus-visible:ring-0 bg-white dark:bg-card rounded-[2rem] border border-border/40 p-4 sm:p-6 shadow-sm">

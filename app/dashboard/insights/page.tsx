@@ -44,7 +44,7 @@ const CHART_COLORS = [
   "#2ECC71"  // Emerald
 ];
 
-type TrendInterval = "daily" | "monthly" | "yearly";
+type TrendInterval = "daily" | "weekly" | "monthly" | "yearly";
 
 export default function InsightsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -121,6 +121,13 @@ export default function InsightsPage() {
       let key = "";
       if (trendInterval === "daily") {
         key = t.date;
+      } else if (trendInterval === "weekly") {
+        // Calculate the start of the week (Sunday)
+        const d = new Date(t.date);
+        const day = d.getDay();
+        const diff = d.getDate() - day;
+        const startOfWeek = new Date(d.setDate(diff));
+        key = startOfWeek.toISOString().split('T')[0];
       } else if (trendInterval === "monthly") {
         key = `${dateToken.getFullYear()}-${String(dateToken.getMonth() + 1).padStart(2, "0")}`;
       } else {
@@ -413,18 +420,18 @@ export default function InsightsPage() {
               <h3 className="font-bold text-lg">Tren Keuangan</h3>
             </div>
             
-            <div className="flex bg-muted/30 p-1 rounded-xl w-full sm:w-auto">
-              {(["daily", "monthly", "yearly"] as TrendInterval[]).map((interval) => (
+            <div className="flex bg-muted/30 p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
+              {(["daily", "weekly", "monthly", "yearly"] as TrendInterval[]).map((interval) => (
                 <button
                   key={interval}
                   onClick={() => setTrendInterval(interval)}
-                  className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                  className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
                     trendInterval === interval 
                       ? "bg-primary text-primary-foreground shadow-sm" 
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {interval === "daily" ? "Harian" : interval === "monthly" ? "Bulanan" : "Tahunan"}
+                  {interval === "daily" ? "Harian" : interval === "weekly" ? "Mingguan" : interval === "monthly" ? "Bulanan" : "Tahunan"}
                 </button>
               ))}
             </div>
@@ -441,6 +448,10 @@ export default function InsightsPage() {
                               try {
                                 if (trendInterval === "daily") {
                                   return new Date(val).toLocaleDateString("id-ID", { day: '2-digit', month: 'short' });
+                                }
+                                if (trendInterval === "weekly") {
+                                  const date = new Date(val);
+                                  return "Mgg " + date.toLocaleDateString("id-ID", { day: '2-digit', month: 'short' });
                                 }
                                 if (trendInterval === "monthly") {
                                   const [year, month] = val.split("-");

@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { LayoutDashboard, Wallet, Tag, HandCoins, TrendingUp, User, LogOut, Menu, Bell, Layers, Briefcase, FolderOpen, BookOpen, Archive, ChevronDown } from "lucide-react";
+import { LayoutDashboard, Wallet, Tag, HandCoins, TrendingUp, User, LogOut, Menu, Bell, Layers, Briefcase, FolderOpen, BookOpen, Archive, ChevronDown, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   Sheet,
@@ -21,6 +21,7 @@ const mainLinks = [
   { name: "Kategori", href: "/dashboard/categories", icon: Tag },
   { name: "Utang/Piutang", href: "/dashboard/debts", icon: HandCoins },
   { name: "Investasi", href: "/dashboard/investments", icon: TrendingUp },
+  { name: "Insight", href: "/dashboard/insights", icon: Sparkles },
 ];
 
 const paraLinks = [

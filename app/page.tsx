@@ -347,10 +347,12 @@ export default function Home() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1]">
+          <h1 className="text-display-hero md:text-display-mega font-black tracking-tight mb-8">
             Kelola Hidup & Uang
             <br />
-            <span className="text-secondary dark:text-primary">Dalam Satu Tampilan.</span>
+            <span className="inline-block mt-2 px-6 py-2 bg-primary text-primary-foreground rounded-cardSm md:rounded-cardMd -rotate-2 shadow-ring hover:rotate-0 transition-transform duration-300">
+              Dalam Satu Tampilan.
+            </span>
           </h1>
 
           {/* Sub-headline */}
@@ -571,10 +573,10 @@ export default function Home() {
       <section className="py-24">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-foreground mb-4">
+            <h2 className="text-heading-sub md:text-heading-section font-black text-foreground mb-4">
               Jelajahi Fitur Teratas Ngaturin.
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto text-lg font-medium">
+            <p className="text-muted-foreground max-w-xl mx-auto text-body-md md:text-body-semibold">
               Eksplorasi panel pintar kami untuk pencatatan lebih cepat dan transaksi tanpa repot.
             </p>
           </div>
@@ -612,10 +614,10 @@ export default function Home() {
             <div className="absolute -bottom-32 left-1/2 w-80 h-80 rounded-full bg-secondary/30 blur-3xl mix-blend-multiply" />
             
             <div className="relative z-10 flex-1 max-w-lg text-center md:text-left">
-              <h2 className="text-4xl md:text-5xl font-extrabold text-primary-foreground mb-6 leading-[1.1]">
-                Dapatkan Ngaturin. Tata Ulang Hidup Anda Sekarang.
+              <h2 className="text-heading-sub md:text-heading-section font-black text-primary-foreground mb-6">
+                Dapatkan Ngaturin.<br/>Tata Ulang Hidup Anda Sekarang.
               </h2>
-              <p className="text-primary-foreground/80 md:text-lg mb-10 font-medium">
+              <p className="text-primary-foreground/90 md:text-body-semibold mb-10">
                 Sederhanakan rutinitas harian dan raih kebebasan waktu serta finansial bersama Ngaturin. Manfaatkan sistem yang memberdayakan.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">

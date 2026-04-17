@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ClientProviders } from "@/components/client-providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -17,9 +17,9 @@ export const metadata: Metadata = {
     "Ngaturin adalah aplikasi expense tracker pribadi yang membantu Anda melacak pemasukan dan pengeluaran dengan mudah.",
 };
 
-const manrope = Manrope({
+const interFont = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "900"],
   display: "swap",
 });
 
@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className={`${manrope.className} antialiased`}>
+      <body className={`${interFont.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

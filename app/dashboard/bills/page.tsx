@@ -203,6 +203,9 @@ export default function BillsPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{editingBill ? "Edit Tagihan" : "Tagihan Baru"}</DialogTitle>
+            <DialogDescription>
+              {editingBill ? "Perbarui rincian tagihan rutin Anda jika ada perubahan." : "Buat catatan tagihan rutin untuk memantau komitmen bulanan Anda."}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4 pt-2">
             <div className="space-y-2">

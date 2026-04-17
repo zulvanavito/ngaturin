@@ -5,6 +5,7 @@ import {
   Sparkles, 
   BarChart3, 
   TrendingUp, 
+  TrendingDown,
   Wallet as WalletIcon, 
   ArrowLeft, 
   PieChart as PieChartIcon,
@@ -13,10 +14,15 @@ import {
   FileIcon,
   DownloadCloud,
   ChevronRight,
-  RefreshCw
+  RefreshCw,
+  HandCoins,
+  Briefcase,
+  Bell,
+  Coins
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
+import { Badge as UIBadge } from "@/components/ui/badge"; 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useInsights } from "@/hooks/use-insights";
 import { InsightsFilters } from "@/components/insights-filters";
 import { InsightsHero } from "@/components/insights-hero";
@@ -50,16 +56,21 @@ export default function InsightsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [chartsReady, setChartsReady] = useState(false);
   
   // States for filters
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedWallet, setSelectedWallet] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState("insights");
   const [trendInterval, setTrendInterval] = useState<TrendInterval>("daily");
 
   useEffect(() => {
     setIsMounted(true);
+    // Technical tick to ensure DOM is settled before Recharts calculation
+    const timer = setTimeout(() => setChartsReady(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchTransactions = useCallback(async () => {
@@ -81,7 +92,10 @@ export default function InsightsPage() {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  const { filteredTransactions, summary, globalSummary, aiNarrative, isAiLoading } = useInsights(
+  const { 
+    filteredTransactions, summary, globalSummary, aiNarrative, isAiLoading,
+    investments, debts, bills, isHolisticLoading
+  } = useInsights(
     transactions, 
     selectedMonth, 
     selectedCategory, 
@@ -142,7 +156,6 @@ export default function InsightsPage() {
       .sort((a, b) => a.label.localeCompare(b.label));
   }, [filteredTransactions, trendInterval, selectedType]);
 
-  // Premium Export Handlers
   const handleExportCSV = () => {
     if (filteredTransactions.length === 0) return;
     try {
@@ -173,7 +186,6 @@ export default function InsightsPage() {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet("Laporan Analitik");
 
-      // Add Summary Header
       worksheet.mergeCells('A1:E1');
       worksheet.getCell('A1').value = "RINGKASAN SMART ANALYTICS";
       worksheet.getCell('A1').font = { bold: true, size: 14 };
@@ -185,13 +197,28 @@ export default function InsightsPage() {
       worksheet.getCell('A4').value = "Sisa Saldo (Net)";
       worksheet.getCell('B4').value = summary.netCashflow;
       
-      // Style summary numbers
+  
       ['B2', 'B3', 'B4'].forEach(cell => worksheet.getCell(cell).numFmt = '#,##0');
 
-      // Add Data Table
-      worksheet.getRow(6).values = ["Tanggal", "Kategori", "Deskripsi", "Tipe", "Jumlah"];
-      worksheet.getRow(6).font = { bold: true };
-      worksheet.getRow(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FC00' } }; // Brand Primary
+      // Holistic Summary
+      worksheet.getCell('A6').value = "STATUS ASET & KEWAJIBAN (REAL-TIME)";
+      worksheet.getCell('A6').font = { bold: true };
+      
+      worksheet.getCell('A7').value = "Total Investasi";
+      worksheet.getCell('B7').value = investments.reduce((sum, i) => sum + Number(i.current_value), 0);
+      worksheet.getCell('A8').value = "Total Utang Aktif";
+      worksheet.getCell('B8').value = debts.filter(d => !d.is_settled && d.type === 'hutang').reduce((sum, d) => sum + d.amount, 0);
+      worksheet.getCell('A9').value = "Total Piutang Aktif";
+      worksheet.getCell('B9').value = debts.filter(d => !d.is_settled && d.type === 'piutang').reduce((sum, d) => sum + d.amount, 0);
+      worksheet.getCell('A10').value = "Total Tagihan Rutin";
+      worksheet.getCell('B10').value = bills.filter(b => b.is_active).reduce((sum, b) => sum + b.amount, 0);
+      
+      ['B7', 'B8', 'B9', 'B10'].forEach(cell => worksheet.getCell(cell).numFmt = '#,##0');
+
+      
+      worksheet.getRow(12).values = ["Tanggal", "Kategori", "Deskripsi", "Tipe", "Jumlah"];
+      worksheet.getRow(12).font = { bold: true };
+      worksheet.getRow(12).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FC00' } };
 
       const tableData = filteredTransactions.map(tx => [
         new Date(tx.date).toLocaleDateString('id-ID'),
@@ -247,7 +274,26 @@ export default function InsightsPage() {
       doc.text(formatCurrency(summary.totalExpense), 80, 58);
       doc.text(formatCurrency(summary.netCashflow), 140, 58);
 
-      // Table
+      // Holistic Summary Section
+      doc.setFontSize(12);
+      doc.setTextColor(44, 47, 48);
+      doc.text("Status Aset & Kewajiban (Real-time)", 14, 80);
+      
+      doc.setFillColor(230, 240, 255); // Light blue for assets
+      doc.roundedRect(14, 85, 85, 20, 2, 2, "F");
+      doc.setFontSize(8);
+      doc.text("TOTAL INVESTASI", 18, 92);
+      doc.setFontSize(11);
+      doc.text(formatCurrency(investments.reduce((sum, i) => sum + Number(i.current_value), 0)), 18, 100);
+
+      doc.setFillColor(255, 240, 240); // Light red for debts
+      doc.roundedRect(105, 85, 85, 20, 2, 2, "F");
+      doc.setFontSize(8);
+      doc.text("TOTAL UTANG AKTIF", 109, 92);
+      doc.setFontSize(11);
+      doc.text(formatCurrency(debts.filter(d => !d.is_settled && d.type === 'hutang').reduce((sum, d) => sum + d.amount, 0)), 109, 100);
+
+      
       const tableColumn = ["Tanggal", "Kategori", "Deskripsi", "Tipe", "Jumlah"];
       const tableRows = filteredTransactions.map(tx => [
         new Date(tx.date).toLocaleDateString('id-ID'),
@@ -260,7 +306,7 @@ export default function InsightsPage() {
       autoTable(doc, {
         head: [tableColumn],
         body: tableRows,
-        startY: 75,
+        startY: 115,
         theme: 'grid',
         headStyles: { fillColor: [209, 252, 0], textColor: [44, 47, 48], fontStyle: 'bold' },
         styles: { fontSize: 9 }
@@ -317,16 +363,32 @@ export default function InsightsPage() {
         setSelectedType={setSelectedType}
       />
 
-      {/* Hero Section (AI Summary) */}
-      <InsightsHero narrative={aiNarrative} isLoading={isAiLoading} />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-10">
+        <div className="flex items-center justify-center">
+            <TabsList className="bg-white/70 backdrop-blur-2xl border-none p-1 rounded-[2.5rem] h-16 shadow-[0_20px_50px_rgba(44,47,48,0.05)] flex items-center w-full max-w-xl">
+                <TabsTrigger 
+                    value="insights" 
+                    className="flex-1 rounded-[2rem] h-full data-[state=active]:bg-primary data-[state=active]:text-secondary data-[state=active]:shadow-lg transition-all duration-300 font-bold text-base flex items-center justify-center gap-3"
+                >
+                    <Sparkles className="w-5 h-5" />
+                    Smart Insights
+                </TabsTrigger>
+                <TabsTrigger 
+                    value="assets" 
+                    className="flex-1 rounded-[2rem] h-full data-[state=active]:bg-primary data-[state=active]:text-secondary data-[state=active]:shadow-lg transition-all duration-300 font-bold text-base flex items-center justify-center gap-3"
+                >
+                    <Briefcase className="w-5 h-5" />
+                    Aset & Kewajiban
+                </TabsTrigger>
+            </TabsList>
+        </div>
 
-      {/* Metrics Grid */}
-      <InsightMetricCards summary={summary} globalSummary={globalSummary} />
+        <TabsContent value="insights" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none mt-0">
+          <InsightsHero narrative={aiNarrative} isLoading={isAiLoading} />
+          <InsightMetricCards summary={summary} globalSummary={globalSummary} />
 
-      {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Pie Chart: Expenses by Category */}
-        <div className="p-8 rounded-[2.5rem] bg-white dark:bg-card border border-border/40 shadow-sm flex flex-col h-[500px]">
+        <div className="p-8 rounded-[2.5rem] bg-white dark:bg-card border-none shadow-[0_20px_50px_rgba(44,47,48,0.04)] flex flex-col h-[500px]">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-secondary">
               <PieChartIcon className="w-5 h-5" />
@@ -337,8 +399,8 @@ export default function InsightsPage() {
           </div>
           
           <div className="flex-1 min-h-0">
-            {isMounted && pieData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
+            {chartsReady && pieData.length > 0 && activeTab === 'insights' ? (
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <PieChart>
                   <Pie
                     data={pieData}
@@ -411,7 +473,7 @@ export default function InsightsPage() {
       </div>
 
       {/* Trend Chart with Interval Toggle */}
-      <div className="p-8 rounded-[2.5rem] bg-white dark:bg-card border border-border/40 shadow-sm min-h-[450px] flex flex-col">
+      <div className="p-8 rounded-[2.5rem] bg-white dark:bg-card border-none shadow-[0_20px_50px_rgba(44,47,48,0.04)] min-h-[450px] flex flex-col">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-secondary">
@@ -438,8 +500,8 @@ export default function InsightsPage() {
           </div>
           
           <div className="h-[350px] w-full mt-4">
-              {isMounted && trendData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
+              {chartsReady && trendData.length > 0 && activeTab === 'insights' ? (
+                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                       <LineChart data={trendData}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
                           <XAxis 
@@ -530,7 +592,159 @@ export default function InsightsPage() {
                 </Button>
               </div>
           </div>
-      </div>
+        </div>
+      </TabsContent>
+
+        <TabsContent value="assets" className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Investment Summary */}
+            <div className="p-8 rounded-[2.5rem] bg-white dark:bg-card border-none shadow-[0_25px_60px_rgba(44,47,48,0.05)] flex flex-col min-h-[400px] relative overflow-hidden group">
+              <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
+              <div className="flex items-center justify-between mb-8 relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                    <Briefcase className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-bold text-lg">Portofolio Investasi</h3>
+                </div>
+                <Link href="/dashboard/investments">
+                  <Button variant="ghost" size="sm" className="rounded-xl text-primary font-bold hover:bg-primary/5">Kelola</Button>
+                </Link>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1 uppercase tracking-wider font-bold">Total Nilai Aset</p>
+                  <p className="text-4xl font-extrabold text-foreground">
+                    {formatCurrency(investments.reduce((sum, i) => sum + Number(i.current_value || 0), 0))}
+                  </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <UIBadge variant="secondary" className="bg-success/10 text-success border-success/20 font-bold px-3 py-1 rounded-lg">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      {((investments.reduce((sum, i) => sum + (Number(i.current_value) - Number(i.total_invested)), 0) / Math.max(1, investments.reduce((sum, i) => sum + Number(i.total_invested), 0))) * 100).toFixed(2)}%
+                    </UIBadge>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6 pt-6 border-t border-border/40">
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase font-bold mb-1">Total Modal</p>
+                    <p className="text-sm font-bold">{formatCurrency(investments.reduce((sum, i) => sum + Number(i.total_invested || 0), 0))}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase font-bold mb-1">Total Keuntungan</p>
+                    <p className="text-sm font-bold text-success">
+                      +{formatCurrency(investments.reduce((sum, i) => sum + (Number(i.current_value) - Number(i.total_invested)), 0))}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex-1 pt-4">
+                  <p className="text-xs text-muted-foreground mb-4 font-bold uppercase tracking-widest">Alokasi Aset</p>
+                  <div className="h-40 min-h-0">
+                    {chartsReady && activeTab === 'assets' && (
+                      <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                      <PieChart>
+                        <Pie
+                          data={Object.entries(investments.reduce((acc, i) => {
+                            acc[i.type] = (acc[i.type] || 0) + Number(i.current_value);
+                            return acc;
+                          }, {} as any)).map(([name, value]) => ({ name, value }))}
+                          cx="50%" cy="50%" innerRadius={40} outerRadius={60} dataKey="value"
+                        >
+                          {investments.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                        </Pie>
+                        <Tooltip formatter={(v: any) => formatCurrency(Number(v))} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Debt & Receivable Hub */}
+            <div className="p-8 rounded-[2.5rem] bg-white dark:bg-card border-none shadow-[0_25px_60px_rgba(44,47,48,0.05)] flex flex-col min-h-[400px] relative overflow-hidden group">
+              <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
+              <div className="flex items-center justify-between mb-8 relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                    <HandCoins className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-bold text-lg">Utang & Piutang</h3>
+                </div>
+                <Link href="/dashboard/debts">
+                  <Button variant="ghost" size="sm" className="rounded-xl text-primary font-bold hover:bg-primary/5">Kelola</Button>
+                </Link>
+              </div>
+
+              <div className="space-y-10">
+                <div className="relative p-6 rounded-[2rem] bg-red-500/5 border border-red-500/10 group overflow-hidden">
+                   <TrendingDown className="absolute -right-6 -bottom-6 w-32 h-32 text-red-500 opacity-5 group-hover:scale-110 transition-transform" />
+                   <p className="text-xs text-red-600 font-extrabold uppercase tracking-widest mb-1">Total Utang Aktif</p>
+                   <p className="text-3xl font-black text-red-500">
+                    {formatCurrency(debts.filter(d => !d.is_settled && d.type === "hutang").reduce((sum, d) => sum + Number(d.amount), 0))}
+                   </p>
+                   <p className="text-[10px] text-muted-foreground mt-2 font-medium">Dari {debts.filter(d => !d.is_settled && d.type === "hutang").length} catatan yang belum lunas</p>
+                </div>
+
+                <div className="relative p-6 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/10 group overflow-hidden">
+                   <TrendingUp className="absolute -right-6 -bottom-6 w-32 h-32 text-emerald-500 opacity-5 group-hover:scale-110 transition-transform" />
+                   <p className="text-xs text-emerald-600 font-extrabold uppercase tracking-widest mb-1">Total Piutang Aktif</p>
+                   <p className="text-3xl font-black text-emerald-500">
+                    {formatCurrency(debts.filter(d => !d.is_settled && d.type === "piutang").reduce((sum, d) => sum + Number(d.amount), 0))}
+                   </p>
+                   <p className="text-[10px] text-muted-foreground mt-2 font-medium">Dari {debts.filter(d => !d.is_settled && d.type === "piutang").length} orang berhutang ke kamu</p>
+                </div>
+
+                <div className="flex items-center justify-between px-4 pt-4 border-t border-border/40">
+                  <span className="text-sm font-bold text-muted-foreground">Posisi Bersih</span>
+                  <span className={`text-lg font-black ${
+                      debts.reduce((sum, d) => sum + (d.type === 'piutang' ? d.amount : -d.amount), 0) >= 0 ? "text-primary" : "text-expense"
+                  }`}>
+                    {formatCurrency(debts.reduce((sum, d) => !d.is_settled ? (d.type === 'piutang' ? d.amount : -d.amount) : 0, 0))}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Upcoming Bills Section */}
+          <div className="p-8 rounded-[2.5rem] bg-secondary text-secondary-foreground shadow-[0_30px_70px_rgba(81,98,0,0.15)] border-none overflow-hidden relative group">
+            <div className="absolute top-0 right-0 p-8 opacity-5">
+                <Bell className="w-32 h-32" />
+            </div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h3 className="text-2xl font-bold flex items-center gap-3">
+                    <Bell className="w-6 h-6" /> Tagihan Rutin
+                  </h3>
+                  <p className="text-secondary-foreground/70 text-sm mt-1">Total komitmen bulanan: **{formatCurrency(bills.filter(b => b.is_active).reduce((sum, b) => sum + b.amount, 0))}**</p>
+                </div>
+                <Link href="/dashboard/bills">
+                  <Button className="rounded-xl bg-white/10 hover:bg-white/20 border-white/10 text-white font-bold h-12 px-6">Lengkap</Button>
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {bills.filter(b => b.is_active).sort((a,b) => a.due_day - b.due_day).slice(0, 4).map(bill => (
+                  <div key={bill.id} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between h-32 hover:bg-white/10 transition-all cursor-default group/card">
+                    <div>
+                      <p className="text-[10px] uppercase font-black text-white/40 tracking-widest mb-1">Tgl {bill.due_day}</p>
+                      <p className="font-bold text-sm truncate">{bill.name}</p>
+                    </div>
+                    <p className="text-lg font-black group-hover/card:scale-105 transition-transform origin-left">{formatCurrency(bill.amount)}</p>
+                  </div>
+                ))}
+                {bills.filter(b => b.is_active).length === 0 && (
+                   <div className="col-span-full py-10 text-center opacity-40 italic text-sm">Belum ada tagihan rutin yang aktif.</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

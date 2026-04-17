@@ -2,31 +2,57 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { transactions, summary } = await req.json();
+    const { transactions, summary, investments, debts, bills } = await req.json();
 
-    // Placeholder for Gemini API Integration
-    // In a real scenario, you would use:
-    // const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!);
-    // const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    
-    // For now, we provide a rule-based "Smart Summary" baseline
-    const totalTransactions = transactions?.length || 0;
     const totalExpense = summary?.totalExpense || 0;
     const topCategory = summary?.topCategory || "Belum ada";
+    const netCashflow = summary?.netCashflow || 0;
+
+    // Debt reasoning
+    const activeDebts = debts?.filter((d: any) => !d.is_settled && d.type === 'hutang') || [];
+    const totalDebtAmount = activeDebts.reduce((sum: number, d: any) => sum + d.amount, 0);
+    
+    // Bills reasoning
+    const today = new Date().getDate();
+    const upcomingBills = bills?.filter((b: any) => b.is_active && Math.abs(b.due_day - today) <= 3) || [];
+    const totalUpcomingBills = upcomingBills.reduce((sum: number, b: any) => sum + b.amount, 0);
+
+    // Investment reasoning
+    const totalInvestment = investments?.reduce((sum: number, i: any) => sum + i.current_value, 0) || 0;
 
     let aiNarrative = "";
-    if (totalTransactions === 0) {
+
+    if (transactions?.length === 0) {
       aiNarrative = "Mulai catat transaksimu untuk mendapatkan analisis cerdas di sini.";
-    } else if (totalExpense > 0) {
-      aiNarrative = `Berdasarkan catatanmu, pengeluaran terbesar ada di kategori **${topCategory}**. Fokus untuk mengontrol area ini agar *cashflow* tetap terjaga!`;
     } else {
-      aiNarrative = "Keuanganmu terlihat stabil. Terus pantau pengeluaran harianmu agar tidak melebihi anggaran.";
+      const parts = [];
+      
+      // 1. Expense/Cashflow Insight
+      if (totalExpense > 0) {
+        parts.push(`Fokus utama bulan ini adalah menjaga pengeluaran di kategori **${topCategory}**. `);
+      }
+
+      // 2. Critical Alerts (Bills/Debt)
+      if (upcomingBills.length > 0) {
+        parts.push(`⚠️ Kamu punya tagihan yang akan datang senilai **Rp${totalUpcomingBills.toLocaleString('id-ID')}**. Pastikan saldo lancar cukup agar tidak menunggak.`);
+      }
+
+      if (totalDebtAmount > (totalInvestment * 2)) {
+        parts.push(`🚨 Rasio hutangmu terhadap aset investasi terlihat cukup tinggi. Pertimbangkan untuk mereview kembali prioritas pengeluaran.`);
+      }
+
+      // 3. Positive Reinforcement
+      if (netCashflow > 0 && totalInvestment > 0) {
+        parts.push(`✨ Bagus! *Cashflow* positifmu bisa dialokasikan untuk memperkuat portofolio investasi atau melunasi hutang lebih awal.`);
+      }
+
+      aiNarrative = parts.join(" ") || "Keuanganmu terlihat stabil. Terus pantau pengeluaran harianmu agar tetap sesuai anggaran.";
     }
 
     return NextResponse.json({
       narrative: aiNarrative,
       timestamp: new Date().toISOString(),
-      isAiGenerated: false, // Flag to indicate if real AI or static rules
+      isAiGenerated: false,
     });
   } catch (error) {
     console.error("Insights AI Error:", error);

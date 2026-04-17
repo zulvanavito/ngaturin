@@ -42,7 +42,7 @@ export function InsightMetricCards({ summary, globalSummary }: InsightMetricCard
       {metrics.map((m, i) => (
         <div 
           key={i} 
-          className="group p-6 rounded-[2rem] bg-white dark:bg-card border border-border/40 shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)] transition-all duration-500"
+          className="group p-6 rounded-[2rem] bg-white dark:bg-card border-none shadow-[0_15px_40px_rgba(44,47,48,0.03)] hover:shadow-[0_25px_50px_rgba(44,47,48,0.06)] transition-all duration-500"
         >
           <div className="flex items-start justify-between mb-4">
             <div className={`w-12 h-12 rounded-2xl ${m.color} flex items-center justify-center shadow-lg transform group-hover:rotate-12 transition-transform`}>

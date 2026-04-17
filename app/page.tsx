@@ -347,10 +347,10 @@ export default function Home() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-display-hero md:text-display-mega font-black tracking-tight mb-8">
+          <h1 className="text-4xl sm:text-5xl md:text-display-hero font-black tracking-tight mb-8">
             Kelola Hidup & Uang
             <br />
-            <span className="inline-block mt-2 px-6 py-2 bg-primary text-primary-foreground rounded-cardSm md:rounded-cardMd -rotate-2 shadow-ring hover:rotate-0 transition-transform duration-300">
+            <span className="inline-block mt-2 sm:mt-4 px-4 sm:px-6 py-2 bg-primary text-primary-foreground rounded-2xl md:rounded-cardMd -rotate-2 shadow-ring hover:rotate-0 transition-transform duration-300">
               Dalam Satu Tampilan.
             </span>
           </h1>

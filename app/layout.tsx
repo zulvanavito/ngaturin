@@ -19,7 +19,6 @@ export const metadata: Metadata = {
 
 const interFont = Inter({
   subsets: ["latin"],
-  weight: ["400", "600", "900"],
   display: "swap",
 });
 

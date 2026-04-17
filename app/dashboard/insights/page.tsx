@@ -218,7 +218,7 @@ export default function InsightsPage() {
       
       worksheet.getRow(12).values = ["Tanggal", "Kategori", "Deskripsi", "Tipe", "Jumlah"];
       worksheet.getRow(12).font = { bold: true };
-      worksheet.getRow(12).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FC00' } };
+      worksheet.getRow(12).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF9FE870' } };
 
       const tableData = filteredTransactions.map(tx => [
         new Date(tx.date).toLocaleDateString('id-ID'),
@@ -400,7 +400,7 @@ export default function InsightsPage() {
           
           <div className="flex-1 min-h-0">
             {chartsReady && pieData.length > 0 && activeTab === 'insights' ? (
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <PieChart>
                   <Pie
                     data={pieData}
@@ -501,7 +501,7 @@ export default function InsightsPage() {
           
           <div className="h-[350px] w-full mt-4">
               {chartsReady && trendData.length > 0 && activeTab === 'insights' ? (
-                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                       <LineChart data={trendData}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
                           <XAxis 
@@ -540,9 +540,9 @@ export default function InsightsPage() {
                           <Line 
                             type="monotone" 
                             dataKey="amount" 
-                            stroke="#D1FC00" 
-                            strokeWidth={4} 
-                            dot={{ r: 4, fill: 'white', strokeWidth: 2, stroke: "#D1FC00" }}
+                            stroke="#9fe870" 
+                            strokeWidth={3} 
+                            dot={{ r: 4, fill: 'white', strokeWidth: 2, stroke: "#9fe870" }}
                             activeDot={{ r: 6, strokeWidth: 0 }}
                           />
                       </LineChart>
@@ -643,7 +643,7 @@ export default function InsightsPage() {
                   <p className="text-xs text-muted-foreground mb-4 font-bold uppercase tracking-widest">Alokasi Aset</p>
                   <div className="h-40 min-h-0">
                     {chartsReady && activeTab === 'assets' && (
-                      <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                      <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                       <PieChart>
                         <Pie
                           data={Object.entries(investments.reduce((acc, i) => {

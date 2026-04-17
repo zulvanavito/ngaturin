@@ -171,13 +171,8 @@ export default function DebtsPage() {
 
       <FeatureTip
         id="debts"
-        title="💡 Tips: Utang & Piutang"
-        tips={[
-          "Hutang = kamu yang berhutang ke orang lain. Piutang = orang lain yang berhutang ke kamu.",
-          "Klik kartu ringkasan Hutang atau Piutang di bagian atas untuk langsung membuka form tambah catatan.",
-          "Tandai lunas dengan ikon centang (✓) pada setiap catatan — data tetap tersimpan sebagai histori.",
-          "Tambahkan tanggal jatuh tempo agar mendapat peringatan otomatis jika sudah melewati batas waktu.",
-        ]}
+        title="Sistem Utang & Piutang"
+        message="Simak panduan pelunasan dan sinkronisasinya agar transaksimu tetap rapi."
       />
 
       {/* Summary Cards */}

@@ -147,13 +147,8 @@ export default function WalletsPage() {
 
       <FeatureTip
         id="wallets"
-        title="💡 Tips: Dompet & Akun"
-        tips={[
-          "Tambahkan semua sumber keuanganmu: rekening bank, dompet tunai, kartu kredit, atau e-wallet seperti GoPay dan OVO.",
-          "Gunakan fitur Transfer untuk memindahkan saldo antar dompet — transaksinya otomatis tercatat di kedua sisi.",
-          "Saldo kartu kredit bisa diisi negatif untuk mencerminkan tagihan yang belum dibayar.",
-          "Klik ikon pensil pada kartu dompet untuk mengubah nama, ikon, atau warna kapan saja.",
-        ]}
+        title="Manajemen Dompet"
+        message="Butuh bantuan memahami konsep dompet utama atau memindahkan saldo?"
       />
 
       {/* Total Balance Summary */}

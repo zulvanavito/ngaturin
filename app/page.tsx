@@ -48,7 +48,7 @@ const featuresData = [
 ];
 
 const DashboardMockup = () => (
-  <div className="relative mx-auto mt-12 w-full max-w-5xl rounded-[2rem] border border-border/20 bg-background/60 backdrop-blur-2xl shadow-[0_30px_100px_rgba(209,252,0,0.15)] dark:shadow-[0_30px_100px_rgba(209,252,0,0.05)] overflow-hidden">
+  <div className="relative mx-auto mt-12 w-full max-w-5xl rounded-[2rem] border border-border/20 bg-background/60 backdrop-blur-2xl shadow-ring overflow-hidden">
     {/* App Titlebar */}
     <div className="flex items-center justify-between px-5 py-3 border-b border-border/10 bg-muted/10">
       <div className="flex gap-2">
@@ -157,7 +157,7 @@ const Lock = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const MobileMockup = () => (
-  <div className="relative w-[280px] h-[580px] rounded-[3rem] border-[6px] border-foreground/5 dark:border-border/30 bg-background shadow-[0_30px_100px_rgba(44,47,48,0.15)] dark:shadow-[0_30px_100px_rgba(209,252,0,0.05)] overflow-hidden shrink-0 mx-auto">
+  <div className="relative w-[280px] h-[580px] rounded-[3rem] border-[6px] border-foreground/5 dark:border-border/30 bg-background shadow-ring overflow-hidden shrink-0 mx-auto">
     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-foreground/5 dark:bg-border/30 rounded-b-2xl" />
     <div className="p-5 pt-10 flex flex-col h-full gap-5">
       <div className="flex items-center justify-between">
@@ -260,7 +260,7 @@ const FAQSection = () => {
             return (
               <div 
                 key={index} 
-                className={`p-6 rounded-[1.5rem] bg-card border transition-all duration-300 ${isOpen ? 'border-primary/50 shadow-[0_10px_40px_rgba(209,252,0,0.1)] dark:shadow-[0_10px_40px_rgba(209,252,0,0.05)]' : 'border-border/20 shadow-sm hover:border-primary/30'}`}
+                className={`p-6 rounded-[1.5rem] bg-card border transition-all duration-300 ${isOpen ? 'border-primary/50 shadow-ring' : 'border-border/20 shadow-sm hover:border-primary/30'}`}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
@@ -301,8 +301,7 @@ export default function Home() {
                 alt="Ngaturin Logo"
                 width={28}
                 height={28}
-                className="object-contain drop-shadow transition-transform group-hover:scale-105"
-                style={{ width: "auto", height: "auto" }}
+                className="object-contain drop-shadow transition-transform group-hover:scale-105 w-auto h-auto"
               />
               <span className="font-extrabold text-lg tracking-tight text-foreground hidden sm:block">
                 Ngaturin
@@ -313,7 +312,7 @@ export default function Home() {
               <Link href="#fitur" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Fitur</Link>
               <Link href="#komparasi" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Bagaimana Ini Bekerja</Link>
               <Link href="/blog" className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(209,252,0,0.8)]" /> 
+                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse shadow-sm" /> 
                 Blog
               </Link>
             </div>
@@ -607,7 +606,7 @@ export default function Home() {
       {/* ── CTA Banner ──────────────────────────────────────────────────── */}
       <section className="pb-24 pt-12">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="relative overflow-hidden rounded-[3rem] bg-primary p-12 md:p-20 shadow-[0_40px_100px_rgba(209,252,0,0.3)] flex flex-col md:flex-row items-center justify-between gap-12">
+          <div className="relative overflow-hidden rounded-[3rem] bg-primary p-12 md:p-20 shadow-ring flex flex-col md:flex-row items-center justify-between gap-12">
             
             {/* Visual background decorations inside the banner */}
             <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-white/20 blur-3xl" />
@@ -679,8 +678,7 @@ export default function Home() {
                     alt="Ngaturin Logo"
                     width={28}
                     height={28}
-                    className="rounded-lg object-contain drop-shadow transition-transform group-hover:scale-105"
-                    style={{ width: "auto", height: "auto" }}
+                    className="rounded-lg object-contain drop-shadow transition-transform group-hover:scale-105 w-auto h-auto"
                   />
                   <span className="font-extrabold text-xl tracking-tight text-foreground">
                     Ngaturin

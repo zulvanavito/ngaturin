@@ -10,7 +10,7 @@ export default function BlogUnderConstruction() {
       {/* Ambient background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 dark:bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
       
-      <div className="relative z-10 max-w-md w-full text-center p-10 rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-border/30 shadow-[0_40px_100px_rgba(209,252,0,0.15)] dark:shadow-none">
+      <div className="relative z-10 max-w-md w-full text-center p-10 rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-border/30 shadow-ring">
         
         {/* Glow behind the icon box */}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-secondary/30 rounded-full blur-[40px] pointer-events-none" />

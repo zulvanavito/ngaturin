@@ -225,7 +225,7 @@ export default function InvestmentsPage() {
           </CardHeader>
           <CardContent className="flex items-center justify-center p-0 h-[180px]">
             {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <PieChart>
                   <Pie
                     data={chartData}

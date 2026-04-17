@@ -228,6 +228,9 @@ export default function WalletsPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{editingWallet ? "Edit Dompet" : "Tambah Dompet Baru"}</DialogTitle>
+            <DialogDescription>
+              {editingWallet ? "Perbarui informasi dompet atau akun keuangan Anda." : "Buat dompet baru untuk memisahkan dan memantau budget Anda secara spesifik."}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4 pt-2">
             {/* Icon Picker */}

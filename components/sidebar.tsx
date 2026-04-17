@@ -9,6 +9,9 @@ import { createClient } from "@/lib/supabase/client";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -174,12 +177,17 @@ export function MobileHeader() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-[280px] p-0 flex flex-col bg-card">
-          <div className="p-4 border-b border-border/40">
-            <Link href="/dashboard" className="flex items-center gap-3 px-2" onClick={() => setOpen(false)}>
-              <Image src="/logo.png" alt="Ngaturin Logo" width={32} height={32} className="rounded-xl object-contain" style={{ width: "auto", height: "auto" }} />
-              <span className="font-bold text-xl tracking-tight text-foreground">Ngaturin</span>
-            </Link>
-          </div>
+          <SheetHeader className="p-4 border-b border-border/40 space-y-0 text-left">
+            <SheetTitle asChild>
+              <Link href="/dashboard" className="flex items-center gap-3 px-2" onClick={() => setOpen(false)}>
+                <Image src="/logo.png" alt="Ngaturin Logo" width={32} height={32} className="rounded-xl object-contain" style={{ width: "auto", height: "auto" }} />
+                <span className="font-bold text-xl tracking-tight text-foreground">Ngaturin</span>
+              </Link>
+            </SheetTitle>
+            <SheetDescription className="sr-only">
+              Navigasi menu aplikasi Ngaturin
+            </SheetDescription>
+          </SheetHeader>
           <div className="flex-1 overflow-y-auto p-4 space-y-1">
             {mainLinks.map((link) => {
               const isActive = pathname === link.href || (pathname.startsWith(link.href) && link.href !== "/dashboard" && link.href !== "/dashboard/transactions");

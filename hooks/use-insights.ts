@@ -84,6 +84,34 @@ export function useInsights(
   const globalSummary = useMemo(() => calculateSummary(globalFilteredTxs), [globalFilteredTxs]);
   const summary = useMemo(() => calculateSummary(filteredTxs), [filteredTxs]);
 
+  // 3. Holistic Data States (Real-time, independent of filters)
+  const [investments, setInvestments] = useState<any[]>([]);
+  const [debts, setDebts] = useState<any[]>([]);
+  const [bills, setBills] = useState<any[]>([]);
+  const [isHolisticLoading, setIsHolisticLoading] = useState(false);
+
+  const fetchHolisticData = async () => {
+    setIsHolisticLoading(true);
+    try {
+      const [invRes, debtRes, billRes] = await Promise.all([
+        fetch("/api/investments"),
+        fetch("/api/debts"),
+        fetch("/api/recurring-bills")
+      ]);
+      if (invRes.ok) setInvestments(await invRes.json());
+      if (debtRes.ok) setDebts(await debtRes.json());
+      if (billRes.ok) setBills(await billRes.json());
+    } catch (err) {
+      console.error("Failed to fetch holistic data:", err);
+    } finally {
+      setIsHolisticLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHolisticData();
+  }, []); // Only fetch once on mount/transactions change
+
   // AI Narrative Fetching
   const [aiNarrative, setAiNarrative] = useState<string>("Menganalisis data...");
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -99,7 +127,14 @@ export function useInsights(
       const res = await fetch("/api/insights/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transactions: filteredTxs, summary, globalSummary }),
+        body: JSON.stringify({ 
+          transactions: filteredTxs, 
+          summary, 
+          globalSummary,
+          investments,
+          debts,
+          bills
+        }),
       });
       const data = await res.json();
       setAiNarrative(data.narrative);
@@ -112,7 +147,7 @@ export function useInsights(
 
   useEffect(() => {
     fetchAiInsight();
-  }, [selectedMonth, transactions.length, selectedCategory, selectedWallet, selectedType]);
+  }, [selectedMonth, transactions.length, selectedCategory, selectedWallet, selectedType, investments.length, debts.length, bills.length]);
 
   return {
     filteredTransactions: filteredTxs,
@@ -120,5 +155,10 @@ export function useInsights(
     globalSummary,
     aiNarrative,
     isAiLoading,
+    investments,
+    debts,
+    bills,
+    isHolisticLoading,
+    refreshHolistic: fetchHolisticData
   };
 }

@@ -10,14 +10,11 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)", "sans-serif"],
+        display: ["var(--font-work-sans)", "sans-serif"],
+      },
       colors: {
-        brand: {
-          dark: "hsl(var(--foreground))",
-          serene: "hsl(var(--background))",
-          mint: "hsl(var(--chart-3))",       
-          lavender: "hsl(var(--chart-7))",   
-          naval: "hsl(var(--primary))",      
-        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -48,9 +45,11 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
-        success: "hsl(var(--success))",
-        income: "hsl(var(--income))",
-        expense: "hsl(var(--expense))",
+        brand: {
+          green: "#9fe870",
+          dark: "#0e0f0c",
+          mint: "#e2f6d5",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -60,10 +59,6 @@ export default {
           "3": "hsl(var(--chart-3))",
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
-          "6": "hsl(var(--chart-6))",
-          "7": "hsl(var(--chart-7))",
-          "8": "hsl(var(--chart-8))",
-          "9": "hsl(var(--chart-9))",
         },
       },
       fontSize: {

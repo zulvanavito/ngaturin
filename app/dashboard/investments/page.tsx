@@ -181,14 +181,8 @@ export default function InvestmentsPage() {
 
       <FeatureTip
         id="investments"
-        title="💡 Tips: Portofolio Investasi"
-        tips={[
-          "Isi \"Nilai Pasar Saat Ini\" secara berkala (misalnya mingguan) untuk memperbarui profit/loss portofoliomu.",
-          "Modal Ditanam adalah total uang yang sudah kamu setor; Nilai Saat Ini adalah harga pasar terkini.",
-          "Grafik alokasi aset di atas membantu melihat seberapa terdiversifikasi portofoliomu antar jenis instrumen.",
-          "Gunakan kolom Simbol (BBCA, BTC, dll.) untuk memudahkan identifikasi aset saat portofolio mulai banyak.",
-          "Membeli Saham IPO? Catat Modal & Nilai Saat Ini dengan angka yang sama persis (misal: Rp 850.000). Saat saham sudah mulai ditradingkan di bursa, baru update Nilai Saat Ini menyesuaikan nilainya.",
-        ]}
+        title="Pencatatan Portofolio Investasi"
+        message="Simak panduan pengelolaan margin harga aset dan modal awalmu."
       />
 
       {/* Summary Cards */}
@@ -225,7 +219,7 @@ export default function InvestmentsPage() {
           </CardHeader>
           <CardContent className="flex items-center justify-center p-0 h-[180px]">
             {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <PieChart>
                   <Pie
                     data={chartData}

@@ -143,13 +143,8 @@ export default function BillsPage() {
 
       <FeatureTip
         id="bills"
-        title="💡 Tips: Tagihan Berulang"
-        tips={[
-          "Catat semua tagihan rutin (listrik, internet, langganan streaming) agar tidak ada yang terlewat.",
-          "Notifikasi muncul otomatis di dashboard 3 hari sebelum tanggal jatuh tempo.",
-          "Gunakan toggle aktif/nonaktif untuk menonaktifkan sementara tagihan yang sedang dipause — datanya tetap tersimpan.",
-          "Kaitkan tagihan dengan kategori agar pengeluaran rutin tercatat otomatis di laporan analitik.",
-        ]}
+        title="Otomatisasi Tagihan Berulang"
+        message="Atur dan pahami cara kerja sistem notifikasi pengingat otomatisnya."
       />
 
       <Card

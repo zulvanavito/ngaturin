@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Inter, Work_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ClientProviders } from "@/components/client-providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -17,9 +17,16 @@ export const metadata: Metadata = {
     "Ngaturin adalah aplikasi expense tracker pribadi yang membantu Anda melacak pemasukan dan pengeluaran dengan mudah.",
 };
 
-const manrope = Manrope({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const workSansFont = Work_Sans({
+  subsets: ["latin"],
+  weight: ["900"],
+  variable: "--font-work-sans",
   display: "swap",
 });
 
@@ -30,14 +37,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className={`${manrope.className} antialiased`}>
+      <body className={`${inter.variable} ${workSansFont.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <NextTopLoader color="#D1FC00" height={3} showSpinner={false} shadow="0 0 10px #D1FC00,0 0 5px #D1FC00" />
+          <NextTopLoader color="#9fe870" height={3} showSpinner={false} shadow="0 0 10px #9fe870,0 0 5px #9fe870" />
           <ClientProviders>
             {children}
           </ClientProviders>

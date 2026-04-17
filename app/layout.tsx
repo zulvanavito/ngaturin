@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Work_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ClientProviders } from "@/components/client-providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -17,16 +17,9 @@ export const metadata: Metadata = {
     "Ngaturin adalah aplikasi expense tracker pribadi yang membantu Anda melacak pemasukan dan pengeluaran dengan mudah.",
 };
 
-const inter = Inter({
+const interFont = Inter({
   subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const workSansFont = Work_Sans({
-  subsets: ["latin"],
-  weight: ["900"],
-  variable: "--font-work-sans",
+  weight: ["400", "600", "900"],
   display: "swap",
 });
 
@@ -37,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className={`${inter.variable} ${workSansFont.variable} font-sans antialiased`}>
+      <body className={`${interFont.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

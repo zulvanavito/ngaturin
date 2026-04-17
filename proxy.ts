@@ -29,21 +29,17 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  // IMPORTANT: Do not run code between createServerClient and
-  // supabase.auth.getClaims()
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
   const { pathname } = request.nextUrl;
 
-  // If user is authenticated and tries to access auth pages, redirect to dashboard
   if (user && pathname.startsWith("/auth")) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 
-  // If user is not authenticated and tries to access dashboard, redirect to login
   if (!user && pathname.startsWith("/dashboard")) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";

@@ -4,85 +4,99 @@
 
 @layer base {
   :root {
-    /* Wise Palette */
-    --background: 80 15% 98%; /* Warm white */
-    --foreground: 80 11% 6%;  /* Near black #0e0f0c */
+    --background: 0 0% 100%;
+    --foreground: 90 3% 6%; /* #0e0f0c */
     --card: 0 0% 100%;
-    --card-foreground: 80 11% 6%;
+    --card-foreground: 90 3% 6%;
     --popover: 0 0% 100%;
-    --popover-foreground: 80 11% 6%;
+    --popover-foreground: 90 3% 6%;
     
-    --primary: 97 68% 67%; /* Wise Green #9fe870 */
-    --primary-foreground: 93 100% 10%; /* Dark Green #163300 */
-    
-    --secondary: 93 100% 10%; /* Dark Green */
-    --secondary-foreground: 97 68% 67%;
-    
-    --muted: 96 20% 92%; /* Light Mint hint */
-    --muted-foreground: 60 1% 52%; /* Gray #868685 */
-    
-    --accent: 96 61% 90%; /* Light Mint #e2f6d5 */
-    --accent-foreground: 93 100% 10%;
-    
-    --destructive: 358 64% 51%; /* Danger Red #d03238 */
+    --primary: 97 74% 67%; /* #9fe870 */
+    --primary-foreground: 94 100% 10%; /* #163300 */
+    --secondary: 96 9% 91%; /* #e8ebe6 */
+    --secondary-foreground: 90 3% 6%;
+    --muted: 60 0% 52%; /* #868685 */
+    --muted-foreground: 90 3% 6%;
+    --accent: 97 74% 67%;
+    --accent-foreground: 94 100% 10%;
+    --destructive: 358 64% 51%; /* #d03238 */
     --destructive-foreground: 0 0% 100%;
     
-    --border: 80 11% 6% / 0.12; /* Ring shadow style border */
-    --input: 80 11% 6% / 0.12;
-    --ring: 97 68% 67%;
+    --border: 90 3% 6%; /* Use with alpha /12 in utilities */
+    --input: 90 3% 6%;
+    --ring: 90 3% 6%;
     
-    --radius: 30px; /* Card default */
+    --chart-1: 97 74% 67%;
+    --chart-2: 94 100% 10%;
+    --chart-3: 153 58% 85%;
+    --chart-4: 97 100% 84%;
+    --chart-5: 25 100% 78%;
+    --chart-6: 358 64% 51%;
+    --chart-7: 50 100% 55%;
+    --chart-8: 60 0% 52%;
+    --chart-9: 90 3% 6%;
 
-    /* Sentiment */
-    --success: 150 88% 16%; /* Positive Green #054d28 */
-    --warning: 47 100% 55%; /* Warning Yellow #ffd11a */
-    
-    /* Charts with Wise undertones */
-    --chart-1: 97 68% 67%;
-    --chart-2: 93 100% 10%;
-    --chart-3: 154 50% 45%;
-    --chart-4: 196 100% 62%;
-    --chart-5: 24 100% 78%;
+    --radius: 30px;
+    --success: 149 88% 16%; /* #054d28 */
+    --income: 149 88% 16%;
+    --expense: 358 64% 51%;
   }
 
   .dark {
-    --background: 80 11% 6%;
-    --foreground: 80 15% 98%;
-    --card: 80 11% 8%; 
-    --card-foreground: 80 15% 98%;
-    --popover: 80 11% 8%;
-    --popover-foreground: 80 15% 98%;
+    --background: 90 3% 6%;
+    --foreground: 96 9% 91%;
+    --card: 90 3% 6%;
+    --card-foreground: 96 9% 91%;
+    --popover: 90 3% 6%;
+    --popover-foreground: 96 9% 91%;
     
-    --primary: 97 68% 67%;
-    --primary-foreground: 93 100% 10%;
+    --primary: 97 74% 67%;
+    --primary-foreground: 94 100% 10%;
+    --secondary: 120 2% 27%; /* #454745 */
+    --secondary-foreground: 96 9% 91%;
+    --muted: 60 0% 52%;
+    --muted-foreground: 96 9% 91%;
+    --accent: 97 74% 67%;
+    --accent-foreground: 94 100% 10%;
+    --destructive: 358 64% 51%;
+    --destructive-foreground: 0 0% 100%;
     
-    --muted: 80 11% 15%;
-    --muted-foreground: 60 1% 70%;
-    --border: 80 15% 98% / 0.12;
-    --input: 80 15% 98% / 0.12;
+    --border: 96 9% 91%;
+    --input: 96 9% 91%;
+    --ring: 96 9% 91%;
+    
+    --chart-1: 97 74% 67%;
+    --chart-2: 96 9% 91%;
+    --chart-3: 153 58% 85%;
+    --chart-4: 97 100% 84%;
+    --chart-5: 25 100% 78%;
+    --chart-6: 358 64% 51%;
+    --chart-7: 50 100% 55%;
+    --chart-8: 60 0% 52%;
+    --chart-9: 96 9% 91%;
+
+    --success: 149 88% 46%;
+    --income: 149 88% 46%;
+    --expense: 358 64% 61%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
-    font-feature-settings: "calt" 1;
+    @apply border-border/15 dark:border-border/15;
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-inter), sans-serif;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-work-sans), sans-serif;
-    font-weight: 900;
+    font-feature-settings: "calt" 1;
   }
 }
 
 @layer utilities {
-  .wise-display-mega {
-    @apply font-black leading-[0.85] tracking-tight;
-    font-family: var(--font-work-sans);
-    font-size: clamp(3.5rem, 12vw, 7.88rem);
+  .glass {
+    @apply bg-white/70 dark:bg-black/40 backdrop-blur-2xl border-none ring-1 ring-border/10;
+  }
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-[1.05] active:scale-[0.95];
   }
   
   .wise-display-hero {

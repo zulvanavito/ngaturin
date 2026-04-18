@@ -1,336 +1,260 @@
 "use client";
 
-import { useState } from "react";
-import { useWallets, type Wallet } from "@/hooks/use-wallets";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Plus, ChevronLeft, Loader2, ArrowLeftRight, Wallet as WalletIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Loader2, ArrowLeftRight, ChevronLeft, Wallet as WalletIcon } from "lucide-react";
 import Link from "next/link";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import { useWallets } from "@/hooks/use-wallets";
+import { WalletCard, type WalletData, type WalletTransaction } from "@/components/wallet-card";
+import { WalletFormModal } from "@/components/wallet-form-modal";
+import { WalletTransferModal } from "@/components/wallet-transfer-modal";
+import { WalletHistoryModal } from "@/components/wallet-history-modal";
 import { useToast } from "@/lib/toast-context";
-import { FeatureTip } from "@/components/feature-tip";
 
-const WALLET_ICONS = ["💳","💵","🏦","📱","💰","🪙","💼","🏧","💲","🎴"];
-const WALLET_COLORS = ["#10b981","#3b82f6","#8b5cf6","#f59e0b","#ef4444","#14b8a6","#f97316","#ec4899","#64748b","#0ea5e9"];
-const WALLET_TYPES = [
-  { value: "cash", label: "Tunai" },
-  { value: "bank", label: "Rekening Bank" },
-  { value: "emoney", label: "E-Money" },
-  { value: "credit", label: "Kartu Kredit" },
-];
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(amount);
 
 export default function WalletsPage() {
   const { wallets, loading, refetch } = useWallets();
+  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingWallet, setEditingWallet] = useState<Wallet | null>(null);
-  const [deletingWallet, setDeletingWallet] = useState<Wallet | null>(null);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [selectedWallet, setSelectedWallet] = useState<WalletData | null>(null);
+  const [deleteWalletId, setDeleteWalletId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const { showToast } = useToast();
 
-  // Form state
-  const [formName, setFormName] = useState("");
-  const [formIcon, setFormIcon] = useState("💳");
-  const [formType, setFormType] = useState("bank");
-  const [formColor, setFormColor] = useState("#3b82f6");
-
-  // Transfer state
-  const [fromWallet, setFromWallet] = useState("");
-  const [toWallet, setToWallet] = useState("");
-  const [transferAmount, setTransferAmount] = useState("");
-  const [transferDesc, setTransferDesc] = useState("");
-  const [transferring, setTransferring] = useState(false);
-  const [transferError, setTransferError] = useState<string | null>(null);
-
-  const openAdd = () => {
-    setEditingWallet(null);
-    setFormName(""); setFormIcon("💳"); setFormType("bank"); setFormColor("#3b82f6");
-    setIsFormOpen(true);
-  };
-
-  const openEdit = (w: Wallet) => {
-    setEditingWallet(w);
-    setFormName(w.name); setFormIcon(w.icon); setFormType(w.type); setFormColor(w.color);
-    setIsFormOpen(true);
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
+  const fetchTransactions = useCallback(async () => {
     try {
-      const url = editingWallet ? `/api/wallets/${editingWallet.id}` : "/api/wallets";
-      const method = editingWallet ? "PUT" : "POST";
-      const res = await fetch(url, {
-        method, headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: formName, icon: formIcon, type: formType, color: formColor }),
-      });
-      if (!res.ok) throw new Error((await res.json()).error);
-      await refetch();
-      setIsFormOpen(false);
-      showToast("success", editingWallet ? `Dompet "${formName}" berhasil diperbarui!` : `Dompet "${formName}" berhasil ditambahkan!`);
-    } catch (err: any) {
-      showToast("error", err.message || "Gagal menyimpan dompet");
-    } finally {
-      setSaving(false);
+      const res = await fetch("/api/transactions");
+      if (res.ok) {
+        const data = await res.json();
+        setTransactions(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch transactions:", err);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
+  // Get transactions for a specific wallet
+  const getWalletTransactions = useCallback((walletId: string) => {
+    return transactions.filter(t => t.wallet_id === walletId);
+  }, [transactions]);
+
+  // Get 5 recent transactions for hover preview
+  const getRecentTransactions = useCallback((walletId: string) => {
+    return getWalletTransactions(walletId).slice(0, 5);
+  }, [getWalletTransactions]);
+
+  const totalBalance = useMemo(() => {
+    return wallets.reduce((sum, w) => sum + w.balance, 0);
+  }, [wallets]);
+
+  const handleCreate = () => {
+    setSelectedWallet(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEdit = (wallet: WalletData) => {
+    setSelectedWallet(wallet);
+    setIsFormOpen(true);
+  };
+
+  const handleViewHistory = (wallet: WalletData) => {
+    setSelectedWallet(wallet);
+    setIsHistoryOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    refetch();
+    fetchTransactions();
+    showToast("success", "Dompet berhasil disimpan!");
+  };
+
+  const handleTransferSuccess = () => {
+    refetch();
+    fetchTransactions();
+    showToast("success", "Transfer berhasil dilakukan!");
   };
 
   const handleDelete = async () => {
-    if (!deletingWallet) return;
-    const walletName = deletingWallet.name;
+    if (!deleteWalletId) return;
+    const walletName = wallets.find(w => w.id === deleteWalletId)?.name || "Dompet";
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/wallets/${deletingWallet.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error((await res.json()).error);
-      await refetch();
-      setDeletingWallet(null);
-      showToast("success", `Dompet "${walletName}" berhasil dihapus.`);
-    } catch (err: any) {
-      showToast("error", err.message || "Gagal menghapus dompet");
-      setDeletingWallet(null);
-    } finally { setIsDeleting(false); }
-  };
-
-  const handleTransfer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setTransferring(true); setTransferError(null);
-    try {
-      const amount = Number(transferAmount.replace(/\D/g, ""));
-      
-      // Validate balance
-      const sourceWallet = wallets.find(w => w.id === fromWallet);
-      if (!sourceWallet) throw new Error("Dompet asal tidak ditemukan");
-      if (sourceWallet.balance < amount) {
-        throw new Error(`Saldo tidak mencukupi. Saldo saat ini: Rp ${sourceWallet.balance.toLocaleString("id-ID")}`);
+      const res = await fetch(`/api/wallets/${deleteWalletId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.error);
       }
-
-      const res = await fetch(`/api/wallets/${fromWallet}/transfer`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ toWalletId: toWallet, amount, description: transferDesc }),
-      });
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
-      setIsTransferOpen(false); setFromWallet(""); setToWallet(""); setTransferAmount(""); setTransferDesc("");
       await refetch();
-      const fromName = wallets.find(w => w.id === fromWallet)?.name || "Dompet";
-      const toName = wallets.find(w => w.id === toWallet)?.name || "Dompet";
-      showToast("success", `Transfer Rp ${amount.toLocaleString("id-ID")} dari ${fromName} ke ${toName} berhasil!`);
-    } catch (err: any) {
-      setTransferError(err.message);
-    } finally { setTransferring(false); }
+      showToast("success", `Dompet "${walletName}" berhasil dihapus.`);
+    } catch (err: unknown) {
+      showToast("error", err instanceof Error ? err.message : "Gagal menghapus dompet.");
+    } finally {
+      setIsDeleting(false);
+      setDeleteWalletId(null);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        <p className="text-sm font-bold text-muted-foreground animate-pulse">Memuat dompet Anda...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ChevronLeft className="w-4 h-4" /> Kembali ke Dashboard
-      </Link>
+    <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+      {/* Modals */}
+      <WalletFormModal
+        open={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSuccess={handleFormSuccess}
+        wallet={selectedWallet}
+      />
+      <WalletTransferModal
+        open={isTransferOpen}
+        onClose={() => setIsTransferOpen(false)}
+        onSuccess={handleTransferSuccess}
+        wallets={wallets as WalletData[]}
+      />
+      <WalletHistoryModal
+        open={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        wallet={selectedWallet}
+        transactions={selectedWallet ? getWalletTransactions(selectedWallet.id) : []}
+      />
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dompet & Akun</h1>
-          <p className="text-sm text-muted-foreground mt-1">Kelola semua sumber keuangan Anda.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setIsTransferOpen(true)} className="gap-2 h-11 rounded-xl" disabled={wallets.length < 2}>
-            <ArrowLeftRight className="w-4 h-4" /> Transfer
-          </Button>
-          <Button onClick={openAdd} className="bg-primary text-primary-foreground hover:brightness-110 gap-2 h-11 rounded-xl shadow-md">
-            <Plus className="w-4 h-4" /> Tambah
-          </Button>
+      {/* Hero Section */}
+      <div className="space-y-6">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Kembali ke Dashboard
+        </Link>
+
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div className="space-y-2">
+            <h1 className="text-[55px] sm:text-[72px] font-black tracking-tighter leading-[0.85] text-foreground">
+              Kelola Dompet.
+            </h1>
+            <p className="text-lg font-bold text-muted-foreground max-w-md">
+              Pantau dan kelola semua kantong keuangan Anda dari satu tempat.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              onClick={() => setIsTransferOpen(true)}
+              variant="outline"
+              disabled={wallets.length < 2}
+              className="rounded-full font-black text-base h-14 px-8 border-2 border-border/40 hover:bg-muted/30 transition-all hover:scale-105 active:scale-95"
+            >
+              <ArrowLeftRight className="w-5 h-5 mr-3" /> Transfer
+            </Button>
+            <Button
+              onClick={handleCreate}
+              className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-base h-14 px-8 shadow-2xl transition-all hover:scale-105 active:scale-95"
+            >
+              <Plus className="w-5 h-5 mr-3 stroke-[3px]" /> Buat Dompet
+            </Button>
+          </div>
         </div>
       </div>
 
-      <FeatureTip
-        id="wallets"
-        title="Manajemen Dompet"
-        message="Butuh bantuan memahami konsep dompet utama atau memindahkan saldo?"
-      />
-
-      {/* Total Balance Summary */}
-      {!loading && wallets.length > 0 && (
-        <div className="rounded-[2rem] border border-border/40 bg-white dark:bg-card shadow-sm px-6 py-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground">Total Saldo Semua Dompet</p>
-            <p className="text-2xl font-bold tracking-tight">
-              {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(
-                wallets.reduce((sum, w) => sum + w.balance, 0)
-              )}
-            </p>
+      {/* Stats Summary */}
+      {wallets.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+          <div className="bg-primary/5 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-primary/10 sm:col-span-2">
+            <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-primary/60 mb-2">Total Likuiditas</p>
+            <span className={`text-lg sm:text-xl lg:text-2xl font-black tabular-nums ${totalBalance < 0 ? "text-expense" : "text-foreground"}`}>
+              {formatCurrency(totalBalance)}
+            </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <WalletIcon className="w-6 h-6 text-primary" />
+          <div className="bg-muted/10 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-border/10">
+            <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-muted-foreground/60 mb-2">Jumlah Dompet</p>
+            <span className="text-lg sm:text-xl lg:text-2xl font-black text-foreground">
+              {wallets.length}
+            </span>
           </div>
         </div>
       )}
 
       {/* Wallet Grid */}
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1,2,3].map(i => <div key={i} className="h-28 rounded-2xl bg-muted/40 animate-pulse" />)}
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-black tracking-tight flex items-center gap-3">
+            <WalletIcon className="w-6 h-6 text-primary" /> Daftar Dompet
+          </h2>
         </div>
-      ) : wallets.length === 0 ? (
-        <div className="rounded-[2rem] border border-dashed border-border/50 bg-white/50 dark:bg-card/50 p-12 text-center text-muted-foreground text-sm shadow-sm">
-          <WalletIcon className="w-10 h-10 mx-auto mb-3 opacity-20" />
-          <p>Belum ada dompet. Klik <strong>&quot;Tambah&quot;</strong> untuk memulai!</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {wallets.map((w) => (
-            <div key={w.id} className="group relative rounded-[2rem] border border-border/40 p-6 overflow-hidden hover:shadow-md transition-all bg-white dark:bg-card shadow-sm">
-              {/* Color accent */}
-              <div className="absolute top-0 left-0 right-0 h-1.5" style={{ background: w.color }} />
 
-              {/* Actions */}
-              <div className="absolute top-4 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => openEdit(w)}>
-                  <Pencil className="w-3.5 h-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => setDeletingWallet(w)}>
-                  <Trash2 className="w-3.5 h-3.5" />
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-3 mt-1 mb-3">
-                <span className="text-2xl">{w.icon}</span>
-                <div>
-                  <p className="font-semibold text-sm">{w.name}</p>
-                  <Badge variant="secondary" className="text-xs mt-0.5 h-5 font-normal">
-                    {WALLET_TYPES.find(t => t.value === w.type)?.label || w.type}
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Balance */}
-              <div className="mt-2 pt-3 border-t border-border/30">
-                <p className="text-xs text-muted-foreground mb-0.5">Saldo</p>
-                <p className={`text-lg font-bold tabular-nums ${w.balance < 0 ? "text-red-500" : ""}`}>
-                  {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(w.balance)}
-                </p>
-              </div>
+        {wallets.length === 0 ? (
+          <div className="bg-muted/10 border-2 border-dashed border-border/40 rounded-[2rem] sm:rounded-[3rem] p-10 sm:p-16 text-center space-y-6">
+            <div className="w-20 h-20 bg-muted/20 rounded-3xl flex items-center justify-center mx-auto">
+              <WalletIcon className="w-10 h-10 text-muted-foreground/40" />
             </div>
-          ))}
-        </div>
-      )}
+            <div>
+              <p className="text-xl font-bold text-foreground">Belum ada dompet</p>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
+                Buat kantong keuangan pertama Anda untuk memulai pengelolaan dana.
+              </p>
+            </div>
+            <Button
+              onClick={handleCreate}
+              variant="outline"
+              className="rounded-full h-12 px-8 font-bold border-2 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all"
+            >
+              Buat Dompet Pertama
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            {wallets.map(wallet => (
+              <WalletCard
+                key={wallet.id}
+                wallet={wallet as WalletData}
+                recentTransactions={getRecentTransactions(wallet.id)}
+                onEdit={handleEdit}
+                onDelete={(id) => setDeleteWalletId(id)}
+                onViewHistory={handleViewHistory}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
-
-      {/* Add / Edit Dialog */}
-      <Dialog open={isFormOpen} onOpenChange={(o) => { if (!o) setIsFormOpen(false); }}>
-        <DialogContent className="sm:max-w-md">
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteWalletId} onOpenChange={() => setDeleteWalletId(null)}>
+        <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
           <DialogHeader>
-            <DialogTitle>{editingWallet ? "Edit Dompet" : "Tambah Dompet Baru"}</DialogTitle>
-            <DialogDescription>
-              {editingWallet ? "Perbarui informasi dompet atau akun keuangan Anda." : "Buat dompet baru untuk memisahkan dan memantau budget Anda secara spesifik."}
+            <DialogTitle className="text-xl font-black">Hapus Dompet</DialogTitle>
+            <DialogDescription className="text-muted-foreground font-medium">
+              Apakah Anda yakin ingin menghapus dompet <strong>{wallets.find(w => w.id === deleteWalletId)?.name}</strong>? Transaksi yang terhubung tidak akan ikut terhapus.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSave} className="space-y-4 pt-2">
-            {/* Icon Picker */}
-            <div className="space-y-2">
-              <Label>Ikon</Label>
-              <div className="flex flex-wrap gap-2">
-                {WALLET_ICONS.map(e => (
-                  <button key={e} type="button" onClick={() => setFormIcon(e)}
-                    className={`text-xl w-10 h-10 rounded-xl border transition-all ${formIcon === e ? "border-primary bg-primary/10 scale-110" : "border-border/40 hover:border-primary/40 bg-muted/30"}`}>
-                    {e}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* Color Picker */}
-            <div className="space-y-2">
-              <Label>Warna</Label>
-              <div className="flex gap-2 flex-wrap">
-                {WALLET_COLORS.map(c => (
-                  <button key={c} type="button" onClick={() => setFormColor(c)}
-                    className={`w-7 h-7 rounded-full border-2 transition-transform ${formColor === c ? "border-foreground scale-125" : "border-transparent"}`}
-                    style={{ background: c }} />
-                ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="w-name">Nama Dompet</Label>
-                <Input id="w-name" value={formName} onChange={e => setFormName(e.target.value)} placeholder="BCA Utama" required className="h-10" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="w-type">Tipe</Label>
-                <Select value={formType} onValueChange={setFormType}>
-                  <SelectTrigger id="w-type" className="h-10"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {WALLET_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">Batal</Button>
-              <Button type="submit" className="bg-primary text-primary-foreground hover:brightness-110 rounded-xl shadow-md" disabled={saving || !formName}>
-                {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {editingWallet ? "Simpan" : "Tambah Dompet"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Transfer Dialog */}
-      <Dialog open={isTransferOpen} onOpenChange={(o) => { if (!o) setIsTransferOpen(false); }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Transfer Antar Dompet</DialogTitle>
-            <DialogDescription>Pindahkan saldo dari satu dompet ke dompet lain.</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleTransfer} className="space-y-4 pt-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Dari</Label>
-                <Select value={fromWallet} onValueChange={setFromWallet} required>
-                  <SelectTrigger className="h-10"><SelectValue placeholder="Pilih dompet..." /></SelectTrigger>
-                  <SelectContent>{wallets.filter(w => w.id !== toWallet).map(w => <SelectItem key={w.id} value={w.id}>{w.icon} {w.name}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Ke</Label>
-                <Select value={toWallet} onValueChange={setToWallet} required>
-                  <SelectTrigger className="h-10"><SelectValue placeholder="Pilih dompet..." /></SelectTrigger>
-                  <SelectContent>{wallets.filter(w => w.id !== fromWallet).map(w => <SelectItem key={w.id} value={w.id}>{w.icon} {w.name}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Jumlah (Rp)</Label>
-              <Input value={transferAmount} onChange={e => setTransferAmount(e.target.value)} placeholder="100000" type="number" min="1" required className="h-10" />
-            </div>
-            <div className="space-y-2">
-              <Label>Deskripsi (Opsional)</Label>
-              <Input value={transferDesc} onChange={e => setTransferDesc(e.target.value)} placeholder="Transfer ke tabungan" className="h-10" />
-            </div>
-            {transferError && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">{transferError}</p>}
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsTransferOpen(false)} className="rounded-xl">Batal</Button>
-              <Button type="submit" className="bg-primary text-primary-foreground hover:brightness-110 rounded-xl shadow-md" disabled={transferring || !fromWallet || !toWallet || !transferAmount}>
-                {transferring && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Transfer
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Dialog */}
-      <Dialog open={!!deletingWallet} onOpenChange={(o) => { if (!o) setDeletingWallet(null); }}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Hapus Dompet</DialogTitle>
-            <DialogDescription>Hapus dompet <strong>{deletingWallet?.name}</strong>? Transaksi yang terhubung tidak akan ikut terhapus.</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeletingWallet(null)} disabled={isDeleting}>Batal</Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>{isDeleting ? "Menghapus..." : "Hapus"}</Button>
+          <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setDeleteWalletId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
+              {isDeleting ? "Menghapus..." : "Hapus Dompet"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -4,6 +4,9 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Plus, ChevronLeft, Loader2, PieChart, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
 import { BudgetCard, Budget } from "@/components/budget-card";
 import { BudgetFormModal } from "@/components/budget-form-modal";
 import { useToast } from "@/lib/toast-context";
@@ -14,6 +17,8 @@ export default function BudgetsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
+  const [deleteBudgetId, setDeleteBudgetId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { showToast } = useToast();
 
   const fetchData = useCallback(async () => {
@@ -72,11 +77,11 @@ export default function BudgetsPage() {
     setIsFormOpen(true);
   };
 
-  const handleDelete = async (budgetId: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus batas anggaran ini?")) return;
-    
+  const handleDelete = async () => {
+    if (!deleteBudgetId) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/budgets/${budgetId}`, { method: "DELETE" });
+      const res = await fetch(`/api/budgets/${deleteBudgetId}`, { method: "DELETE" });
       if (res.ok) {
         showToast("success", "Anggaran berhasil dihapus.");
         fetchData();
@@ -85,6 +90,9 @@ export default function BudgetsPage() {
       }
     } catch {
       showToast("error", "Gagal menghapus anggaran.");
+    } finally {
+      setIsDeleting(false);
+      setDeleteBudgetId(null);
     }
   };
 
@@ -192,7 +200,7 @@ export default function BudgetsPage() {
                 budget={budget} 
                 spent={getSpent(budget.category)}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                onDelete={(budgetId) => setDeleteBudgetId(budgetId)}
               />
             ))}
           </div>
@@ -212,6 +220,26 @@ export default function BudgetsPage() {
           </p>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteBudgetId} onOpenChange={() => setDeleteBudgetId(null)}>
+        <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black">Hapus Anggaran</DialogTitle>
+            <DialogDescription className="text-muted-foreground font-medium">
+              Apakah Anda yakin ingin menghapus batas anggaran ini? Data pengeluaran terkait tidak akan terpengaruh, tapi limit ini tidak akan aktif lagi.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setDeleteBudgetId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
+              {isDeleting ? "Menghapus..." : "Hapus Anggaran"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

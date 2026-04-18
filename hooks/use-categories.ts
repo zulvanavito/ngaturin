@@ -21,8 +21,8 @@ export function useCategories() {
       if (!res.ok) throw new Error("Gagal memuat kategori");
       const data = await res.json();
       setCategories(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Terjadi kesalahan sistem.");
       console.error("useCategories error:", err);
     } finally {
       setLoading(false);

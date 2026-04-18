@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, ChevronLeft, Loader2, TrendingDown, TrendingUp, HandCoins, Users } from "lucide-react";
+import { Plus, ChevronLeft, Loader2, TrendingDown, TrendingUp, HandCoins, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -34,6 +34,7 @@ export default function DebtsPage() {
   const [filterType, setFilterType] = useState<"all" | "hutang" | "piutang">("all");
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "settled">("all");
   const [showPersonSummary, setShowPersonSummary] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const { showToast } = useToast();
 
   const fetchDebts = useCallback(async () => {
@@ -384,17 +385,33 @@ export default function DebtsPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            {filtered.map(debt => (
-              <DebtCard
-                key={debt.id}
-                debt={debt}
-                onEdit={handleEdit}
-                onDelete={(id) => setDeleteDebtId(id)}
-                onPayment={handlePayment}
-                onToggleSettle={handleToggleSettle}
-              />
-            ))}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+              {filtered.slice(0, isExpanded ? filtered.length : 6).map(debt => (
+                <DebtCard
+                  key={debt.id}
+                  debt={debt}
+                  onEdit={handleEdit}
+                  onDelete={(id) => setDeleteDebtId(id)}
+                  onPayment={handlePayment}
+                  onToggleSettle={handleToggleSettle}
+                />
+              ))}
+            </div>
+
+            {filtered.length > 6 && (
+              <Button 
+                variant="ghost" 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="w-full h-11 rounded-2xl border border-dashed border-border/40 text-muted-foreground font-bold hover:bg-muted/5 transition-all text-xs"
+              >
+                {isExpanded ? (
+                  <><ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan</>
+                ) : (
+                  <><ChevronDown className="w-4 h-4 mr-2" /> Lihat {filtered.length - 6} Catatan Lainnya</>
+                )}
+              </Button>
+            )}
           </div>
         )}
       </div>

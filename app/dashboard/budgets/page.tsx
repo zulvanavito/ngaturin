@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, ChevronLeft, Loader2, PieChart, AlertCircle } from "lucide-react";
+import { Plus, ChevronLeft, Loader2, PieChart, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -19,6 +19,7 @@ export default function BudgetsPage() {
   const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
   const [deleteBudgetId, setDeleteBudgetId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const { showToast } = useToast();
 
   const fetchData = useCallback(async () => {
@@ -193,16 +194,32 @@ export default function BudgetsPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {budgets.map(budget => (
-              <BudgetCard 
-                key={budget.id} 
-                budget={budget} 
-                spent={getSpent(budget.category)}
-                onEdit={handleEdit}
-                onDelete={(budgetId) => setDeleteBudgetId(budgetId)}
-              />
-            ))}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {budgets.slice(0, isExpanded ? budgets.length : 6).map(budget => (
+                <BudgetCard 
+                  key={budget.id} 
+                  budget={budget} 
+                  spent={getSpent(budget.category)}
+                  onEdit={handleEdit}
+                  onDelete={(budgetId) => setDeleteBudgetId(budgetId)}
+                />
+              ))}
+            </div>
+
+            {budgets.length > 6 && (
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="w-full h-11 rounded-2xl border border-dashed border-border/40 text-muted-foreground font-bold hover:bg-muted/5 transition-all text-xs"
+                >
+                  {isExpanded ? (
+                    <><ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan</>
+                  ) : (
+                    <><ChevronDown className="w-4 h-4 mr-2" /> Lihat {budgets.length - 6} Anggaran Lainnya</>
+                  )}
+                </Button>
+              )}
           </div>
         )}
       </div>

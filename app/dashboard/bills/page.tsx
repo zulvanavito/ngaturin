@@ -1,252 +1,442 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useCategories } from "@/hooks/use-categories";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Plus, ChevronLeft, Loader2, CreditCard, TrendingDown, AlertTriangle, Bell, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Loader2, Bell, ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import { BillCard, type RecurringBill } from "@/components/bill-card";
+import { BillFormModal } from "@/components/bill-form-modal";
+import { BillPaymentModal } from "@/components/bill-payment-modal";
+import { BillHeatmap } from "@/components/bill-heatmap";
 import { useToast } from "@/lib/toast-context";
-import { FeatureTip } from "@/components/feature-tip";
-import { LoadingState } from "@/components/loading-state";
 
-interface RecurringBill {
+interface Transaction {
   id: string;
-  name: string;
-  amount: number;
-  category: string | null;
-  due_day: number;
-  is_active: boolean;
+  bill_id: string | null;
+  date: string;
 }
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
-}
-
-function getDueStatus(dueDay: number): { label: string; color: string } {
-  const today = new Date().getDate();
-  const diff = dueDay - today;
-  if (diff < 0) return { label: "Sudah lewat", color: "bg-red-500/10 text-red-600 border-red-500/20" };
-  if (diff <= 3) return { label: `${diff} hari lagi`, color: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
-  return { label: `Tgl ${dueDay}`, color: "bg-muted text-muted-foreground border-border/40" };
-}
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
 
 export default function BillsPage() {
   const [bills, setBills] = useState<RecurringBill[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingBill, setEditingBill] = useState<RecurringBill | null>(null);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [selectedBill, setSelectedBill] = useState<RecurringBill | null>(null);
   const [deletingBill, setDeletingBill] = useState<RecurringBill | null>(null);
-  const [saving, setSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [viewDate, setViewDate] = useState(new Date());
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const { showToast } = useToast();
 
-  const { categories } = useCategories();
-
-  const [formName, setFormName] = useState("");
-  const [formAmount, setFormAmount] = useState("");
-  const [formCategory, setFormCategory] = useState("");
-  const [formDueDay, setFormDueDay] = useState("1");
-
-  const fetchBills = useCallback(async () => {
-    const res = await fetch("/api/recurring-bills");
-    const data = await res.json();
-    if (res.ok) setBills(data);
-    setLoading(false);
+  const fetchData = useCallback(async () => {
+    try {
+      const [billsRes, txRes] = await Promise.all([
+        fetch("/api/recurring-bills"),
+        fetch("/api/transactions"),
+      ]);
+      if (billsRes.ok) {
+        const data = await billsRes.json();
+        setBills(data.map((b: RecurringBill) => ({
+          ...b,
+          billing_cycle: b.billing_cycle || "monthly",
+          plan_name: b.plan_name || null,
+          is_autopay: b.is_autopay ?? false,
+        })));
+      }
+      if (txRes.ok) setTransactions(await txRes.json());
+    } catch (err) {
+      console.error("Failed to fetch bills data:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  useEffect(() => { fetchBills(); }, [fetchBills]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  const openAdd = () => {
-    setEditingBill(null);
-    setFormName(""); setFormAmount(""); setFormCategory(""); setFormDueDay("1");
+  // Determine which bills are paid in the VIEW MONTH
+  const paidBillIds = useMemo(() => {
+    const targetMonth = viewDate.getMonth();
+    const targetYear = viewDate.getFullYear();
+
+    const paid = new Set<string>();
+    for (const tx of transactions) {
+      if (tx.bill_id && tx.date) {
+        const txDate = new Date(tx.date);
+        if (txDate.getMonth() === targetMonth && txDate.getFullYear() === targetYear) {
+          paid.add(tx.bill_id);
+        }
+      }
+    }
+    return paid;
+  }, [transactions, viewDate]);
+
+  // Statistics
+  const stats = useMemo(() => {
+    const active = bills.filter(b => b.is_active);
+    const totalMonthly = active.reduce((sum, b) => sum + b.amount, 0);
+    
+    // Logic for statistics in the context of the viewed month
+    const today = new Date().getDate();
+    const isTodayInViewMonth = viewDate.getMonth() === new Date().getMonth() && viewDate.getFullYear() === new Date().getFullYear();
+    
+    const overdueAmount = active
+      .filter(b => {
+        const isActuallyOverdue = isTodayInViewMonth ? b.due_day < today : (viewDate < new Date());
+        return isActuallyOverdue && !paidBillIds.has(b.id);
+      })
+      .reduce((sum, b) => sum + b.amount, 0);
+      
+    const paidCount = active.filter(b => paidBillIds.has(b.id)).length;
+    return { activeCount: active.length, totalMonthly, overdueAmount, paidCount };
+  }, [bills, paidBillIds, viewDate]);
+
+  // Handlers
+  const handleEdit = (bill: RecurringBill) => {
+    setSelectedBill(bill);
     setIsFormOpen(true);
   };
 
-  const openEdit = (b: RecurringBill) => {
-    setEditingBill(b);
-    setFormName(b.name);
-    setFormAmount(String(b.amount));
-    setFormCategory(b.category || "");
-    setFormDueDay(String(b.due_day));
+  const handleAdd = () => {
+    setSelectedBill(null);
     setIsFormOpen(true);
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
+  const handlePay = (bill: RecurringBill) => {
+    setSelectedBill(bill);
+    setIsPaymentOpen(true);
+  };
+
+  const handleToggleActive = async (bill: RecurringBill) => {
     try {
-      const url = editingBill ? `/api/recurring-bills/${editingBill.id}` : "/api/recurring-bills";
-      const method = editingBill ? "PUT" : "POST";
-      const res = await fetch(url, {
-        method, headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: formName, amount: Number(formAmount), category: formCategory || null, due_day: Number(formDueDay), is_active: true }),
+      await fetch(`/api/recurring-bills/${bill.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...bill, is_active: !bill.is_active }),
       });
-      if (!res.ok) throw new Error((await res.json()).error);
-      await fetchBills();
-      setIsFormOpen(false);
-      showToast("success", editingBill ? `Tagihan "${formName}" berhasil diperbarui!` : `Tagihan "${formName}" berhasil ditambahkan!`);
-    } catch (err: any) { showToast("error", err.message || "Gagal menyimpan tagihan"); }
-    finally { setSaving(false); }
+      await fetchData();
+      showToast("info", `Tagihan "${bill.name}" ${bill.is_active ? "dinonaktifkan" : "diaktifkan"}.`);
+    } catch {
+      showToast("error", "Gagal mengubah status tagihan.");
+    }
   };
 
   const handleDelete = async () => {
     if (!deletingBill) return;
-    const billName = deletingBill.name;
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/recurring-bills/${deletingBill.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error((await res.json()).error);
-      await fetchBills();
-      setDeletingBill(null);
-      showToast("success", `Tagihan "${billName}" berhasil dihapus.`);
-    } catch (err: any) {
-      showToast("error", err.message || "Gagal menghapus tagihan");
-      setDeletingBill(null);
-    } finally { setIsDeleting(false); }
-  };
-
-  const toggleActive = async (bill: RecurringBill) => {
-    try {
-      await fetch(`/api/recurring-bills/${bill.id}`, {
-        method: "PUT", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...bill, is_active: !bill.is_active }),
-      });
-      await fetchBills();
-      showToast("info", `Tagihan "${bill.name}" ${bill.is_active ? "dinonaktifkan" : "diaktifkan"}.`);
+      if (!res.ok) throw new Error();
+      await fetchData();
+      showToast("success", `Tagihan "${deletingBill.name}" berhasil dihapus.`);
     } catch {
-      showToast("error", "Gagal mengubah status tagihan");
+      showToast("error", "Gagal menghapus tagihan.");
+    } finally {
+      setIsDeleting(false);
+      setDeletingBill(null);
     }
   };
 
-  return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ChevronLeft className="w-4 h-4" /> Kembali ke Dashboard
-      </Link>
+  const toggleSection = (id: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Tagihan Berulang</h1>
-          <p className="text-sm text-muted-foreground mt-1">Pantau tagihan rutin bulanan Anda.</p>
-        </div>
-        <Button onClick={openAdd} className="bg-primary hover:brightness-110 text-primary-foreground gap-2 h-11 rounded-xl shadow-md">
-          <Plus className="w-4 h-4" /> Tambah Tagihan
-        </Button>
+  const ITEMS_PER_GROUP = 4;
+
+  const handleFormSuccess = () => {
+    fetchData();
+    showToast("success", "Tagihan berhasil disimpan!");
+  };
+
+  const handlePaymentSuccess = () => {
+    fetchData();
+    showToast("success", "Pembayaran berhasil dicatat! 🎉");
+  };
+
+  // Split bills into groups
+  const activeBills = bills.filter(b => b.is_active);
+  const pendingBills = activeBills.filter(b => !paidBillIds.has(b.id));
+  const paidBills = activeBills.filter(b => paidBillIds.has(b.id));
+  const inactiveBills = bills.filter(b => !b.is_active);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        <p className="text-sm font-bold text-muted-foreground animate-pulse">Memuat tagihan Anda...</p>
       </div>
+    );
+  }
 
-      <FeatureTip
-        id="bills"
-        title="Otomatisasi Tagihan Berulang"
-        message="Atur dan pahami cara kerja sistem notifikasi pengingat otomatisnya."
+  return (
+    <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+      {/* Modals */}
+      <BillFormModal
+        open={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSuccess={handleFormSuccess}
+        bill={selectedBill}
+      />
+      <BillPaymentModal
+        open={isPaymentOpen}
+        onClose={() => setIsPaymentOpen(false)}
+        onSuccess={handlePaymentSuccess}
+        bill={selectedBill}
       />
 
-      <Card
- className="border border-border/40 bg-white dark:bg-card rounded-[2rem] overflow-hidden shadow-sm">
-        <CardHeader className="bg-muted/30 pb-4">
-          <div className="flex items-center gap-2">
-            <Bell className="w-4 h-4 text-primary" />
-            <CardTitle className="text-base">Daftar Tagihan</CardTitle>
-            <Badge variant="secondary" className="ml-auto">{bills.filter(b => b.is_active).length} aktif</Badge>
-          </div>
-          <CardDescription>Notifikasi muncul di dashboard 3 hari sebelum jatuh tempo.</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          {loading ? (
-            <LoadingState message="Memuat tagihan rutin..." className="min-h-[200px]" />
-          ) : bills.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground text-sm">
-              <Bell className="w-8 h-8 mx-auto mb-3 opacity-20" />
-              <p>Belum ada tagihan. Tambahkan tagihan rutin di atas!</p>
+      {/* Hero Section */}
+      <div className="space-y-6">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Kembali ke Dashboard
+        </Link>
+
+        {/* Billboard */}
+        <div className="bg-gradient-to-br from-card via-card to-muted/20 rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-12 border border-border/40 shadow-ring overflow-hidden relative">
+          <div className="absolute -right-12 -top-12 w-48 h-48 rounded-full opacity-[0.03] blur-3xl pointer-events-none bg-primary" />
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
+                Komitmen Bulanan
+              </p>
+              <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-none">
+                {formatCurrency(stats.totalMonthly)}
+              </h1>
+              <p className="text-sm text-muted-foreground font-medium">
+                {stats.paidCount} dari {stats.activeCount} tagihan sudah dibayar bulan ini
+              </p>
             </div>
-          ) : (
-            <div className="divide-y divide-border/30">
-              {bills.map((b) => {
-                const status = getDueStatus(b.due_day);
-                return (
-                  <div key={b.id} className={`flex items-center gap-3 px-5 py-4 hover:bg-muted/20 transition-colors ${!b.is_active ? "opacity-50" : ""}`}>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">{b.name}</p>
-                      <p className="text-xs text-muted-foreground">{formatCurrency(b.amount)}{b.category ? ` · ${b.category}` : ""}</p>
-                    </div>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${status.color}`}>
-                      {status.label}
-                    </span>
-                    <Switch checked={b.is_active} onCheckedChange={() => toggleActive(b)} />
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => openEdit(b)}>
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => setDeletingBill(b)}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                );
-              })}
+            <Button
+              onClick={handleAdd}
+              className="bg-primary text-primary-foreground hover:brightness-110 font-black px-8 h-14 rounded-full shadow-lg active:scale-95 transition-all text-sm"
+            >
+              <Plus className="w-5 h-5 mr-2" /> Tambah Tagihan
+            </Button>
+          </div>
+
+          {/* Stats Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
+            <div className="bg-white/50 dark:bg-background/50 backdrop-blur-sm rounded-2xl p-4 border border-border/20">
+              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground mb-1">
+                <Bell className="w-3.5 h-3.5" /> Tagihan Aktif
+              </div>
+              <p className="text-2xl font-black tabular-nums">{stats.activeCount}</p>
+            </div>
+            <div className="bg-white/50 dark:bg-background/50 backdrop-blur-sm rounded-2xl p-4 border border-border/20">
+              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground mb-1">
+                <TrendingDown className="w-3.5 h-3.5" /> Total Bulan Ini
+              </div>
+              <p className="text-2xl font-black tabular-nums">{formatCurrency(stats.totalMonthly)}</p>
+            </div>
+            <div className={`bg-white/50 dark:bg-background/50 backdrop-blur-sm rounded-2xl p-4 border ${stats.overdueAmount > 0 ? "border-red-500/20 bg-red-500/5" : "border-border/20"}`}>
+              <div className={`flex items-center gap-2 text-xs font-bold mb-1 ${stats.overdueAmount > 0 ? "text-red-500" : "text-muted-foreground"}`}>
+                <AlertTriangle className="w-3.5 h-3.5" /> Terlambat
+              </div>
+              <p className={`text-2xl font-black tabular-nums ${stats.overdueAmount > 0 ? "text-red-500" : ""}`}>
+                {formatCurrency(stats.overdueAmount)}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content: Cards + Heatmap */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Bills List */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Pending Bills */}
+          {pendingBills.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-primary" />
+                Belum Dibayar
+                <span className="text-xs font-bold text-muted-foreground ml-auto bg-muted/30 px-3 py-1 rounded-full">
+                  {pendingBills.length} tagihan
+                </span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {pendingBills.slice(0, expandedSections.has('pending') ? pendingBills.length : ITEMS_PER_GROUP).map(bill => (
+                  <BillCard
+                    key={bill.id}
+                    bill={bill}
+                    isPaidThisMonth={false}
+                    onEdit={handleEdit}
+                    onDelete={setDeletingBill}
+                    onPay={handlePay}
+                    onToggleActive={handleToggleActive}
+                  />
+                ))}
+              </div>
+              {pendingBills.length > ITEMS_PER_GROUP && (
+                <Button 
+                  variant="ghost" 
+                  onClick={() => toggleSection('pending')}
+                  className="w-full h-11 rounded-2xl border border-dashed border-border/40 text-muted-foreground font-bold hover:bg-muted/5 transition-all text-xs"
+                >
+                  {expandedSections.has('pending') ? (
+                    <><ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan</>
+                  ) : (
+                    <><ChevronDown className="w-4 h-4 mr-2" /> Lihat {pendingBills.length - ITEMS_PER_GROUP} Tagihan Lainnya</>
+                  )}
+                </Button>
+              )}
             </div>
           )}
-        </CardContent>
-      </Card>
 
-      {/* Add / Edit Dialog */}
-      <Dialog open={isFormOpen} onOpenChange={(o) => { if (!o) setIsFormOpen(false); }}>
-        <DialogContent className="sm:max-w-md">
+          {/* Paid Bills */}
+          {paidBills.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
+                <span className="text-income">✓</span> Lunas
+                <span className="text-xs font-bold text-muted-foreground ml-auto bg-income/10 text-income px-3 py-1 rounded-full">
+                  {paidBills.length} tagihan
+                </span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {paidBills.slice(0, expandedSections.has('paid') ? paidBills.length : ITEMS_PER_GROUP).map(bill => (
+                  <BillCard
+                    key={bill.id}
+                    bill={bill}
+                    isPaidThisMonth={true}
+                    onEdit={handleEdit}
+                    onDelete={setDeletingBill}
+                    onPay={handlePay}
+                    onToggleActive={handleToggleActive}
+                  />
+                ))}
+              </div>
+              {paidBills.length > ITEMS_PER_GROUP && (
+                <Button 
+                  variant="ghost" 
+                  onClick={() => toggleSection('paid')}
+                  className="w-full h-11 rounded-2xl border border-dashed border-border/40 text-muted-foreground font-bold hover:bg-muted/5 transition-all text-xs"
+                >
+                  {expandedSections.has('paid') ? (
+                    <><ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan</>
+                  ) : (
+                    <><ChevronDown className="w-4 h-4 mr-2" /> Lihat {paidBills.length - ITEMS_PER_GROUP} Tagihan Lainnya</>
+                  )}
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Inactive Bills */}
+          {inactiveBills.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-black tracking-tight flex items-center gap-2 text-muted-foreground">
+                Nonaktif
+                <span className="text-xs font-bold ml-auto bg-muted/30 px-3 py-1 rounded-full">
+                  {inactiveBills.length}
+                </span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {inactiveBills.slice(0, expandedSections.has('inactive') ? inactiveBills.length : ITEMS_PER_GROUP).map(bill => (
+                  <BillCard
+                    key={bill.id}
+                    bill={bill}
+                    isPaidThisMonth={paidBillIds.has(bill.id)}
+                    onEdit={handleEdit}
+                    onDelete={setDeletingBill}
+                    onPay={handlePay}
+                    onToggleActive={handleToggleActive}
+                  />
+                ))}
+              </div>
+              {inactiveBills.length > ITEMS_PER_GROUP && (
+                <Button 
+                  variant="ghost" 
+                  onClick={() => toggleSection('inactive')}
+                  className="w-full h-11 rounded-2xl border border-dashed border-border/40 text-muted-foreground font-bold hover:bg-muted/5 transition-all text-xs"
+                >
+                  {expandedSections.has('inactive') ? (
+                    <><ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan</>
+                  ) : (
+                    <><ChevronDown className="w-4 h-4 mr-2" /> Lihat {inactiveBills.length - ITEMS_PER_GROUP} Tagihan Lainnya</>
+                  )}
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Empty state */}
+          {bills.length === 0 && (
+            <div className="text-center py-20">
+              <div className="w-20 h-20 rounded-full bg-muted/20 flex items-center justify-center mx-auto mb-6">
+                <CreditCard className="w-9 h-9 text-muted-foreground/30" />
+              </div>
+              <h3 className="text-xl font-black tracking-tight mb-2">Belum Ada Tagihan</h3>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
+                Mulai catat tagihan rutin Anda agar tidak ada yang terlewat.
+              </p>
+              <Button onClick={handleAdd} className="bg-primary text-primary-foreground hover:brightness-110 font-black px-8 h-12 rounded-full shadow-lg">
+                <Plus className="w-5 h-5 mr-2" /> Tambah Tagihan Pertama
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Heatmap Sidebar */}
+        <div className="space-y-4">
+          <BillHeatmap 
+            bills={bills} 
+            paidBillIds={paidBillIds} 
+            onMonthChange={setViewDate}
+          />
+        </div>
+      </div>
+
+      {/* Tips Section (Goals-style) */}
+      <div className="bg-black text-white rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-12 flex flex-col md:flex-row items-center gap-8 overflow-hidden relative group mt-12">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-110" />
+        <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
+          <AlertTriangle className="w-8 h-8 text-primary" />
+        </div>
+        <div className="relative z-10 flex-1 space-y-1 text-center md:text-left">
+          <h3 className="text-xl font-black tracking-tight">Tips: Apa itu Auto-pay?</h3>
+          <p className="text-sm text-gray-400 font-medium leading-relaxed">
+            Auto-pay adalah penanda untuk tagihan yang didebit otomatis oleh bank/layanan. 
+            Aplikasi Ngaturin <strong>hanya mencatat</strong> transaksi agar saldo tetap akurat, 
+            dan tidak melakukan penarikan uang asli.
+          </p>
+        </div>
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deletingBill} onOpenChange={(o) => !o && setDeletingBill(null)}>
+        <DialogContent className="sm:max-w-sm rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
           <DialogHeader>
-            <DialogTitle>{editingBill ? "Edit Tagihan" : "Tagihan Baru"}</DialogTitle>
-            <DialogDescription>
-              {editingBill ? "Perbarui rincian tagihan rutin Anda jika ada perubahan." : "Buat catatan tagihan rutin untuk memantau komitmen bulanan Anda."}
+            <DialogTitle className="text-xl font-black text-center md:text-left">Hapus Tagihan</DialogTitle>
+            <DialogDescription className="text-center md:text-left">
+              Tagihan <strong>{deletingBill?.name}</strong> akan dihapus secara permanen.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSave} className="space-y-4 pt-2">
-            <div className="space-y-2">
-              <Label>Nama Tagihan</Label>
-              <Input value={formName} onChange={e => setFormName(e.target.value)} placeholder="Listrik PLN" required className="h-10" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Nominal (Rp)</Label>
-                <Input value={formAmount} onChange={e => setFormAmount(e.target.value)} placeholder="500000" type="number" min="1" required className="h-10" />
-              </div>
-              <div className="space-y-2">
-                <Label>Tanggal Jatuh Tempo</Label>
-                <Input value={formDueDay} onChange={e => setFormDueDay(e.target.value)} type="number" min="1" max="31" placeholder="Tgl 1–31" required className="h-10" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Kategori (Opsional)</Label>
-              <Select value={formCategory} onValueChange={setFormCategory}>
-                <SelectTrigger className="h-10"><SelectValue placeholder="Pilih kategori..." /></SelectTrigger>
-                <SelectContent>
-                  {categories.map(c => <SelectItem key={c.id} value={c.name}>{c.icon} {c.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">Batal</Button>
-              <Button type="submit" className="bg-primary hover:brightness-110 text-primary-foreground rounded-xl shadow-md" disabled={saving}>
-                {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {editingBill ? "Simpan" : "Tambah"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Dialog */}
-      <Dialog open={!!deletingBill} onOpenChange={(o) => { if (!o) setDeletingBill(null); }}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Hapus Tagihan</DialogTitle>
-            <DialogDescription>Hapus tagihan <strong>{deletingBill?.name}</strong>?</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeletingBill(null)} disabled={isDeleting}>Batal</Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>{isDeleting ? "Menghapus..." : "Hapus"}</Button>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2">
+            <Button variant="ghost" onClick={() => setDeletingBill(null)} disabled={isDeleting} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="rounded-2xl h-12 px-8 font-black shadow-lg active:scale-95 transition-all w-full sm:w-auto"
+            >
+              {isDeleting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menghapus...</> : "Hapus Permanen"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

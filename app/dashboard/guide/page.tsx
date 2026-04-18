@@ -13,7 +13,9 @@ import {
   Sparkles,
   ChevronRight,
   Info,
-  Lightbulb
+  Lightbulb,
+  Target,
+  PieChart
 } from "lucide-react";
 
 
@@ -235,7 +237,7 @@ const GUIDE_SECTIONS = [
         <div>
           <h2 className="text-3xl font-extrabold mb-3">Intelijen Keuangan Anda</h2>
           <p className="text-muted-foreground text-lg leading-relaxed">
-             Dapatkan wawasan berharga soal kondisi kekayaan bersih (Net Worth), serta *cashflow statement* yang dibuat menggunakan Artificial Intelligence lokal dan grafik metrik intuitif.
+             Dapatkan wawasan berharga soal kondisi kekayaan bersih (Net Worth), serta <strong>cashflow statement</strong> yang dibuat menggunakan Artificial Intelligence lokal dan grafik metrik intuitif.
           </p>
         </div>
 
@@ -244,7 +246,7 @@ const GUIDE_SECTIONS = [
              <div className="p-2 rounded-xl bg-primary/10 text-primary shrink-0"><Sparkles className="w-5 h-5"/></div>
              <div>
                 <p className="font-bold text-sm mb-1">AI Kesimpulan Naratif</p>
-                <p className="text-xs text-muted-foreground">Mesin rekomendasi kami akan merangkum anomali belanja Anda dan mengingatkan tindakan *budgeting* secara tekstual.</p>
+                <p className="text-xs text-muted-foreground">Mesin rekomendasi kami akan merangkum anomali belanja Anda dan mengingatkan tindakan <strong>budgeting</strong> secara tekstual.</p>
              </div>
            </li>
            <li className="flex gap-4 items-start p-4 bg-card rounded-2xl border border-border/20 shadow-sm transition-all hover:border-primary/40">
@@ -255,6 +257,107 @@ const GUIDE_SECTIONS = [
              </div>
            </li>
         </ul>
+      </div>
+    )
+  },
+  { 
+    id: "anggaran", 
+    title: "Anggaran Bulanan", 
+    icon: PieChart,
+    content: (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-3xl font-extrabold mb-3">Kontrol Pengeluaran Bulanan</h2>
+          <p className="text-muted-foreground text-lg leading-relaxed">
+            Fitur Anggaran dirancang untuk membantu Anda <strong>membatasi</strong> diri agar tidak melampaui limit yang sudah ditentukan pada kategori tertentu.
+          </p>
+        </div>
+
+        <div className="grid gap-6">
+           <div className="flex gap-5 p-6 bg-background border border-border/40 rounded-[2rem] shadow-sm">
+             <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center shrink-0">
+                <PieChart className="w-6 h-6 text-orange-500" />
+             </div>
+             <div>
+               <h4 className="font-bold text-lg">Langkah 1: Tentukan Limit</h4>
+               <p className="text-sm text-muted-foreground mt-1">Pilih kategori pengeluaran (misal: "Makan") dan tentukan berapa maksimal uang yang boleh keluar bulan ini.</p>
+             </div>
+           </div>
+           
+           <div className="flex gap-5 p-6 bg-background border border-border/40 rounded-[2rem] shadow-sm">
+             <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                <Sparkles className="w-6 h-6 text-blue-500" />
+             </div>
+             <div>
+               <h4 className="font-bold text-lg">Langkah 2: Pelacakan Otomatis</h4>
+               <p className="text-sm text-muted-foreground mt-1">Anda tidak perlu menginput data dua kali. Ngaturin secara otomatis menghitung setiap pengeluaran yang Anda catat di menu Transaksi untuk kategori tersebut.</p>
+             </div>
+           </div>
+
+           <div className="flex gap-5 p-6 bg-background border border-border/40 rounded-[2rem] shadow-sm">
+             <div className="w-12 h-12 rounded-2xl bg-success/10 flex items-center justify-center shrink-0">
+                <Info className="w-6 h-6 text-success" />
+             </div>
+             <div>
+               <h4 className="font-bold text-lg">Langkah 3: Pantau Status</h4>
+               <p className="text-sm text-muted-foreground mt-1 text-success font-bold">Hijau: Aman | Kuning: Sisa 25% | Merah: Melebihi Limit.</p>
+             </div>
+           </div>
+        </div>
+      </div>
+    )
+  },
+  { 
+    id: "goals", 
+    title: "Target Finansial (Goals)", 
+    icon: Target,
+    content: (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-3xl font-extrabold mb-3">Wujudkan Impian Masa Depan</h2>
+          <p className="text-muted-foreground text-lg leading-relaxed">
+            Gunakan fitur Goals untuk <strong>menabung</strong> dan mengumpulkan uang demi target jangka panjang seperti Liburan, Gadget baru, atau Dana Darurat.
+          </p>
+        </div>
+
+        <div className="p-5 border border-primary/20 bg-primary/5 rounded-2xl mb-6">
+          <h4 className="font-bold text-sm text-primary flex items-center gap-2 mb-2">
+            <Lightbulb className="w-4 h-4" /> Apa bedanya dengan Anggaran?
+          </h4>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            <strong>Anggaran</strong> adalah untuk membatasi pengeluaran rutin (Makan, Listrik), sedangkan <strong>Goals</strong> adalah untuk mengumpulkan uang untuk target masa depan (Liburan Bali, Beli Laptop).
+          </p>
+        </div>
+
+        <div className="space-y-4">
+           <div className="flex gap-4 items-start p-4 bg-background border border-border/40 shadow-sm rounded-2xl">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+               <span className="font-bold text-primary">1</span>
+            </div>
+            <div>
+              <h4 className="font-bold text-foreground">Buat Target</h4>
+              <p className="text-sm text-muted-foreground mt-1">Masukkan Judul, Nominal Target, dan Tanggal Deadline (Opsional) untuk memulai.</p>
+            </div>
+          </div>
+          <div className="flex gap-4 items-start p-4 bg-background border border-border/40 shadow-sm rounded-2xl">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+               <span className="font-bold text-primary">2</span>
+            </div>
+            <div>
+              <h4 className="font-bold text-foreground">Tambah Dana Manual</h4>
+              <p className="text-sm text-muted-foreground mt-1">Gunakan tombol "Tambah Dana" pada kartu target untuk menyetorkan tabungan Anda setiap kali Anda memegang uang lebih.</p>
+            </div>
+          </div>
+          <div className="flex gap-4 items-start p-4 bg-background border border-border/40 shadow-sm rounded-2xl">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+               <span className="font-bold text-primary">3</span>
+            </div>
+            <div>
+              <h4 className="font-bold text-foreground">Lihat Progres</h4>
+              <p className="text-sm text-muted-foreground mt-1">Pantau persentase pencapaian dan gunakan "Lihat Detail" untuk rincian kekurangan dan sisa waktu target.</p>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }

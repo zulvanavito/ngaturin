@@ -23,6 +23,7 @@ import {
   Sparkles,
   LifeBuoy,
   Target,
+  PieChart,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -41,6 +42,7 @@ const mainLinks = [
   { name: "Smart Analytics", href: "/dashboard/insights", icon: Sparkles },
   { name: "Kategori", href: "/dashboard/categories", icon: Tag },
   { name: "Dompet", href: "/dashboard/wallets", icon: Wallet },
+  { name: "Anggaran", href: "/dashboard/budgets", icon: PieChart },
   { name: "Goals", href: "/dashboard/goals", icon: Target },
   { name: "Tagihan", href: "/dashboard/bills", icon: Bell },
   { name: "Utang/Piutang", href: "/dashboard/debts", icon: HandCoins },

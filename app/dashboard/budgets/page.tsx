@@ -1,0 +1,217 @@
+"use client";
+
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Plus, ChevronLeft, Loader2, PieChart, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { BudgetCard, Budget } from "@/components/budget-card";
+import { BudgetFormModal } from "@/components/budget-form-modal";
+import { useToast } from "@/lib/toast-context";
+
+export default function BudgetsPage() {
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
+  const { showToast } = useToast();
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [budgetsRes, txRes] = await Promise.all([
+        fetch("/api/budgets"),
+        fetch("/api/transactions")
+      ]);
+
+      if (budgetsRes.ok && txRes.ok) {
+        const budgetsData = await budgetsRes.json();
+        const txData = await txRes.json();
+        setBudgets(budgetsData);
+        setTransactions(txData);
+      }
+    } catch (err) {
+      console.error("Failed to fetch data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Calculate spent amount per category for the current month
+  const currentMonth = new Date().toISOString().substring(0, 7); // e.g. "2026-04"
+  
+  const getSpent = useCallback((category: string) => {
+    return transactions
+      .filter(t => 
+        t.type === "expense" && 
+        t.category === category && 
+        t.date && t.date.startsWith(currentMonth))
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+  }, [transactions, currentMonth]);
+
+  const stats = useMemo(() => {
+    let totalLimit = 0;
+    let totalSpent = 0;
+    budgets.forEach(b => {
+      totalLimit += b.amount;
+      totalSpent += getSpent(b.category);
+    });
+    return { totalLimit, totalSpent };
+  }, [budgets, getSpent]);
+
+  const handleCreate = () => {
+    setSelectedBudget(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEdit = (budget: Budget) => {
+    setSelectedBudget(budget);
+    setIsFormOpen(true);
+  };
+
+  const handleDelete = async (budgetId: string) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus batas anggaran ini?")) return;
+    
+    try {
+      const res = await fetch(`/api/budgets/${budgetId}`, { method: "DELETE" });
+      if (res.ok) {
+        showToast("success", "Anggaran berhasil dihapus.");
+        fetchData();
+      } else {
+        throw new Error();
+      }
+    } catch {
+      showToast("error", "Gagal menghapus anggaran.");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        <p className="text-sm font-bold text-muted-foreground animate-pulse">Memuat data anggaran Anda...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+      <BudgetFormModal 
+        open={isFormOpen} 
+        onClose={() => setIsFormOpen(false)} 
+        onSuccess={fetchData}
+        budget={selectedBudget}
+      />
+
+      {/* Hero Section */}
+      <div className="space-y-6">
+        <Link 
+          href="/dashboard" 
+          className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Kembali ke Dashboard
+        </Link>
+        
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div className="space-y-2">
+            <h1 className="text-[55px] sm:text-[72px] font-black tracking-tighter leading-[0.85] text-foreground">
+              Kontrol Pengeluaran.
+            </h1>
+            <p className="text-lg font-bold text-muted-foreground max-w-md">
+              Pantau batas penggunaan dana Anda di bulan ini agar tetap terkendali.
+            </p>
+          </div>
+          
+          <Button 
+            onClick={handleCreate}
+            className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg h-16 px-10 shadow-2xl transition-all hover:scale-105 active:scale-95 group"
+          >
+            <Plus className="w-6 h-6 mr-3 stroke-[3px]" /> Buat Anggaran
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        <div className="bg-primary/5 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-primary/10">
+          <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-primary/60 mb-2">Total Limit Keseluruhan</p>
+          <div className="flex items-baseline gap-1">
+            <span className="text-lg sm:text-xl lg:text-2xl font-black text-foreground truncate block">
+              Rp {stats.totalLimit.toLocaleString("id-ID")}
+            </span>
+          </div>
+        </div>
+        <div className="bg-expense/5 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-expense/10">
+          <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-expense/60 mb-2">Total Terpakai Bulan Ini</p>
+          <div className="flex items-baseline gap-1">
+            <span className="text-lg sm:text-xl lg:text-2xl font-black text-foreground truncate block">
+              Rp {stats.totalSpent.toLocaleString("id-ID")}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Budgets Grid */}
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-black tracking-tight flex items-center gap-3">
+            <PieChart className="w-6 h-6 text-primary" /> Anggaran Aktif
+          </h2>
+          <span className="text-xs font-bold text-muted-foreground">
+            Bulan: {new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+          </span>
+        </div>
+
+        {budgets.length === 0 ? (
+          <div className="bg-muted/10 border-2 border-dashed border-border/40 rounded-[2rem] sm:rounded-[3rem] p-10 sm:p-16 md:p-24 text-center space-y-6">
+            <div className="w-20 h-20 bg-muted/20 rounded-3xl flex items-center justify-center mx-auto">
+              <PieChart className="w-10 h-10 text-muted-foreground/40" />
+            </div>
+            <div>
+              <p className="text-xl font-bold text-foreground">Belum ada anggaran</p>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
+                Tentukan kategori yang ingin dibatasi pemakaian dananya untuk bulan ini.
+              </p>
+            </div>
+            <Button 
+              onClick={handleCreate}
+              variant="outline"
+              className="rounded-full h-12 px-8 font-bold border-2 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all"
+            >
+              Buat Batasan Pertama
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {budgets.map(budget => (
+              <BudgetCard 
+                key={budget.id} 
+                budget={budget} 
+                spent={getSpent(budget.category)}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Tips Section */}
+      <div className="bg-black text-white rounded-[3rem] p-10 flex flex-col md:flex-row items-center gap-8 overflow-hidden relative group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-expense/20 rounded-full blur-[100px] -mr-32 -mt-32" />
+        <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
+          <AlertCircle className="w-8 h-8 text-white" />
+        </div>
+        <div className="relative z-10 flex-1 space-y-1 text-center md:text-left">
+          <h3 className="text-xl font-bold">Tips: Batasi Pengeluaran Tersier</h3>
+          <p className="text-sm text-white/60">
+            Hindari kebocoran dompet dengan membatasi kategori belanja dan hiburan. Pastikan kebutuhan primer tetap terpenuhi lebih dulu.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

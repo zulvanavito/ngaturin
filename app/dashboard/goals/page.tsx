@@ -197,7 +197,7 @@ export default function GoalsPage() {
         {goals.length === 0 ? (
           <div className="bg-muted/10 border-2 border-dashed border-border/40 rounded-[2rem] sm:rounded-[3rem] p-10 sm:p-16 md:p-24 text-center space-y-6">
             <div className="w-20 h-20 bg-muted/20 rounded-3xl flex items-center justify-center mx-auto">
-              <Sparkles className="w-10 h-10 text-muted-foreground/40" />
+              <Target className="w-10 h-10 text-muted-foreground/40" />
             </div>
             <div>
               <p className="text-xl font-bold text-foreground">

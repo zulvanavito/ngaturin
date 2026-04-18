@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { TransactionForm, type Transaction } from "@/components/transaction-form";
 import { TransactionList } from "@/components/transaction-list";
-import { BudgetSection } from "@/components/budget-section";
 import { BudgetSnapshot } from "@/components/budget-snapshot";
+import { useRouter } from "next/navigation";
 import { BillReminderBanner } from "@/components/bill-reminder-banner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutDashboard, History, Target, Plus } from "lucide-react";
@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [userName, setUserName] = useState("Pengguna");
+  const router = useRouter();
 
   const fetchUser = async () => {
     const supabase = createClient();
@@ -130,14 +131,10 @@ export default function DashboardPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="tour-tabs w-full mt-8">
-        <TabsList className="w-full mb-6 h-auto rounded-xl bg-muted/40 backdrop-blur-md border border-border/40 flex flex-wrap sm:grid sm:grid-cols-3 gap-2">
+        <TabsList className="w-full mb-6 h-auto rounded-xl bg-muted/40 backdrop-blur-md border border-border/40 flex flex-wrap sm:grid sm:grid-cols-2 gap-2">
           <TabsTrigger value="overview" className="rounded-xl font-semibold flex items-center justify-center gap-2 shrink-0 sm:shrink px-4 py-2.5 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
             <LayoutDashboard className="w-4 h-4 shrink-0" />
             <span className="text-sm whitespace-nowrap">Ringkasan</span>
-          </TabsTrigger>
-          <TabsTrigger value="budget" className="rounded-xl font-semibold flex items-center justify-center gap-2 shrink-0 sm:shrink px-4 py-2.5 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
-            <Target className="w-4 h-4 shrink-0" />
-            <span className="text-sm whitespace-nowrap">Anggaran</span>
           </TabsTrigger>
           <TabsTrigger value="history" className="rounded-xl font-semibold flex items-center justify-center gap-2 shrink-0 sm:shrink px-4 py-2.5 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">
             <History className="w-4 h-4 shrink-0" />
@@ -184,7 +181,7 @@ export default function DashboardPage() {
                 </div>
                 <BudgetSnapshot
                   transactions={transactions}
-                  onSeeAll={() => setActiveTab("budget")}
+                  onSeeAll={() => router.push("/dashboard/budgets")}
                 />
               </div>
 
@@ -202,10 +199,7 @@ export default function DashboardPage() {
 
 
 
-        {/* Anggaran Tab */}
-        <TabsContent value="budget" className="mt-0 focus-visible:outline-none focus-visible:ring-0 bg-white dark:bg-card rounded-[2rem] border border-border/40 p-4 sm:p-6 shadow-sm">
-          <BudgetSection transactions={transactions} />
-        </TabsContent>
+
 
         {/* Riwayat Tab */}
         <TabsContent value="history" className="mt-0 focus-visible:outline-none focus-visible:ring-0 bg-white dark:bg-card rounded-[2rem] border border-border/40 p-4 sm:p-6 shadow-sm">

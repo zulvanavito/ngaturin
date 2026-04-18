@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Design System Inspired by Wise
 
 ## 1. Visual Theme & Atmosphere

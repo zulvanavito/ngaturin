@@ -5,7 +5,6 @@ import { CreditCard, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { type RecurringBill } from "@/components/bill-card";
 import { useCategories } from "@/hooks/use-categories";
+import { CategoryIcon } from "@/components/category-icon";
 
 interface BillFormModalProps {
   open: boolean;
@@ -186,7 +186,12 @@ export function BillFormModal({ open, onClose, onSuccess, bill }: BillFormModalP
               <SelectContent className="rounded-2xl border-border/40">
                 {expenseCategories.map(c => (
                   <SelectItem key={c.id} value={c.name} className="rounded-xl cursor-pointer">
-                    {c.icon} {c.name}
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 rounded-lg bg-muted/20 flex items-center justify-center shrink-0">
+                        <CategoryIcon iconName={c.icon} className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="font-medium text-sm">{c.name}</span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>

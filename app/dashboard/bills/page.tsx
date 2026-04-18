@@ -1,11 +1,26 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, ChevronLeft, Loader2, CreditCard, TrendingDown, AlertTriangle, Bell, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Plus,
+  ChevronLeft,
+  Loader2,
+  CreditCard,
+  TrendingDown,
+  AlertTriangle,
+  Bell,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { BillCard, type RecurringBill } from "@/components/bill-card";
 import { BillFormModal } from "@/components/bill-form-modal";
@@ -20,7 +35,11 @@ interface Transaction {
 }
 
 const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(amount);
 
 export default function BillsPage() {
   const [bills, setBills] = useState<RecurringBill[]>([]);
@@ -32,23 +51,27 @@ export default function BillsPage() {
   const [deletingBill, setDeletingBill] = useState<RecurringBill | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(),
+  );
   const { showToast } = useToast();
 
   const fetchData = useCallback(async () => {
     try {
       const [billsRes, txRes] = await Promise.all([
-        fetch("/api/recurring-bills"),
-        fetch("/api/transactions"),
+        fetch("/api/recurring-bills", { cache: "no-store" }),
+        fetch("/api/transactions", { cache: "no-store" }),
       ]);
       if (billsRes.ok) {
         const data = await billsRes.json();
-        setBills(data.map((b: RecurringBill) => ({
-          ...b,
-          billing_cycle: b.billing_cycle || "monthly",
-          plan_name: b.plan_name || null,
-          is_autopay: b.is_autopay ?? false,
-        })));
+        setBills(
+          data.map((b: RecurringBill) => ({
+            ...b,
+            billing_cycle: b.billing_cycle || "monthly",
+            plan_name: b.plan_name || null,
+            is_autopay: b.is_autopay ?? false,
+          })),
+        );
       }
       if (txRes.ok) setTransactions(await txRes.json());
     } catch (err) {
@@ -58,7 +81,9 @@ export default function BillsPage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // Determine which bills are paid in the VIEW MONTH
   const paidBillIds = useMemo(() => {
@@ -69,7 +94,10 @@ export default function BillsPage() {
     for (const tx of transactions) {
       if (tx.bill_id && tx.date) {
         const txDate = new Date(tx.date);
-        if (txDate.getMonth() === targetMonth && txDate.getFullYear() === targetYear) {
+        if (
+          txDate.getMonth() === targetMonth &&
+          txDate.getFullYear() === targetYear
+        ) {
           paid.add(tx.bill_id);
         }
       }
@@ -79,22 +107,31 @@ export default function BillsPage() {
 
   // Statistics
   const stats = useMemo(() => {
-    const active = bills.filter(b => b.is_active);
+    const active = bills.filter((b) => b.is_active);
     const totalMonthly = active.reduce((sum, b) => sum + b.amount, 0);
-    
+
     // Logic for statistics in the context of the viewed month
     const today = new Date().getDate();
-    const isTodayInViewMonth = viewDate.getMonth() === new Date().getMonth() && viewDate.getFullYear() === new Date().getFullYear();
-    
+    const isTodayInViewMonth =
+      viewDate.getMonth() === new Date().getMonth() &&
+      viewDate.getFullYear() === new Date().getFullYear();
+
     const overdueAmount = active
-      .filter(b => {
-        const isActuallyOverdue = isTodayInViewMonth ? b.due_day < today : (viewDate < new Date());
+      .filter((b) => {
+        const isActuallyOverdue = isTodayInViewMonth
+          ? b.due_day < today
+          : viewDate < new Date();
         return isActuallyOverdue && !paidBillIds.has(b.id);
       })
       .reduce((sum, b) => sum + b.amount, 0);
-      
-    const paidCount = active.filter(b => paidBillIds.has(b.id)).length;
-    return { activeCount: active.length, totalMonthly, overdueAmount, paidCount };
+
+    const paidCount = active.filter((b) => paidBillIds.has(b.id)).length;
+    return {
+      activeCount: active.length,
+      totalMonthly,
+      overdueAmount,
+      paidCount,
+    };
   }, [bills, paidBillIds, viewDate]);
 
   // Handlers
@@ -121,7 +158,10 @@ export default function BillsPage() {
         body: JSON.stringify({ ...bill, is_active: !bill.is_active }),
       });
       await fetchData();
-      showToast("info", `Tagihan "${bill.name}" ${bill.is_active ? "dinonaktifkan" : "diaktifkan"}.`);
+      showToast(
+        "info",
+        `Tagihan "${bill.name}" ${bill.is_active ? "dinonaktifkan" : "diaktifkan"}.`,
+      );
     } catch {
       showToast("error", "Gagal mengubah status tagihan.");
     }
@@ -131,7 +171,9 @@ export default function BillsPage() {
     if (!deletingBill) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/recurring-bills/${deletingBill.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/recurring-bills/${deletingBill.id}`, {
+        method: "DELETE",
+      });
       if (!res.ok) throw new Error();
       await fetchData();
       showToast("success", `Tagihan "${deletingBill.name}" berhasil dihapus.`);
@@ -144,7 +186,7 @@ export default function BillsPage() {
   };
 
   const toggleSection = (id: string) => {
-    setExpandedSections(prev => {
+    setExpandedSections((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -165,16 +207,18 @@ export default function BillsPage() {
   };
 
   // Split bills into groups
-  const activeBills = bills.filter(b => b.is_active);
-  const pendingBills = activeBills.filter(b => !paidBillIds.has(b.id));
-  const paidBills = activeBills.filter(b => paidBillIds.has(b.id));
-  const inactiveBills = bills.filter(b => !b.is_active);
+  const activeBills = bills.filter((b) => b.is_active);
+  const pendingBills = activeBills.filter((b) => !paidBillIds.has(b.id));
+  const paidBills = activeBills.filter((b) => paidBillIds.has(b.id));
+  const inactiveBills = bills.filter((b) => !b.is_active);
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        <p className="text-sm font-bold text-muted-foreground animate-pulse">Memuat tagihan Anda...</p>
+        <p className="text-sm font-bold text-muted-foreground animate-pulse">
+          Memuat tagihan Anda...
+        </p>
       </div>
     );
   }
@@ -201,7 +245,8 @@ export default function BillsPage() {
           href="/dashboard"
           className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group"
         >
-          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Kembali ke Dashboard
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />{" "}
+          Kembali ke Dashboard
         </Link>
 
         {/* Billboard */}
@@ -217,7 +262,8 @@ export default function BillsPage() {
                 {formatCurrency(stats.totalMonthly)}
               </h1>
               <p className="text-sm text-muted-foreground font-medium">
-                {stats.paidCount} dari {stats.activeCount} tagihan sudah dibayar bulan ini
+                {stats.paidCount} dari {stats.activeCount} tagihan sudah dibayar
+                bulan ini
               </p>
             </div>
             <Button
@@ -234,19 +280,29 @@ export default function BillsPage() {
               <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground mb-1">
                 <Bell className="w-3.5 h-3.5" /> Tagihan Aktif
               </div>
-              <p className="text-2xl font-black tabular-nums">{stats.activeCount}</p>
+              <p className="text-2xl font-black tabular-nums">
+                {stats.activeCount}
+              </p>
             </div>
             <div className="bg-white/50 dark:bg-background/50 backdrop-blur-sm rounded-2xl p-4 border border-border/20">
               <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground mb-1">
                 <TrendingDown className="w-3.5 h-3.5" /> Total Bulan Ini
               </div>
-              <p className="text-2xl font-black tabular-nums">{formatCurrency(stats.totalMonthly)}</p>
+              <p className="text-2xl font-black tabular-nums">
+                {formatCurrency(stats.totalMonthly)}
+              </p>
             </div>
-            <div className={`bg-white/50 dark:bg-background/50 backdrop-blur-sm rounded-2xl p-4 border ${stats.overdueAmount > 0 ? "border-red-500/20 bg-red-500/5" : "border-border/20"}`}>
-              <div className={`flex items-center gap-2 text-xs font-bold mb-1 ${stats.overdueAmount > 0 ? "text-red-500" : "text-muted-foreground"}`}>
+            <div
+              className={`bg-white/50 dark:bg-background/50 backdrop-blur-sm rounded-2xl p-4 border ${stats.overdueAmount > 0 ? "border-red-500/20 bg-red-500/5" : "border-border/20"}`}
+            >
+              <div
+                className={`flex items-center gap-2 text-xs font-bold mb-1 ${stats.overdueAmount > 0 ? "text-red-500" : "text-muted-foreground"}`}
+              >
                 <AlertTriangle className="w-3.5 h-3.5" /> Terlambat
               </div>
-              <p className={`text-2xl font-black tabular-nums ${stats.overdueAmount > 0 ? "text-red-500" : ""}`}>
+              <p
+                className={`text-2xl font-black tabular-nums ${stats.overdueAmount > 0 ? "text-red-500" : ""}`}
+              >
                 {formatCurrency(stats.overdueAmount)}
               </p>
             </div>
@@ -265,32 +321,44 @@ export default function BillsPage() {
                 <CreditCard className="w-5 h-5 text-primary" />
                 Belum Dibayar
                 <span className="text-xs font-bold text-muted-foreground ml-auto bg-muted/30 px-3 py-1 rounded-full">
-                  {pendingBills.length} tagihan
+                  {pendingBills.length} Tagihan
                 </span>
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {pendingBills.slice(0, expandedSections.has('pending') ? pendingBills.length : ITEMS_PER_GROUP).map(bill => (
-                  <BillCard
-                    key={bill.id}
-                    bill={bill}
-                    isPaidThisMonth={false}
-                    onEdit={handleEdit}
-                    onDelete={setDeletingBill}
-                    onPay={handlePay}
-                    onToggleActive={handleToggleActive}
-                  />
-                ))}
+                {pendingBills
+                  .slice(
+                    0,
+                    expandedSections.has("pending")
+                      ? pendingBills.length
+                      : ITEMS_PER_GROUP,
+                  )
+                  .map((bill) => (
+                    <BillCard
+                      key={bill.id}
+                      bill={bill}
+                      isPaidThisMonth={false}
+                      onEdit={handleEdit}
+                      onDelete={setDeletingBill}
+                      onPay={handlePay}
+                      onToggleActive={handleToggleActive}
+                    />
+                  ))}
               </div>
               {pendingBills.length > ITEMS_PER_GROUP && (
-                <Button 
-                  variant="ghost" 
-                  onClick={() => toggleSection('pending')}
+                <Button
+                  variant="ghost"
+                  onClick={() => toggleSection("pending")}
                   className="w-full h-11 rounded-2xl border border-dashed border-border/40 text-muted-foreground font-bold hover:bg-muted/5 transition-all text-xs"
                 >
-                  {expandedSections.has('pending') ? (
-                    <><ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan</>
+                  {expandedSections.has("pending") ? (
+                    <>
+                      <ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan
+                    </>
                   ) : (
-                    <><ChevronDown className="w-4 h-4 mr-2" /> Lihat {pendingBills.length - ITEMS_PER_GROUP} Tagihan Lainnya</>
+                    <>
+                      <ChevronDown className="w-4 h-4 mr-2" /> Lihat{" "}
+                      {pendingBills.length - ITEMS_PER_GROUP} Tagihan Lainnya
+                    </>
                   )}
                 </Button>
               )}
@@ -303,32 +371,44 @@ export default function BillsPage() {
               <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
                 <span className="text-income">✓</span> Lunas
                 <span className="text-xs font-bold text-muted-foreground ml-auto bg-income/10 text-income px-3 py-1 rounded-full">
-                  {paidBills.length} tagihan
+                  {paidBills.length} Tagihan
                 </span>
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {paidBills.slice(0, expandedSections.has('paid') ? paidBills.length : ITEMS_PER_GROUP).map(bill => (
-                  <BillCard
-                    key={bill.id}
-                    bill={bill}
-                    isPaidThisMonth={true}
-                    onEdit={handleEdit}
-                    onDelete={setDeletingBill}
-                    onPay={handlePay}
-                    onToggleActive={handleToggleActive}
-                  />
-                ))}
+                {paidBills
+                  .slice(
+                    0,
+                    expandedSections.has("paid")
+                      ? paidBills.length
+                      : ITEMS_PER_GROUP,
+                  )
+                  .map((bill) => (
+                    <BillCard
+                      key={bill.id}
+                      bill={bill}
+                      isPaidThisMonth={true}
+                      onEdit={handleEdit}
+                      onDelete={setDeletingBill}
+                      onPay={handlePay}
+                      onToggleActive={handleToggleActive}
+                    />
+                  ))}
               </div>
               {paidBills.length > ITEMS_PER_GROUP && (
-                <Button 
-                  variant="ghost" 
-                  onClick={() => toggleSection('paid')}
+                <Button
+                  variant="ghost"
+                  onClick={() => toggleSection("paid")}
                   className="w-full h-11 rounded-2xl border border-dashed border-border/40 text-muted-foreground font-bold hover:bg-muted/5 transition-all text-xs"
                 >
-                  {expandedSections.has('paid') ? (
-                    <><ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan</>
+                  {expandedSections.has("paid") ? (
+                    <>
+                      <ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan
+                    </>
                   ) : (
-                    <><ChevronDown className="w-4 h-4 mr-2" /> Lihat {paidBills.length - ITEMS_PER_GROUP} Tagihan Lainnya</>
+                    <>
+                      <ChevronDown className="w-4 h-4 mr-2" /> Lihat{" "}
+                      {paidBills.length - ITEMS_PER_GROUP} Tagihan Lainnya
+                    </>
                   )}
                 </Button>
               )}
@@ -341,32 +421,44 @@ export default function BillsPage() {
               <h2 className="text-lg font-black tracking-tight flex items-center gap-2 text-muted-foreground">
                 Nonaktif
                 <span className="text-xs font-bold ml-auto bg-muted/30 px-3 py-1 rounded-full">
-                  {inactiveBills.length}
+                  {inactiveBills.length} Tagihan
                 </span>
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {inactiveBills.slice(0, expandedSections.has('inactive') ? inactiveBills.length : ITEMS_PER_GROUP).map(bill => (
-                  <BillCard
-                    key={bill.id}
-                    bill={bill}
-                    isPaidThisMonth={paidBillIds.has(bill.id)}
-                    onEdit={handleEdit}
-                    onDelete={setDeletingBill}
-                    onPay={handlePay}
-                    onToggleActive={handleToggleActive}
-                  />
-                ))}
+                {inactiveBills
+                  .slice(
+                    0,
+                    expandedSections.has("inactive")
+                      ? inactiveBills.length
+                      : ITEMS_PER_GROUP,
+                  )
+                  .map((bill) => (
+                    <BillCard
+                      key={bill.id}
+                      bill={bill}
+                      isPaidThisMonth={paidBillIds.has(bill.id)}
+                      onEdit={handleEdit}
+                      onDelete={setDeletingBill}
+                      onPay={handlePay}
+                      onToggleActive={handleToggleActive}
+                    />
+                  ))}
               </div>
               {inactiveBills.length > ITEMS_PER_GROUP && (
-                <Button 
-                  variant="ghost" 
-                  onClick={() => toggleSection('inactive')}
+                <Button
+                  variant="ghost"
+                  onClick={() => toggleSection("inactive")}
                   className="w-full h-11 rounded-2xl border border-dashed border-border/40 text-muted-foreground font-bold hover:bg-muted/5 transition-all text-xs"
                 >
-                  {expandedSections.has('inactive') ? (
-                    <><ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan</>
+                  {expandedSections.has("inactive") ? (
+                    <>
+                      <ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan
+                    </>
                   ) : (
-                    <><ChevronDown className="w-4 h-4 mr-2" /> Lihat {inactiveBills.length - ITEMS_PER_GROUP} Tagihan Lainnya</>
+                    <>
+                      <ChevronDown className="w-4 h-4 mr-2" /> Lihat{" "}
+                      {inactiveBills.length - ITEMS_PER_GROUP} Tagihan Lainnya
+                    </>
                   )}
                 </Button>
               )}
@@ -379,11 +471,16 @@ export default function BillsPage() {
               <div className="w-20 h-20 rounded-full bg-muted/20 flex items-center justify-center mx-auto mb-6">
                 <CreditCard className="w-9 h-9 text-muted-foreground/30" />
               </div>
-              <h3 className="text-xl font-black tracking-tight mb-2">Belum Ada Tagihan</h3>
+              <h3 className="text-xl font-black tracking-tight mb-2">
+                Belum Ada Tagihan
+              </h3>
               <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
                 Mulai catat tagihan rutin Anda agar tidak ada yang terlewat.
               </p>
-              <Button onClick={handleAdd} className="bg-primary text-primary-foreground hover:brightness-110 font-black px-8 h-12 rounded-full shadow-lg">
+              <Button
+                onClick={handleAdd}
+                className="bg-primary text-primary-foreground hover:brightness-110 font-black px-8 h-12 rounded-full shadow-lg"
+              >
                 <Plus className="w-5 h-5 mr-2" /> Tambah Tagihan Pertama
               </Button>
             </div>
@@ -392,9 +489,9 @@ export default function BillsPage() {
 
         {/* Heatmap Sidebar */}
         <div className="space-y-4">
-          <BillHeatmap 
-            bills={bills} 
-            paidBillIds={paidBillIds} 
+          <BillHeatmap
+            bills={bills}
+            paidBillIds={paidBillIds}
             onMonthChange={setViewDate}
           />
         </div>
@@ -407,26 +504,40 @@ export default function BillsPage() {
           <AlertTriangle className="w-8 h-8 text-primary" />
         </div>
         <div className="relative z-10 flex-1 space-y-1 text-center md:text-left">
-          <h3 className="text-xl font-black tracking-tight">Tips: Apa itu Auto-pay?</h3>
+          <h3 className="text-xl font-black tracking-tight">
+            Tips: Apa itu Auto-pay?
+          </h3>
           <p className="text-sm text-gray-400 font-medium leading-relaxed">
-            Auto-pay adalah penanda untuk tagihan yang didebit otomatis oleh bank/layanan. 
-            Aplikasi Ngaturin <strong>hanya mencatat</strong> transaksi agar saldo tetap akurat, 
-            dan tidak melakukan penarikan uang asli.
+            Auto-pay adalah penanda untuk tagihan yang didebit otomatis oleh
+            bank/layanan. Aplikasi Ngaturin <strong>hanya mencatat</strong>{" "}
+            transaksi agar saldo tetap akurat, dan tidak melakukan penarikan
+            uang asli.
           </p>
         </div>
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deletingBill} onOpenChange={(o) => !o && setDeletingBill(null)}>
+      <Dialog
+        open={!!deletingBill}
+        onOpenChange={(o) => !o && setDeletingBill(null)}
+      >
         <DialogContent className="sm:max-w-sm rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
           <DialogHeader>
-            <DialogTitle className="text-xl font-black text-center md:text-left">Hapus Tagihan</DialogTitle>
+            <DialogTitle className="text-xl font-black text-center md:text-left">
+              Hapus Tagihan
+            </DialogTitle>
             <DialogDescription className="text-center md:text-left">
-              Tagihan <strong>{deletingBill?.name}</strong> akan dihapus secara permanen.
+              Tagihan <strong>{deletingBill?.name}</strong> akan dihapus secara
+              permanen.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-col sm:flex-row gap-2">
-            <Button variant="ghost" onClick={() => setDeletingBill(null)} disabled={isDeleting} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
+            <Button
+              variant="ghost"
+              onClick={() => setDeletingBill(null)}
+              disabled={isDeleting}
+              className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first"
+            >
               Batal
             </Button>
             <Button
@@ -435,7 +546,13 @@ export default function BillsPage() {
               disabled={isDeleting}
               className="rounded-2xl h-12 px-8 font-black shadow-lg active:scale-95 transition-all w-full sm:w-auto"
             >
-              {isDeleting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menghapus...</> : "Hapus Permanen"}
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menghapus...
+                </>
+              ) : (
+                "Hapus Permanen"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

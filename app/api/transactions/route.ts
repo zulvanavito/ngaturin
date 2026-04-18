@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { description, amount, category, type, date, wallet_id } = body;
+  const { description, amount, category, type, date, wallet_id, bill_id } = body;
 
   // Validation
   if (!description || !amount || !category || !type) {
@@ -83,6 +83,7 @@ export async function POST(request: Request) {
       type,
       date: date || new Date().toISOString().split("T")[0],
       wallet_id: sanitizedWalletId,
+      bill_id: bill_id || null,
     })
     .select()
     .single();

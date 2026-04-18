@@ -119,14 +119,18 @@ export function DebtCard({
 
   return (
     <div
-      className={`group relative bg-white dark:bg-card rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-ring transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden ${debt.is_settled ? "opacity-70" : ""}`}
+      className={`group relative bg-white dark:bg-card rounded-[2rem] sm:rounded-[2.5rem] border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden ${
+        debt.is_settled 
+          ? "border-success/30 ring-1 ring-success/10 bg-success/[0.02]" 
+          : "border-border/40 shadow-ring"
+      }`}
     >
       <div
-        className={`absolute top-0 left-0 right-0 h-1.5 rounded-t-[2rem] sm:rounded-t-[2.5rem] ${isHutang ? "bg-expense" : "bg-piutang"}`}
+        className={`absolute top-0 left-0 right-0 h-1.5 rounded-t-[2rem] sm:rounded-t-[2.5rem] ${debt.is_settled ? "bg-success" : isHutang ? "bg-expense" : "bg-piutang"}`}
       />
 
       <div
-        className={`absolute -right-6 -top-6 w-32 h-32 rounded-full opacity-[0.04] blur-3xl pointer-events-none ${isHutang ? "bg-expense" : "bg-piutang"}`}
+        className={`absolute -right-6 -top-6 w-32 h-32 rounded-full opacity-[0.04] blur-3xl pointer-events-none ${debt.is_settled ? "bg-success" : isHutang ? "bg-expense" : "bg-piutang"}`}
       />
 
       {deadlineInfo?.isOverdue && (
@@ -137,7 +141,13 @@ export function DebtCard({
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div
-              className={`w-11 h-11 sm:w-12 sm:h-12 shrink-0 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:rotate-6 ${isHutang ? "bg-expense/10" : "bg-piutang/10"}`}
+              className={`w-11 h-11 sm:w-12 sm:h-12 shrink-0 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:rotate-6 ${
+                debt.is_settled 
+                  ? "bg-success/10" 
+                  : isHutang 
+                    ? "bg-expense/10" 
+                    : "bg-piutang/10"
+              }`}
             >
               {debt.is_settled ? (
                 <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-success" />
@@ -226,7 +236,7 @@ export function DebtCard({
                 {debt.is_settled ? "Total" : "Sisa"}
               </p>
               <p
-                className={`text-lg sm:text-xl font-black tabular-nums tracking-tight ${isHutang ? "text-expense" : "text-piutang"}`}
+                className={`text-lg sm:text-xl font-black tabular-nums tracking-tight ${debt.is_settled ? "text-success" : isHutang ? "text-expense" : "text-piutang"}`}
               >
                 {formatCurrency(debt.is_settled ? debt.amount : remaining)}
               </p>

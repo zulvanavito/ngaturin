@@ -15,7 +15,7 @@ export interface WalletData {
   id: string;
   name: string;
   icon: string;
-  type: "cash" | "bank" | "emoney" | "credit";
+  type: "cash" | "bank" | "emoney" | "credit" | "investment" | "crypto" | "debit";
   color: string;
   balance: number;
 }
@@ -43,6 +43,9 @@ const TYPE_LABELS: Record<string, string> = {
   bank: "Bank",
   emoney: "E-Money",
   credit: "Kartu Kredit",
+  investment: "Saham / Investasi",
+  crypto: "Crypto",
+  debit: "Debit",
 };
 
 const formatCurrency = (amount: number) =>

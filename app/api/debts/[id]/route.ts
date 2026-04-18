@@ -8,18 +8,25 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   const { id } = await params;
   const body = await request.json();
-  const { type, person_name, amount, description, due_date, is_settled } = body;
+  const { type, person_name, amount, description, due_date, is_settled, paid_amount } = body;
+
+  const updateData: Record<string, unknown> = {
+    type,
+    person_name: person_name?.trim(),
+    amount: Number(amount),
+    description: description?.trim() || null,
+    due_date: due_date || null,
+    is_settled: Boolean(is_settled),
+  };
+
+  // Only include paid_amount if it was explicitly sent
+  if (paid_amount !== undefined) {
+    updateData.paid_amount = Number(paid_amount);
+  }
 
   const { data, error } = await supabase
     .from("debts")
-    .update({
-      type,
-      person_name: person_name?.trim(),
-      amount: Number(amount),
-      description: description?.trim() || null,
-      due_date: due_date || null,
-      is_settled: Boolean(is_settled),
-    })
+    .update(updateData)
     .eq("id", id)
     .eq("user_id", user.id)
     .select()

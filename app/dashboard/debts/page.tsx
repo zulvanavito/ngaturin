@@ -1,244 +1,351 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Plus, ChevronLeft, Loader2, TrendingDown, TrendingUp, HandCoins, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Plus, Pencil, Trash2, Loader2, ChevronLeft, TrendingDown, TrendingUp, CheckCircle2, Clock, HandCoins,
-} from "lucide-react";
 import Link from "next/link";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import { DebtCard, type Debt } from "@/components/debt-card";
+import { DebtFormModal } from "@/components/debt-form-modal";
+import { DebtPaymentModal } from "@/components/debt-payment-modal";
+import { DebtUnsettleModal } from "@/components/debt-unsettle-modal";
+import { DebtSettleConfirmationModal } from "@/components/debt-settle-confirmation-modal";
 import { useToast } from "@/lib/toast-context";
-import { FeatureTip } from "@/components/feature-tip";
-import { LoadingState } from "@/components/loading-state";
 
-interface Debt {
-  id: string;
-  type: "hutang" | "piutang";
-  person_name: string;
-  amount: number;
-  description: string | null;
-  due_date: string | null;
-  is_settled: boolean;
-  created_at: string;
-}
-
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency", currency: "IDR", minimumFractionDigits: 0,
-  }).format(n);
-}
-
-function formatDate(dateStr: string | null) {
-  if (!dateStr) return null;
-  return new Date(dateStr).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
-}
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(amount);
 
 export default function DebtsPage() {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
-  const [deletingDebt, setDeletingDebt] = useState<Debt | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isUnsettleOpen, setIsUnsettleOpen] = useState(false);
+  const [isSettleConfirmOpen, setIsSettleConfirmOpen] = useState(false);
+  const [selectedDebt, setSelectedDebt] = useState<Debt | null>(null);
+  const [deleteDebtId, setDeleteDebtId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [filterType, setFilterType] = useState<"all" | "hutang" | "piutang">("all");
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "settled">("all");
+  const [showPersonSummary, setShowPersonSummary] = useState(false);
   const { showToast } = useToast();
 
-  const [formType, setFormType] = useState<"hutang" | "piutang">("hutang");
-  const [formPerson, setFormPerson] = useState("");
-  const [formAmount, setFormAmount] = useState("");
-  const [formDesc, setFormDesc] = useState("");
-  const [formDueDate, setFormDueDate] = useState("");
-
   const fetchDebts = useCallback(async () => {
-    const res = await fetch("/api/debts");
-    if (res.ok) {
-      const data = await res.json();
-      setDebts(data);
+    try {
+      const res = await fetch("/api/debts");
+      if (res.ok) {
+        const data = await res.json();
+        // Ensure paid_amount defaults to 0
+        setDebts(data.map((d: Debt) => ({ ...d, paid_amount: d.paid_amount || 0 })));
+      }
+    } catch (err) {
+      console.error("Failed to fetch debts:", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => { fetchDebts(); }, [fetchDebts]);
 
-  const openAdd = (defaultType: "hutang" | "piutang" = "hutang") => {
-    setEditingDebt(null);
-    setFormType(defaultType);
-    setFormPerson(""); setFormAmount(""); setFormDesc(""); setFormDueDate("");
+  const filtered = useMemo(() => {
+    return debts.filter((d) => {
+      if (filterType !== "all" && d.type !== filterType) return false;
+      if (filterStatus === "active" && d.is_settled) return false;
+      if (filterStatus === "settled" && !d.is_settled) return false;
+      return true;
+    });
+  }, [debts, filterType, filterStatus]);
+
+  const stats = useMemo(() => {
+    const totalHutang = debts.filter(d => d.type === "hutang" && !d.is_settled).reduce((s, d) => s + Math.max(d.amount - (d.paid_amount || 0), 0), 0);
+    const totalPiutang = debts.filter(d => d.type === "piutang" && !d.is_settled).reduce((s, d) => s + Math.max(d.amount - (d.paid_amount || 0), 0), 0);
+    const netPosition = totalPiutang - totalHutang;
+    const activeHutang = debts.filter(d => d.type === "hutang" && !d.is_settled).length;
+    const activePiutang = debts.filter(d => d.type === "piutang" && !d.is_settled).length;
+    return { totalHutang, totalPiutang, netPosition, activeHutang, activePiutang };
+  }, [debts]);
+
+  // Group debts by person for the Person Directory
+  const personSummary = useMemo(() => {
+    const map: Record<string, { hutang: number; piutang: number; count: number }> = {};
+    debts.filter(d => !d.is_settled).forEach(d => {
+      const remaining = Math.max(d.amount - (d.paid_amount || 0), 0);
+      if (!map[d.person_name]) map[d.person_name] = { hutang: 0, piutang: 0, count: 0 };
+      if (d.type === "hutang") map[d.person_name].hutang += remaining;
+      else map[d.person_name].piutang += remaining;
+      map[d.person_name].count++;
+    });
+    return Object.entries(map).map(([name, data]) => ({
+      name,
+      net: data.piutang - data.hutang,
+      hutang: data.hutang,
+      piutang: data.piutang,
+      count: data.count,
+    })).sort((a, b) => Math.abs(b.net) - Math.abs(a.net));
+  }, [debts]);
+
+  const handleCreate = () => {
+    setSelectedDebt(null);
     setIsFormOpen(true);
   };
 
-  const openEdit = (d: Debt) => {
-    setEditingDebt(d);
-    setFormType(d.type);
-    setFormPerson(d.person_name);
-    setFormAmount(String(d.amount));
-    setFormDesc(d.description || "");
-    setFormDueDate(d.due_date ? d.due_date.split("T")[0] : "");
+  const handleEdit = (debt: Debt) => {
+    setSelectedDebt(debt);
     setIsFormOpen(true);
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      const url = editingDebt ? `/api/debts/${editingDebt.id}` : "/api/debts";
-      const method = editingDebt ? "PUT" : "POST";
-      const body = {
-        type: formType,
-        person_name: formPerson,
-        amount: Number(formAmount),
-        description: formDesc || null,
-        due_date: formDueDate || null,
-        is_settled: editingDebt?.is_settled ?? false,
-      };
-      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      if (!res.ok) throw new Error((await res.json()).error);
-      await fetchDebts();
-      setIsFormOpen(false);
-      showToast("success", editingDebt ? "Catatan berhasil diperbarui!" : "Catatan berhasil ditambahkan!");
-    } catch (err: any) {
-      showToast("error", err.message || "Gagal menyimpan");
-    } finally { setSaving(false); }
+  const handlePayment = (debt: Debt) => {
+    setSelectedDebt(debt);
+    setIsPaymentOpen(true);
   };
 
   const handleToggleSettle = async (debt: Debt) => {
+    if (debt.is_settled) {
+      // Unsettling → open the smart reversal modal
+      setSelectedDebt(debt);
+      setIsUnsettleOpen(true);
+      return;
+    }
+
+    // Settling
+    const remaining = debt.amount - (debt.paid_amount || 0);
+
+    if (remaining > 0) {
+      // Partial debt → open confirmation modal
+      setSelectedDebt(debt);
+      setIsSettleConfirmOpen(true);
+      return;
+    }
+
+    // Fully paid (remaining is 0) → fast toggle
     try {
       const res = await fetch(`/api/debts/${debt.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...debt, is_settled: !debt.is_settled }),
+        body: JSON.stringify({
+          ...debt,
+          is_settled: true,
+          paid_amount: debt.amount,
+        }),
       });
       if (!res.ok) throw new Error();
       await fetchDebts();
-      showToast("success", debt.is_settled ? "Ditandai belum lunas." : "Ditandai sudah lunas! 🎉");
+      showToast("success", "Ditandai sudah lunas! 🎉");
     } catch {
-      showToast("error", "Gagal mengubah status");
+      showToast("error", "Gagal mengubah status.");
     }
   };
 
-  const handleDelete = async () => {
-    if (!deletingDebt) return;
-    setIsDeleting(true);
-    try {
-      const res = await fetch(`/api/debts/${deletingDebt.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
-      await fetchDebts();
-      setDeletingDebt(null);
-      showToast("success", "Catatan berhasil dihapus.");
-    } catch {
-      showToast("error", "Gagal menghapus");
-      setDeletingDebt(null);
-    } finally { setIsDeleting(false); }
+  const handleSettleConfirmSuccess = () => {
+    fetchDebts();
+    showToast("success", "Status berhasil diperbarui & pelunasan dicatat.");
   };
 
-  const filtered = debts.filter((d) => {
-    if (filterType !== "all" && d.type !== filterType) return false;
-    if (filterStatus === "active" && d.is_settled) return false;
-    if (filterStatus === "settled" && !d.is_settled) return false;
-    return true;
-  });
+  const handleUnsettleSuccess = () => {
+    fetchDebts();
+    showToast("success", "Status berhasil dikembalikan.");
+  };
 
-  const totalHutang = debts.filter(d => d.type === "hutang" && !d.is_settled).reduce((s, d) => s + d.amount, 0);
-  const totalPiutang = debts.filter(d => d.type === "piutang" && !d.is_settled).reduce((s, d) => s + d.amount, 0);
+  const handleDelete = async () => {
+    if (!deleteDebtId) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/debts/${deleteDebtId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      await fetchDebts();
+      showToast("success", "Catatan berhasil dihapus.");
+    } catch {
+      showToast("error", "Gagal menghapus catatan.");
+    } finally {
+      setIsDeleting(false);
+      setDeleteDebtId(null);
+    }
+  };
+
+  const handleFormSuccess = () => {
+    fetchDebts();
+    showToast("success", "Catatan berhasil disimpan!");
+  };
+
+  const handlePaymentSuccess = () => {
+    fetchDebts();
+    showToast("success", "Pembayaran berhasil dicatat! 💸");
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        <p className="text-sm font-bold text-muted-foreground animate-pulse">Memuat catatan Anda...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ChevronLeft className="w-4 h-4" /> Kembali ke Dashboard
-      </Link>
-
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Utang & Piutang</h1>
-          <p className="text-sm text-muted-foreground mt-1">Catat dan pantau utang serta piutang Anda.</p>
-        </div>
-        <Button onClick={() => openAdd()} className="bg-primary hover:brightness-110 text-primary-foreground gap-2 h-11 rounded-xl shadow-md shrink-0">
-          <Plus className="w-4 h-4" /> Tambah
-        </Button>
-      </div>
-
-      <FeatureTip
-        id="debts"
-        title="Sistem Utang & Piutang"
-        message="Simak panduan pelunasan dan sinkronisasinya agar transaksimu tetap rapi."
+    <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+      {/* Modals */}
+      <DebtFormModal
+        open={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSuccess={handleFormSuccess}
+        debt={selectedDebt}
+      />
+      <DebtPaymentModal
+        open={isPaymentOpen}
+        onClose={() => setIsPaymentOpen(false)}
+        onSuccess={handlePaymentSuccess}
+        debt={selectedDebt}
+      />
+      <DebtUnsettleModal
+        open={isUnsettleOpen}
+        onClose={() => setIsUnsettleOpen(false)}
+        onSuccess={handleUnsettleSuccess}
+        debt={selectedDebt}
+      />
+      <DebtSettleConfirmationModal
+        open={isSettleConfirmOpen}
+        onClose={() => setIsSettleConfirmOpen(false)}
+        onSuccess={handleSettleConfirmSuccess}
+        debt={selectedDebt}
       />
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <button
-          onClick={() => openAdd("hutang")}
-          className="relative overflow-hidden rounded-[1.5rem] bg-expense/10 border border-expense/20 p-5 text-left hover:bg-expense/20 transition-colors group shadow-sm"
+      {/* Hero Section */}
+      <div className="space-y-6">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group"
         >
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-expense/20 rounded-xl flex items-center justify-center">
-              <TrendingDown className="w-4 h-4 text-expense" />
-            </div>
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Hutang</span>
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Kembali ke Dashboard
+        </Link>
+
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div className="space-y-2">
+            <h1 className="text-[55px] sm:text-[72px] font-black tracking-tighter leading-[0.85] text-foreground">
+              Pantau Utang.
+            </h1>
+            <p className="text-lg font-bold text-muted-foreground max-w-md">
+              Catat, lacak, dan lunasi hutang serta piutang Anda dengan teratur.
+            </p>
           </div>
-          <p className="text-xl font-bold text-expense leading-tight">{formatCurrency(totalHutang)}</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            {debts.filter(d => d.type === "hutang" && !d.is_settled).length} belum lunas
-          </p>
-          <span className="absolute bottom-3 right-3 text-expense/30 group-hover:text-expense/60 transition-colors">
-            <Plus className="w-5 h-5" />
-          </span>
-        </button>
-        <button
-          onClick={() => openAdd("piutang")}
-          className="relative overflow-hidden rounded-[1.5rem] bg-income/10 border border-income/20 p-5 text-left hover:bg-income/20 transition-colors group shadow-sm"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-income/20 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-income" />
-            </div>
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Piutang</span>
-          </div>
-          <p className="text-xl font-bold text-income leading-tight">{formatCurrency(totalPiutang)}</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            {debts.filter(d => d.type === "piutang" && !d.is_settled).length} belum lunas
-          </p>
-          <span className="absolute bottom-3 right-3 text-income/30 group-hover:text-income/60 transition-colors">
-            <Plus className="w-5 h-5" />
-          </span>
-        </button>
+
+          <Button
+            onClick={handleCreate}
+            className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-base h-14 px-8 shadow-2xl transition-all hover:scale-105 active:scale-95"
+          >
+            <Plus className="w-5 h-5 mr-3 stroke-[3px]" /> Tambah Catatan
+          </Button>
+        </div>
       </div>
 
-      {/* Filters */}
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+        <button
+          onClick={() => { setFilterType("hutang"); setFilterStatus("active"); }}
+          className="bg-expense/5 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-expense/10 text-left hover:bg-expense/10 transition-colors group"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-9 h-9 bg-expense/10 rounded-xl flex items-center justify-center">
+              <TrendingDown className="w-5 h-5 text-expense" />
+            </div>
+            <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-expense/60">Hutang Aktif</p>
+          </div>
+          <span className="text-lg sm:text-xl lg:text-2xl font-black text-expense tabular-nums">{formatCurrency(stats.totalHutang)}</span>
+          <p className="text-xs text-muted-foreground mt-1">{stats.activeHutang} catatan belum lunas</p>
+        </button>
+
+        <button
+          onClick={() => { setFilterType("piutang"); setFilterStatus("active"); }}
+          className="bg-income/5 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-income/10 text-left hover:bg-income/10 transition-colors group"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-9 h-9 bg-income/10 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-income" />
+            </div>
+            <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-income/60">Piutang Aktif</p>
+          </div>
+          <span className="text-lg sm:text-xl lg:text-2xl font-black text-income tabular-nums">{formatCurrency(stats.totalPiutang)}</span>
+          <p className="text-xs text-muted-foreground mt-1">{stats.activePiutang} catatan belum lunas</p>
+        </button>
+
+        <div className="bg-muted/10 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-border/10">
+          <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-muted-foreground/60 mb-2">Posisi Bersih</p>
+          <span className={`text-lg sm:text-xl lg:text-2xl font-black tabular-nums ${stats.netPosition >= 0 ? "text-income" : "text-expense"}`}>
+            {stats.netPosition >= 0 ? "+" : ""}{formatCurrency(stats.netPosition)}
+          </span>
+          <p className="text-xs text-muted-foreground mt-1">{stats.netPosition >= 0 ? "Anda lebih banyak diutangi" : "Anda lebih banyak berutang"}</p>
+        </div>
+      </div>
+
+      {/* Person Directory (toggleable) */}
+      {personSummary.length > 0 && (
+        <div className="space-y-4">
+          <button
+            onClick={() => setShowPersonSummary(!showPersonSummary)}
+            className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Users className="w-4 h-4" /> {showPersonSummary ? "Sembunyikan" : "Lihat"} Ringkasan Per Orang
+            <span className="text-xs text-muted-foreground/50">({personSummary.length} orang)</span>
+          </button>
+
+          {showPersonSummary && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {personSummary.map(p => (
+                <div
+                  key={p.name}
+                  className="p-4 rounded-2xl border border-border/30 bg-white dark:bg-card hover:shadow-md transition-all"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="font-bold text-sm truncate">{p.name}</p>
+                    <span className="text-xs font-medium text-muted-foreground">{p.count} catatan</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    {p.hutang > 0 && (
+                      <span className="text-xs font-bold text-expense tabular-nums">Hutang: {formatCurrency(p.hutang)}</span>
+                    )}
+                    {p.piutang > 0 && (
+                      <span className="text-xs font-bold text-income tabular-nums">Piutang: {formatCurrency(p.piutang)}</span>
+                    )}
+                  </div>
+                  <div className={`mt-2 pt-2 border-t border-border/20 text-xs font-black tabular-nums ${p.net >= 0 ? "text-income" : "text-expense"}`}>
+                    Net: {p.net >= 0 ? "+" : ""}{formatCurrency(p.net)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Filter Pills */}
       <div className="flex flex-wrap gap-2">
         {(["all", "hutang", "piutang"] as const).map(t => (
           <button
             key={t}
             onClick={() => setFilterType(t)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+            className={`px-4 py-2 rounded-full text-xs font-bold border-2 transition-all ${
               filterType === t
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-muted/50 text-muted-foreground border-border/40 hover:bg-muted"
+                ? "bg-primary text-primary-foreground border-primary shadow-md"
+                : "bg-muted/20 text-muted-foreground border-border/30 hover:bg-muted/40"
             }`}
           >
             {t === "all" ? "Semua" : t === "hutang" ? "Hutang" : "Piutang"}
           </button>
         ))}
-        <div className="w-px bg-border/40 mx-1" />
+        <div className="w-px bg-border/40 mx-1 self-stretch" />
         {(["all", "active", "settled"] as const).map(s => (
           <button
             key={s}
             onClick={() => setFilterStatus(s)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+            className={`px-4 py-2 rounded-full text-xs font-bold border-2 transition-all ${
               filterStatus === s
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-muted/50 text-muted-foreground border-border/40 hover:bg-muted"
+                ? "bg-primary text-primary-foreground border-primary shadow-md"
+                : "bg-muted/20 text-muted-foreground border-border/30 hover:bg-muted/40"
             }`}
           >
             {s === "all" ? "Semua Status" : s === "active" ? "Belum Lunas" : "Lunas"}
@@ -246,168 +353,67 @@ export default function DebtsPage() {
         ))}
       </div>
 
-      {/* List */}
-      <Card className="border border-border/40 bg-white dark:bg-card rounded-[2rem] overflow-hidden shadow-sm">
-        <CardHeader className="bg-muted/30 pb-3">
-          <CardTitle className="text-base flex items-center justify-between">
-            <span>Daftar Catatan</span>
-            <Badge variant="secondary">{filtered.length}</Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {loading ? (
-            <LoadingState message="Memuat data..." className="min-h-[200px]" />
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-14 text-muted-foreground text-sm">
-              <HandCoins className="w-10 h-10 mx-auto mb-3 opacity-20" />
-              <p>Belum ada catatan. Tambahkan di atas!</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-border/30">
-              {filtered.map((d) => {
-                const isOverdue = d.due_date && !d.is_settled && new Date(d.due_date) < new Date();
-                return (
-                  <div
-                    key={d.id}
-                    className={`flex items-start gap-3 px-5 py-4 hover:bg-muted/20 transition-colors ${d.is_settled ? "opacity-50" : ""}`}
-                  >
-                    {/* Icon */}
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
-                      d.type === "hutang" ? "bg-expense/10" : "bg-income/10"
-                    }`}>
-                      {d.type === "hutang"
-                        ? <TrendingDown className="w-4 h-4 text-expense" />
-                        : <TrendingUp className="w-4 h-4 text-income" />
-                      }
-                    </div>
+      {/* Debts Grid */}
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-black tracking-tight flex items-center gap-3">
+            <HandCoins className="w-6 h-6 text-primary" /> Daftar Catatan
+          </h2>
+          <span className="text-xs font-bold text-muted-foreground">
+            {filtered.length} catatan
+          </span>
+        </div>
 
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-sm">{d.person_name}</p>
-                        <Badge
-                          variant="outline"
-                          className={`text-[10px] px-1.5 py-0 h-4 ${d.type === "hutang"
-                            ? "border-expense/30 text-expense"
-                            : "border-income/30 text-income"}`}
-                        >
-                          {d.type === "hutang" ? "Hutang" : "Piutang"}
-                        </Badge>
-                        {d.is_settled && (
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-muted text-muted-foreground">
-                            Lunas
-                          </Badge>
-                        )}
-                      </div>
-                      {d.description && (
-                        <p className="text-xs text-muted-foreground mt-0.5 truncate">{d.description}</p>
-                      )}
-                      {d.due_date && (
-                        <div className={`flex items-center gap-1 mt-0.5 text-xs ${isOverdue ? "text-red-500" : "text-muted-foreground"}`}>
-                          <Clock className="w-3 h-3" />
-                          {isOverdue ? "Jatuh tempo: " : "Tenggat: "}{formatDate(d.due_date)}
-                          {isOverdue && " ⚠️"}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Amount + actions */}
-                    <div className="flex flex-col items-end gap-2 shrink-0">
-                      <p className={`text-sm font-bold ${d.type === "hutang"
-                        ? "text-expense"
-                        : "text-income"}`}>
-                        {formatCurrency(d.amount)}
-                      </p>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost" size="icon"
-                          className={`h-7 w-7 ${d.is_settled ? "text-muted-foreground" : "text-success"}`}
-                          title={d.is_settled ? "Tandai belum lunas" : "Tandai lunas"}
-                          onClick={() => handleToggleSettle(d)}
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => openEdit(d)}>
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => setDeletingDebt(d)}>
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+        {filtered.length === 0 ? (
+          <div className="bg-muted/10 border-2 border-dashed border-border/40 rounded-[2rem] sm:rounded-[3rem] p-10 sm:p-16 text-center space-y-6">
+            <div className="w-20 h-20 bg-muted/20 rounded-3xl flex items-center justify-center mx-auto">
+              <HandCoins className="w-10 h-10 text-muted-foreground/40" />
             </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Add/Edit Dialog */}
-      <Dialog open={isFormOpen} onOpenChange={(o) => { if (!o) setIsFormOpen(false); }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editingDebt ? "Edit Catatan" : "Catatan Baru"}</DialogTitle>
-            <DialogDescription>Catat hutang atau piutang Anda.</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSave} className="space-y-4 pt-2">
-            <div className="space-y-2">
-              <Label>Jenis</Label>
-              <Select value={formType} onValueChange={(v: any) => setFormType(v)}>
-                <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="hutang">💸 Hutang (saya yang berhutang)</SelectItem>
-                  <SelectItem value="piutang">💰 Piutang (orang lain yang berhutang)</SelectItem>
-                </SelectContent>
-              </Select>
+            <div>
+              <p className="text-xl font-bold text-foreground">Belum ada catatan</p>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
+                Tambahkan catatan hutang atau piutang untuk mulai memantau posisi keuangan Anda.
+              </p>
             </div>
-            <div className="space-y-2">
-              <Label>{formType === "hutang" ? "Nama Pemberi Hutang" : "Nama Peminjam"}</Label>
-              <Input
-                value={formPerson}
-                onChange={e => setFormPerson(e.target.value)}
-                placeholder={formType === "hutang" ? "Misal: Budi" : "Misal: Ani"}
-                required className="h-10"
+            <Button
+              onClick={handleCreate}
+              variant="outline"
+              className="rounded-full h-12 px-8 font-bold border-2 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all"
+            >
+              Buat Catatan Pertama
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            {filtered.map(debt => (
+              <DebtCard
+                key={debt.id}
+                debt={debt}
+                onEdit={handleEdit}
+                onDelete={(id) => setDeleteDebtId(id)}
+                onPayment={handlePayment}
+                onToggleSettle={handleToggleSettle}
               />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Jumlah (Rp)</Label>
-                <Input value={formAmount} onChange={e => setFormAmount(e.target.value)} type="number" min="1" placeholder="500000" required className="h-10" />
-              </div>
-              <div className="space-y-2">
-                <Label>Jatuh Tempo (Opsional)</Label>
-                <Input value={formDueDate} onChange={e => setFormDueDate(e.target.value)} type="date" className="h-10" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Keterangan (Opsional)</Label>
-              <Input value={formDesc} onChange={e => setFormDesc(e.target.value)} placeholder="Contoh: untuk bayar kontrakan" className="h-10" />
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">Batal</Button>
-              <Button type="submit" className="bg-primary hover:brightness-110 text-primary-foreground rounded-xl shadow-md" disabled={saving}>
-                {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {editingDebt ? "Simpan" : "Tambah"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Delete Dialog */}
-      <Dialog open={!!deletingDebt} onOpenChange={(o) => { if (!o) setDeletingDebt(null); }}>
-        <DialogContent className="sm:max-w-sm">
+      {/* Delete Confirmation */}
+      <Dialog open={!!deleteDebtId} onOpenChange={() => setDeleteDebtId(null)}>
+        <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
           <DialogHeader>
-            <DialogTitle>Hapus Catatan?</DialogTitle>
-            <DialogDescription>
-              Hapus catatan <strong>{deletingDebt?.type === "hutang" ? "hutang" : "piutang"}</strong> dengan <strong>{deletingDebt?.person_name}</strong> sebesar <strong>{deletingDebt && formatCurrency(deletingDebt.amount)}</strong>?
+            <DialogTitle className="text-xl font-black">Hapus Catatan</DialogTitle>
+            <DialogDescription className="text-muted-foreground font-medium">
+              Apakah Anda yakin ingin menghapus catatan utang/piutang ini? Data akan hilang dan tidak dapat dikembalikan.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeletingDebt(null)} disabled={isDeleting}>Batal</Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
-              {isDeleting ? "Menghapus..." : "Hapus"}
+          <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setDeleteDebtId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
+              {isDeleting ? "Menghapus..." : "Hapus Catatan"}
             </Button>
           </DialogFooter>
         </DialogContent>

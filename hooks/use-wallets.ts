@@ -6,7 +6,7 @@ export interface Wallet {
   id: string;
   name: string;
   icon: string;
-  type: "cash" | "bank" | "emoney" | "credit";
+  type: "cash" | "bank" | "emoney" | "credit" | "investment" | "crypto" | "debit";
   color: string;
   balance: number;
 }

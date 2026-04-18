@@ -40,6 +40,9 @@ const WALLET_TYPES = [
   { value: "bank", label: "Rekening Bank" },
   { value: "emoney", label: "E-Money" },
   { value: "credit", label: "Kartu Kredit" },
+  { value: "investment", label: "Saham / Investasi" },
+  { value: "crypto", label: "Crypto Asset" },
+  { value: "debit", label: "Kartu Debit" },
 ];
 
 interface WalletFormModalProps {

@@ -13,6 +13,7 @@ import { DashboardSummaryCard } from "@/components/dashboard-summary-card";
 import { DashboardProgressCard } from "@/components/dashboard-progress-card";
 import { DashboardCalendarCard } from "@/components/dashboard-calendar-card";
 import { DashboardRecentTx } from "@/components/dashboard-recent-tx";
+import { GoalsSnapshot } from "@/components/goals-snapshot";
 import { createClient } from "@/lib/supabase/client";
 
 export default function DashboardPage() {
@@ -185,6 +186,13 @@ export default function DashboardPage() {
                   transactions={transactions}
                   onSeeAll={() => setActiveTab("budget")}
                 />
+              </div>
+
+              <div className="bg-white dark:bg-card rounded-[2rem] border border-border/40 p-5 shadow-sm">
+                <div className="mb-4">
+                  <h3 className="font-bold text-foreground">Sekilas Target</h3>
+                </div>
+                <GoalsSnapshot />
               </div>
 
               <DashboardRecentTx transactions={transactions} />

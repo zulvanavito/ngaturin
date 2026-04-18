@@ -22,6 +22,7 @@ import {
   ChevronDown,
   Sparkles,
   LifeBuoy,
+  Target,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -40,6 +41,7 @@ const mainLinks = [
   { name: "Smart Analytics", href: "/dashboard/insights", icon: Sparkles },
   { name: "Kategori", href: "/dashboard/categories", icon: Tag },
   { name: "Dompet", href: "/dashboard/wallets", icon: Wallet },
+  { name: "Goals", href: "/dashboard/goals", icon: Target },
   { name: "Tagihan", href: "/dashboard/bills", icon: Bell },
   { name: "Utang/Piutang", href: "/dashboard/debts", icon: HandCoins },
   { name: "Investasi", href: "/dashboard/investments", icon: TrendingUp },

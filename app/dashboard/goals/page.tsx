@@ -82,7 +82,7 @@ export default function GoalsPage() {
       } else {
         throw new Error();
       }
-    } catch (err) {
+    } catch {
       showToast("error", "Gagal menghapus target.");
     }
   };

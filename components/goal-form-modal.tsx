@@ -108,8 +108,8 @@ export function GoalFormModal({ open, onClose, onSuccess, goal }: GoalFormModalP
 
       onSuccess();
       onClose();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Terjadi kesalahan sistem.");
     } finally {
       setIsLoading(false);
     }

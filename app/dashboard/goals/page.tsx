@@ -11,6 +11,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
 import { GoalCard, Goal } from "@/components/goal-card";
 import { GoalFormModal } from "@/components/goal-form-modal";
 import { GoalDepositModal } from "@/components/goal-deposit-modal";
@@ -24,6 +27,8 @@ export default function GoalsPage() {
   const [isDepositOpen, setIsDepositOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+  const [deleteGoalId, setDeleteGoalId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { showToast } = useToast();
 
   const fetchGoals = useCallback(async () => {
@@ -71,11 +76,11 @@ export default function GoalsPage() {
     setIsDetailOpen(true);
   };
 
-  const handleDelete = async (goalId: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus target ini?")) return;
-
+  const handleDelete = async () => {
+    if (!deleteGoalId) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/goals/${goalId}`, { method: "DELETE" });
+      const res = await fetch(`/api/goals/${deleteGoalId}`, { method: "DELETE" });
       if (res.ok) {
         showToast("success", "Target berhasil dihapus.");
         fetchGoals();
@@ -84,6 +89,9 @@ export default function GoalsPage() {
       }
     } catch {
       showToast("error", "Gagal menghapus target.");
+    } finally {
+      setIsDeleting(false);
+      setDeleteGoalId(null);
     }
   };
 
@@ -224,7 +232,7 @@ export default function GoalsPage() {
                 goal={goal}
                 onDeposit={handleDeposit}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                onDelete={(goalId) => setDeleteGoalId(goalId)}
                 onDetail={handleDetail}
               />
             ))}
@@ -251,6 +259,26 @@ export default function GoalsPage() {
           </Button>
         </Link>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteGoalId} onOpenChange={() => setDeleteGoalId(null)}>
+        <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black">Hapus Target</DialogTitle>
+            <DialogDescription className="text-muted-foreground font-medium">
+              Apakah Anda yakin ingin menghapus target ini? Seluruh progres tabungan yang tercatat akan hilang dan tidak dapat dikembalikan.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setDeleteGoalId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
+              {isDeleting ? "Menghapus..." : "Hapus Target"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -2,253 +2,246 @@
 
 import { useState } from "react";
 import { useCategories } from "@/hooks/use-categories";
+import { Plus, ChevronLeft, Loader2, Tag, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, Plus, Tag, Loader2, X, Check } from "lucide-react";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
+import { CategoryCard, type Category } from "@/components/category-card";
+import { CategoryFormModal } from "@/components/category-form-modal";
+import { CategoryIcon, SUGGESTED_CATEGORIES } from "@/components/category-icon";
 import { useToast } from "@/lib/toast-context";
-import { LoadingState } from "@/components/loading-state";
-
-const COMMON_ICONS = ["🍔","🚗","🛍️","📄","🎬","🏠","💰","📈","📦","✈️","🏥","📚","🎮","☕","🎁","💼","🔧","🐾","⚽","🎵"];
 
 export default function CategoriesPage() {
   const { categories, loading, refetch } = useCategories();
-  const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isQuickSetupLoading, setIsQuickSetupLoading] = useState(false);
   const { showToast } = useToast();
 
-  // Form state
-  const [formName, setFormName] = useState("");
-  const [formIcon, setFormIcon] = useState("📦");
-  const [formType, setFormType] = useState("expense");
-
-  const resetForm = () => {
-    setFormName("");
-    setFormIcon("📦");
-    setFormType("expense");
-    setError(null);
+  const handleCreate = () => {
+    setSelectedCategory(null);
+    setIsFormOpen(true);
   };
 
-  const startAdd = () => {
-    resetForm();
-    setEditingId(null);
-    setIsAdding(true);
-  };
-
-  const startEdit = (cat: { id: string; name: string; icon: string; type: string }) => {
-    setFormName(cat.name);
-    setFormIcon(cat.icon);
-    setFormType(cat.type);
-    setError(null);
-    setIsAdding(false);
-    setEditingId(cat.id);
-  };
-
-  const handleSave = async () => {
-    if (!formName.trim()) { setError("Nama kategori tidak boleh kosong"); return; }
-    setSaving(true);
-    setError(null);
-    try {
-      const url = editingId ? `/api/categories/${editingId}` : "/api/categories";
-      const method = editingId ? "PUT" : "POST";
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: formName.trim(), icon: formIcon, type: formType }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      await refetch();
-      setIsAdding(false);
-      setEditingId(null);
-      resetForm();
-      showToast("success", editingId ? `Kategori "${formName}" berhasil diperbarui!` : `Kategori "${formName}" berhasil ditambahkan!`);
-    } catch (err: any) {
-      setError(err.message);
-      showToast("error", err.message);
-    } finally {
-      setSaving(false);
-    }
+  const handleEdit = (category: Category) => {
+    setSelectedCategory(category);
+    setIsFormOpen(true);
   };
 
   const handleDelete = async () => {
     if (!deleteId) return;
     const catName = categories.find(c => c.id === deleteId)?.name || "Kategori";
-    setSaving(true);
+    setIsDeleting(true);
     try {
       const res = await fetch(`/api/categories/${deleteId}`, { method: "DELETE" });
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.error);
+      }
       await refetch();
       showToast("success", `Kategori "${catName}" berhasil dihapus.`);
-    } catch (err: any) {
-      setError(err.message);
-      showToast("error", err.message);
+    } catch (err: unknown) {
+      showToast("error", err instanceof Error ? err.message : "Gagal menghapus kategori.");
     } finally {
-      setSaving(false);
+      setIsDeleting(false);
       setDeleteId(null);
     }
   };
 
-  const typeLabel: Record<string, { label: string; color: string }> = {
-    expense: { label: "Pengeluaran", color: "bg-expense/10 text-expense border-expense/20" },
-    income: { label: "Pemasukan", color: "bg-income/10 text-income border-income/20" },
-    all: { label: "Keduanya", color: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
+  const handleQuickSetup = async () => {
+    setIsQuickSetupLoading(true);
+    try {
+      let added = 0;
+      for (const cat of SUGGESTED_CATEGORIES) {
+        const res = await fetch("/api/categories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(cat),
+        });
+        if (res.ok) added++;
+      }
+      await refetch();
+      showToast("success", `${added} kategori berhasil ditambahkan!`);
+    } catch {
+      showToast("error", "Gagal menambahkan kategori.");
+    } finally {
+      setIsQuickSetupLoading(false);
+    }
   };
 
-  return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {/* Back + Header */}
-      <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ChevronLeft className="w-4 h-4" /> Kembali ke Dashboard
-      </Link>
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        <p className="text-sm font-bold text-muted-foreground animate-pulse">Memuat kategori Anda...</p>
+      </div>
+    );
+  }
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Kategori Kustom</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Kelola kategori untuk transaksi dan anggaran Anda.
-          </p>
+  return (
+    <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+      <CategoryFormModal
+        open={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSuccess={() => { refetch(); showToast("success", "Kategori berhasil disimpan!"); }}
+        category={selectedCategory}
+      />
+
+      {/* Hero Section */}
+      <div className="space-y-6">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Kembali ke Dashboard
+        </Link>
+
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div className="space-y-2">
+            <h1 className="text-[55px] sm:text-[72px] font-black tracking-tighter leading-[0.85] text-foreground">
+              Atur Kategori.
+            </h1>
+            <p className="text-lg font-bold text-muted-foreground max-w-md">
+              Kelola label untuk transaksi dan anggaran Anda agar lebih terorganisir.
+            </p>
+          </div>
+
+          <Button
+            onClick={handleCreate}
+            className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg h-16 px-10 shadow-2xl transition-all hover:scale-105 active:scale-95 group"
+          >
+            <Plus className="w-6 h-6 mr-3 stroke-[3px]" /> Buat Kategori
+          </Button>
         </div>
-        <Button onClick={startAdd} className="bg-primary hover:brightness-110 text-primary-foreground gap-2 h-11 rounded-xl shadow-md">
-          <Plus className="w-4 h-4" />
-          Tambah
-        </Button>
       </div>
 
-      {/* Add / Edit Form */}
-      {(isAdding || editingId) && (
-        <Card className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2rem] animate-in fade-in slide-in-from-top-4 overflow-hidden">
-          <CardHeader className="pb-3 bg-muted/20">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">{editingId ? "Edit Kategori" : "Kategori Baru"}</CardTitle>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setIsAdding(false); setEditingId(null); resetForm(); }}>
-                <X className="w-4 h-4" />
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+        <div className="bg-primary/5 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-primary/10">
+          <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-primary/60 mb-2">Total Kategori</p>
+          <span className="text-lg sm:text-xl lg:text-2xl font-black text-foreground">{categories.length}</span>
+        </div>
+        <div className="bg-expense/5 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-expense/10">
+          <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-expense/60 mb-2">Pengeluaran</p>
+          <span className="text-lg sm:text-xl lg:text-2xl font-black text-foreground">
+            {categories.filter(c => c.type === "expense" || c.type === "all").length}
+          </span>
+        </div>
+        <div className="bg-income/5 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-income/10">
+          <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-income/60 mb-2">Pemasukan</p>
+          <span className="text-lg sm:text-xl lg:text-2xl font-black text-foreground">
+            {categories.filter(c => c.type === "income" || c.type === "all").length}
+          </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-black tracking-tight flex items-center gap-3">
+            <Tag className="w-6 h-6 text-primary" /> Daftar Kategori
+          </h2>
+        </div>
+
+        {categories.length === 0 ? (
+          <div className="space-y-8">
+            {/* Empty State */}
+            <div className="bg-muted/10 border-2 border-dashed border-border/40 rounded-[2rem] sm:rounded-[3rem] p-10 sm:p-16 text-center space-y-6">
+              <div className="w-20 h-20 bg-muted/20 rounded-3xl flex items-center justify-center mx-auto">
+                <Tag className="w-10 h-10 text-muted-foreground/40" />
+              </div>
+              <div>
+                <p className="text-xl font-bold text-foreground">Belum ada kategori</p>
+                <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
+                  Buat kategori secara manual atau gunakan Setup Cepat di bawah untuk memulai.
+                </p>
+              </div>
+              <Button
+                onClick={handleCreate}
+                variant="outline"
+                className="rounded-full h-12 px-8 font-bold border-2 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all"
+              >
+                Buat Kategori Pertama
               </Button>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Icon Picker */}
-            <div className="space-y-2">
-              <Label>Ikon</Label>
-              <div className="flex flex-wrap gap-2">
-                {COMMON_ICONS.map((emoji) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => setFormIcon(emoji)}
-                    className={`text-xl w-10 h-10 rounded-xl border transition-all ${formIcon === emoji ? "border-primary bg-primary/10 scale-110" : "border-border/40 hover:border-primary/40 bg-muted/30"}`}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground">Ikon terpilih: <span className="text-lg">{formIcon}</span></p>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="cat-name">Nama Kategori</Label>
-                <Input
-                  id="cat-name"
-                  placeholder="Contoh: Olahraga"
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cat-type">Berlaku Untuk</Label>
-                <Select value={formType} onValueChange={setFormType}>
-                  <SelectTrigger id="cat-type" className="h-10">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="expense">Pengeluaran</SelectItem>
-                    <SelectItem value="income">Pemasukan</SelectItem>
-                    <SelectItem value="all">Keduanya</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {error && <p className="text-sm text-destructive bg-destructive/10 rounded-lg p-3">{error}</p>}
-
-            <Button onClick={handleSave} disabled={saving || !formName.trim()} className="w-full bg-primary hover:brightness-110 text-primary-foreground shadow-md h-11 rounded-xl">
-              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
-              {saving ? "Menyimpan..." : editingId ? "Simpan Perubahan" : "Tambah Kategori"}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Category List */}
-      <Card className="border border-border/40 bg-white dark:bg-card rounded-[2rem] overflow-hidden shadow-sm">
-        <CardHeader className="bg-muted/30 pb-4">
-          <div className="flex items-center gap-2">
-            <Tag className="w-4 h-4 text-primary" />
-            <CardTitle className="text-base">Daftar Kategori</CardTitle>
-            <Badge variant="secondary" className="ml-auto">{categories.length}</Badge>
-          </div>
-          <CardDescription>Kategori ini tersedia di form transaksi dan anggaran</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          {loading ? (
-            <LoadingState message="Memuat kategori..." className="min-h-[200px]" />
-          ) : categories.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground text-sm">
-              <Tag className="w-8 h-8 mx-auto mb-3 opacity-20" />
-              <p>Belum ada kategori. Mulai tambahkan di atas!</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-border/30">
-              {categories.map((cat) => (
-                <div key={cat.id} className={`flex items-center gap-3 px-5 py-3.5 hover:bg-muted/30 transition-colors group ${editingId === cat.id ? "bg-primary/5" : ""}`}>
-                  <span className="text-2xl w-8 text-center">{cat.icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{cat.name}</p>
+            {/* Quick Setup Section */}
+            <div className="bg-black text-white rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-10 overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -mr-32 -mt-32" />
+              <div className="relative z-10 space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
+                    <Zap className="w-7 h-7 text-white" />
                   </div>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${typeLabel[cat.type]?.color}`}>
-                    {typeLabel[cat.type]?.label}
-                  </span>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => startEdit(cat)}>
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => setDeleteId(cat.id)}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black">Setup Cepat</h3>
+                    <p className="text-sm text-white/50 font-medium">Tambahkan {SUGGESTED_CATEGORIES.length} kategori populer dalam satu klik.</p>
                   </div>
                 </div>
-              ))}
+
+                {/* Suggested Preview */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                  {SUGGESTED_CATEGORIES.map((cat) => (
+                    <div key={cat.name} className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-white/5 border border-white/10">
+                      <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                        <CategoryIcon iconName={cat.icon} className="w-4 h-4 text-white/70" />
+                      </div>
+                      <span className="text-xs font-bold text-white/70 truncate">{cat.name}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <Button
+                  onClick={handleQuickSetup}
+                  disabled={isQuickSetupLoading}
+                  className="rounded-full h-14 px-10 bg-white text-black font-black text-base hover:bg-white/90 shadow-2xl active:scale-95 transition-all"
+                >
+                  {isQuickSetupLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-3 animate-spin" /> Memproses...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5 mr-3" /> Tambahkan Semua Sekarang
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            {categories.map(category => (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                onEdit={handleEdit}
+                onDelete={(id) => setDeleteId(id)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
           <DialogHeader>
-            <DialogTitle>Hapus Kategori</DialogTitle>
-            <DialogDescription>
-              Apakah Anda yakin ingin menghapus kategori ini? Transaksi yang sudah menggunakan kategori ini tidak akan terpengaruh, tapi kategori ini tidak akan tersedia lagi untuk transaksi baru.
+            <DialogTitle className="text-xl font-black">Hapus Kategori</DialogTitle>
+            <DialogDescription className="text-muted-foreground font-medium">
+              Apakah Anda yakin ingin menghapus kategori ini? Transaksi yang sudah menggunakan kategori ini tidak akan terpengaruh, tapi kategori ini tidak akan tersedia lagi untuk data baru.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteId(null)}>Batal</Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={saving}>
-              {saving ? "Menghapus..." : "Hapus"}
+          <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setDeleteId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
+              {isDeleting ? "Menghapus..." : "Hapus Kategori"}
             </Button>
           </DialogFooter>
         </DialogContent>

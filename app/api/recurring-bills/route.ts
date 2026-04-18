@@ -18,13 +18,22 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, amount, category, due_day } = await request.json();
+  const { name, amount, category, due_day, billing_cycle, plan_name, is_autopay } = await request.json();
   if (!name?.trim() || !amount || !due_day) {
     return NextResponse.json({ error: "Data tagihan tidak lengkap" }, { status: 400 });
   }
 
   const { data, error } = await supabase.from("recurring_bills")
-    .insert({ user_id: user.id, name: name.trim(), amount: Number(amount), category, due_day: Number(due_day) })
+    .insert({
+      user_id: user.id,
+      name: name.trim(),
+      amount: Number(amount),
+      category,
+      due_day: Number(due_day),
+      billing_cycle: billing_cycle || "monthly",
+      plan_name: plan_name?.trim() || null,
+      is_autopay: is_autopay ?? false,
+    })
     .select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data, { status: 201 });

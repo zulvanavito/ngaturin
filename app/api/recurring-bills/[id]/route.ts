@@ -10,9 +10,18 @@ export async function PUT(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, amount, category, due_day, is_active } = await request.json();
+  const { name, amount, category, due_day, is_active, billing_cycle, plan_name, is_autopay } = await request.json();
   const { data, error } = await supabase.from("recurring_bills")
-    .update({ name, amount: Number(amount), category, due_day: Number(due_day), is_active })
+    .update({
+      name,
+      amount: Number(amount),
+      category,
+      due_day: Number(due_day),
+      is_active,
+      billing_cycle: billing_cycle || "monthly",
+      plan_name: plan_name?.trim() || null,
+      is_autopay: is_autopay ?? false,
+    })
     .eq("id", id).eq("user_id", user.id)
     .select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

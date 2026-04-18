@@ -16,7 +16,7 @@ export default function DashboardLayout({
           </div>
           <footer className="py-6 mt-auto">
             <div className="max-w-6xl mx-auto px-6 text-center text-xs text-muted-foreground">
-              &copy; 2026 Budggt. - Manage your finances beautifully.
+              &copy; 2026 Ngaturin. - Manage your finances beautifully.
             </div>
           </footer>
         </main>

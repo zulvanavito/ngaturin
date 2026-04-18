@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, ChevronLeft, Loader2, ArrowLeftRight, Wallet as WalletIcon } from "lucide-react";
+import { Plus, ChevronLeft, Loader2, ArrowLeftRight, Wallet as WalletIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -30,6 +30,7 @@ export default function WalletsPage() {
   const [selectedWallet, setSelectedWallet] = useState<WalletData | null>(null);
   const [deleteWalletId, setDeleteWalletId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const { showToast } = useToast();
 
   const fetchTransactions = useCallback(async () => {
@@ -224,17 +225,33 @@ export default function WalletsPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            {wallets.map(wallet => (
-              <WalletCard
-                key={wallet.id}
-                wallet={wallet as WalletData}
-                recentTransactions={getRecentTransactions(wallet.id)}
-                onEdit={handleEdit}
-                onDelete={(id) => setDeleteWalletId(id)}
-                onViewHistory={handleViewHistory}
-              />
-            ))}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+              {wallets.slice(0, isExpanded ? wallets.length : 6).map(wallet => (
+                <WalletCard
+                  key={wallet.id}
+                  wallet={wallet as WalletData}
+                  recentTransactions={getRecentTransactions(wallet.id)}
+                  onEdit={handleEdit}
+                  onDelete={(id) => setDeleteWalletId(id)}
+                  onViewHistory={handleViewHistory}
+                />
+              ))}
+            </div>
+
+            {wallets.length > 6 && (
+              <Button 
+                variant="ghost" 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="w-full h-11 rounded-2xl border border-dashed border-border/40 text-muted-foreground font-bold hover:bg-muted/5 transition-all text-xs"
+              >
+                {isExpanded ? (
+                  <><ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan</>
+                ) : (
+                  <><ChevronDown className="w-4 h-4 mr-2" /> Lihat {wallets.length - 6} Dompet Lainnya</>
+                )}
+              </Button>
+            )}
           </div>
         )}
       </div>

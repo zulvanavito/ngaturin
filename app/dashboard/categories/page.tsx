@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCategories } from "@/hooks/use-categories";
-import { Plus, ChevronLeft, Loader2, Tag, Sparkles, Zap } from "lucide-react";
+import { Plus, ChevronLeft, Loader2, Tag, Sparkles, Zap, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -20,6 +20,7 @@ export default function CategoriesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isQuickSetupLoading, setIsQuickSetupLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const { showToast } = useToast();
 
   const handleCreate = () => {
@@ -214,15 +215,31 @@ export default function CategoriesPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            {categories.map(category => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-                onEdit={handleEdit}
-                onDelete={(id) => setDeleteId(id)}
-              />
-            ))}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+              {categories.slice(0, isExpanded ? categories.length : 6).map(category => (
+                <CategoryCard
+                  key={category.id}
+                  category={category}
+                  onEdit={handleEdit}
+                  onDelete={(id) => setDeleteId(id)}
+                />
+              ))}
+            </div>
+            
+            {categories.length > 6 && (
+              <Button 
+                variant="ghost" 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="w-full h-11 rounded-2xl border border-dashed border-border/40 text-muted-foreground font-bold hover:bg-muted/5 transition-all text-xs"
+              >
+                {isExpanded ? (
+                  <><ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan</>
+                ) : (
+                  <><ChevronDown className="w-4 h-4 mr-2" /> Lihat {categories.length - 6} Kategori Lainnya</>
+                )}
+              </Button>
+            )}
           </div>
         )}
       </div>

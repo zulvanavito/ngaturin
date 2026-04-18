@@ -8,6 +8,8 @@ import {
   Loader2,
   Sparkles,
   AlertCircle,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -29,6 +31,7 @@ export default function GoalsPage() {
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [deleteGoalId, setDeleteGoalId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const { showToast } = useToast();
 
   const fetchGoals = useCallback(async () => {
@@ -225,17 +228,33 @@ export default function GoalsPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {goals.map((goal) => (
-              <GoalCard
-                key={goal.id}
-                goal={goal}
-                onDeposit={handleDeposit}
-                onEdit={handleEdit}
-                onDelete={(goalId) => setDeleteGoalId(goalId)}
-                onDetail={handleDetail}
-              />
-            ))}
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+              {goals.slice(0, isExpanded ? goals.length : 4).map((goal) => (
+                <GoalCard
+                  key={goal.id}
+                  goal={goal}
+                  onDeposit={handleDeposit}
+                  onEdit={handleEdit}
+                  onDelete={(goalId) => setDeleteGoalId(goalId)}
+                  onDetail={handleDetail}
+                />
+              ))}
+            </div>
+
+            {goals.length > 4 && (
+              <Button 
+                variant="ghost" 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="w-full h-11 rounded-2xl border border-dashed border-border/40 text-muted-foreground font-bold hover:bg-muted/5 transition-all text-xs"
+              >
+                {isExpanded ? (
+                  <><ChevronUp className="w-4 h-4 mr-2" /> Sembunyikan</>
+                ) : (
+                  <><ChevronDown className="w-4 h-4 mr-2" /> Lihat {goals.length - 4} Target Lainnya</>
+                )}
+              </Button>
+            )}
           </div>
         )}
       </div>

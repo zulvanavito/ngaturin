@@ -40,6 +40,7 @@
     --success: 149 88% 16%; /* #054d28 */
     --income: 149 88% 16%;
     --expense: 358 64% 51%;
+    --piutang: 217 91% 25%; /* A deep professional blue */
   }
 
   .dark {
@@ -78,6 +79,7 @@
     --success: 149 88% 46%;
     --income: 149 88% 46%;
     --expense: 358 64% 61%;
+    --piutang: 217 91% 60%;
   }
 }
 

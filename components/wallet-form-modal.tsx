@@ -178,6 +178,8 @@ export function WalletFormModal({ open, onClose, onSuccess, wallet }: WalletForm
                 <button
                   key={c}
                   type="button"
+                  title={`Warna ${c}`}
+                  aria-label={`Pilih warna ${c}`}
                   onClick={() => setColor(c)}
                   className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
                     color === c ? "border-foreground scale-125 shadow-lg" : "border-transparent hover:scale-110"

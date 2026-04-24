@@ -11,6 +11,7 @@ import {
 import { CategoryCard, type Category } from "@/components/category-card";
 import { CategoryFormModal } from "@/components/category-form-modal";
 import { CategoryIcon, SUGGESTED_CATEGORIES } from "@/components/category-icon";
+import { CategoryCardSkeleton } from "@/components/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 export default function CategoriesPage() {
@@ -76,21 +77,33 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        <p className="text-sm font-bold text-muted-foreground animate-pulse">Memuat kategori Anda...</p>
+      <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+        <div className="space-y-6">
+          <div className="w-40 h-4 bg-muted animate-pulse rounded"></div>
+          <div className="w-64 h-12 bg-muted animate-pulse rounded"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          <CategoryCardSkeleton />
+          <CategoryCardSkeleton />
+          <CategoryCardSkeleton />
+          <CategoryCardSkeleton />
+          <CategoryCardSkeleton />
+          <CategoryCardSkeleton />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
-      <CategoryFormModal
-        open={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSuccess={() => { refetch(); showToast("success", "Kategori berhasil disimpan!"); }}
-        category={selectedCategory}
-      />
+      {isFormOpen && (
+        <CategoryFormModal
+          open={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+          onSuccess={() => { refetch(); showToast("success", "Kategori berhasil disimpan!"); }}
+          category={selectedCategory}
+        />
+      )}
 
       {/* Hero Section */}
       <div className="space-y-6">
@@ -245,24 +258,26 @@ export default function CategoriesPage() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-black">Hapus Kategori</DialogTitle>
-            <DialogDescription className="text-muted-foreground font-medium">
-              Apakah Anda yakin ingin menghapus kategori ini? Transaksi yang sudah menggunakan kategori ini tidak akan terpengaruh, tapi kategori ini tidak akan tersedia lagi untuk data baru.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
-            <Button variant="ghost" onClick={() => setDeleteId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
-              Batal
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
-              {isDeleting ? "Menghapus..." : "Hapus Kategori"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {deleteId && (
+        <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+          <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-black">Hapus Kategori</DialogTitle>
+              <DialogDescription className="text-muted-foreground font-medium">
+                Apakah Anda yakin ingin menghapus kategori ini? Transaksi yang sudah menggunakan kategori ini tidak akan terpengaruh, tapi kategori ini tidak akan tersedia lagi untuk data baru.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
+              <Button variant="ghost" onClick={() => setDeleteId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
+                Batal
+              </Button>
+              <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
+                {isDeleting ? "Menghapus..." : "Hapus Kategori"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

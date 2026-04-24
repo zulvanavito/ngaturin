@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ArrowUpRight, ArrowDownLeft, ArrowLeftRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,12 +8,12 @@ import {
 } from "@/components/ui/dialog";
 import { CategoryIcon } from "@/components/category-icon";
 import { type WalletData, type WalletTransaction } from "@/components/wallet-card";
+import { TransactionRowSkeleton } from "@/components/skeletons";
 
 interface WalletHistoryModalProps {
   open: boolean;
   onClose: () => void;
   wallet: WalletData | null;
-  transactions: WalletTransaction[];
 }
 
 const formatCurrency = (amount: number) =>
@@ -23,7 +23,33 @@ const formatCurrency = (amount: number) =>
     minimumFractionDigits: 0,
   }).format(amount);
 
-export function WalletHistoryModal({ open, onClose, wallet, transactions }: WalletHistoryModalProps) {
+export function WalletHistoryModal({ open, onClose, wallet }: WalletHistoryModalProps) {
+  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchHistory = useCallback(async (walletId: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/transactions?wallet_id=${walletId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setTransactions(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch wallet transactions:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (open && wallet) {
+      fetchHistory(wallet.id);
+    } else if (!open) {
+      setTransactions([]); // Clear when closed
+    }
+  }, [open, wallet, fetchHistory]);
+
   if (!wallet) return null;
 
   const stats = useMemo(() => {
@@ -91,7 +117,14 @@ export function WalletHistoryModal({ open, onClose, wallet, transactions }: Wall
         <div className="px-6 sm:px-8 pb-6 sm:pb-8 overflow-y-auto custom-scrollbar max-h-[45vh]">
           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-3  pt-2">Seluruh Riwayat Transaksi</p>
 
-          {transactions.length === 0 ? (
+          {loading ? (
+            <div className="space-y-2">
+              <TransactionRowSkeleton />
+              <TransactionRowSkeleton />
+              <TransactionRowSkeleton />
+              <TransactionRowSkeleton />
+            </div>
+          ) : transactions.length === 0 ? (
             <div className="py-10 text-center">
               <p className="text-sm text-muted-foreground/50 font-medium">Belum ada transaksi di dompet ini.</p>
             </div>

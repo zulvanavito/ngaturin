@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, ChevronLeft, Loader2, TrendingDown, TrendingUp, HandCoins, Users, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, ChevronLeft, TrendingDown, TrendingUp, HandCoins, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -12,6 +12,7 @@ import { DebtFormModal } from "@/components/debt-form-modal";
 import { DebtPaymentModal } from "@/components/debt-payment-modal";
 import { DebtUnsettleModal } from "@/components/debt-unsettle-modal";
 import { DebtSettleConfirmationModal } from "@/components/debt-settle-confirmation-modal";
+import { DebtCardSkeleton } from "@/components/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 const formatCurrency = (amount: number) =>
@@ -181,9 +182,21 @@ export default function DebtsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        <p className="text-sm font-bold text-muted-foreground animate-pulse">Memuat catatan Anda...</p>
+      <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+        <div className="space-y-6">
+          <div className="w-40 h-4 bg-muted animate-pulse rounded"></div>
+          <div className="flex flex-col lg:flex-row justify-between gap-8">
+            <div className="space-y-2">
+              <div className="w-64 h-16 bg-muted animate-pulse rounded"></div>
+              <div className="w-96 h-6 bg-muted animate-pulse rounded"></div>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <DebtCardSkeleton />
+          <DebtCardSkeleton />
+          <DebtCardSkeleton />
+        </div>
       </div>
     );
   }
@@ -191,30 +204,38 @@ export default function DebtsPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
       {/* Modals */}
-      <DebtFormModal
-        open={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSuccess={handleFormSuccess}
-        debt={selectedDebt}
-      />
-      <DebtPaymentModal
-        open={isPaymentOpen}
-        onClose={() => setIsPaymentOpen(false)}
-        onSuccess={handlePaymentSuccess}
-        debt={selectedDebt}
-      />
-      <DebtUnsettleModal
-        open={isUnsettleOpen}
-        onClose={() => setIsUnsettleOpen(false)}
-        onSuccess={handleUnsettleSuccess}
-        debt={selectedDebt}
-      />
-      <DebtSettleConfirmationModal
-        open={isSettleConfirmOpen}
-        onClose={() => setIsSettleConfirmOpen(false)}
-        onSuccess={handleSettleConfirmSuccess}
-        debt={selectedDebt}
-      />
+      {isFormOpen && (
+        <DebtFormModal
+          open={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+          onSuccess={handleFormSuccess}
+          debt={selectedDebt}
+        />
+      )}
+      {isPaymentOpen && (
+        <DebtPaymentModal
+          open={isPaymentOpen}
+          onClose={() => setIsPaymentOpen(false)}
+          onSuccess={handlePaymentSuccess}
+          debt={selectedDebt}
+        />
+      )}
+      {isUnsettleOpen && (
+        <DebtUnsettleModal
+          open={isUnsettleOpen}
+          onClose={() => setIsUnsettleOpen(false)}
+          onSuccess={handleUnsettleSuccess}
+          debt={selectedDebt}
+        />
+      )}
+      {isSettleConfirmOpen && (
+        <DebtSettleConfirmationModal
+          open={isSettleConfirmOpen}
+          onClose={() => setIsSettleConfirmOpen(false)}
+          onSuccess={handleSettleConfirmSuccess}
+          debt={selectedDebt}
+        />
+      )}
 
       {/* Hero Section */}
       <div className="space-y-6">

@@ -24,7 +24,7 @@ interface DebtFormModalProps {
 }
 
 export function DebtFormModal({ open, onClose, onSuccess, debt }: DebtFormModalProps) {
-  const { wallets } = useWallets();
+  const { wallets } = useWallets(false);
   const [type, setType] = useState<"hutang" | "piutang">("hutang");
   const [personName, setPersonName] = useState("");
   const [amount, setAmount] = useState("");

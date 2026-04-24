@@ -55,19 +55,18 @@ export function DebtUnsettleModal({ open, onClose, onSuccess, debt }: DebtUnsett
     const fetchRelated = async () => {
       setIsFetching(true);
       try {
-        const res = await fetch("/api/transactions");
-        if (!res.ok) throw new Error();
-        const all: Transaction[] = await res.json();
-
         const categoryMatch = debt.type === "hutang" ? "Hutang" : "Piutang";
         const paymentTypeMatch = debt.type === "hutang" ? "expense" : "income";
-        const personLower = debt.person_name.toLowerCase();
+        
+        const params = new URLSearchParams({
+          category: categoryMatch,
+          type: paymentTypeMatch,
+          keyword: debt.person_name
+        });
 
-        const related = all.filter(tx =>
-          tx.category === categoryMatch &&
-          tx.type === paymentTypeMatch &&
-          tx.description.toLowerCase().includes(personLower)
-        );
+        const res = await fetch(`/api/transactions?${params.toString()}`);
+        if (!res.ok) throw new Error();
+        const related: Transaction[] = await res.json();
 
         setTransactions(related);
       } catch {

@@ -301,7 +301,8 @@ export default function Home() {
                 alt="Ngaturin Logo"
                 width={28}
                 height={28}
-                className="object-contain drop-shadow transition-transform group-hover:scale-105 w-auto h-auto"
+                className="object-contain drop-shadow transition-transform group-hover:scale-105"
+                style={{ width: "auto", height: "auto" }}
               />
               <span className="font-extrabold text-lg tracking-tight text-foreground hidden sm:block">
                 Ngaturin
@@ -678,7 +679,8 @@ export default function Home() {
                     alt="Ngaturin Logo"
                     width={28}
                     height={28}
-                    className="rounded-lg object-contain drop-shadow transition-transform group-hover:scale-105 w-auto h-auto"
+                    className="rounded-lg object-contain drop-shadow transition-transform group-hover:scale-105"
+                    style={{ width: "auto", height: "auto" }}
                   />
                   <span className="font-extrabold text-xl tracking-tight text-foreground">
                     Ngaturin

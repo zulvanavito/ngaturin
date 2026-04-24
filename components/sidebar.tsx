@@ -24,6 +24,7 @@ import {
   LifeBuoy,
   Target,
   PieChart,
+  History,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -39,6 +40,7 @@ import { useState } from "react";
 
 const mainLinks = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Transaksi", href: "/dashboard/transactions", icon: History },
   { name: "Smart Analytics", href: "/dashboard/insights", icon: Sparkles },
   { name: "Kategori", href: "/dashboard/categories", icon: Tag },
   { name: "Dompet", href: "/dashboard/wallets", icon: Wallet },
@@ -83,7 +85,8 @@ export function Sidebar() {
           alt="Ngaturin Logo"
           width={32}
           height={32}
-          className="rounded-xl object-contain w-auto h-auto"
+          className="rounded-xl object-contain"
+          style={{ width: "auto", height: "auto" }}
         />
         <span className="font-bold text-xl tracking-tight text-foreground">
           Ngaturin
@@ -224,7 +227,8 @@ export function MobileHeader() {
           alt="Ngaturin Logo"
           width={28}
           height={28}
-          className="rounded-xl object-contain w-auto h-auto"
+          className="rounded-xl object-contain"
+          style={{ width: "auto", height: "auto" }}
         />
         <span className="font-bold text-lg tracking-tight">Ngaturin</span>
       </Link>
@@ -251,7 +255,8 @@ export function MobileHeader() {
                   alt="Ngaturin Logo"
                   width={32}
                   height={32}
-                  className="rounded-xl object-contain w-auto h-auto"
+                  className="rounded-xl object-contain"
+                  style={{ width: "auto", height: "auto" }}
                 />
                 <span className="font-bold text-xl tracking-tight text-foreground">
                   Ngaturin

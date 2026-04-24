@@ -134,9 +134,9 @@ export function TransactionTable({ transactions, onRefresh }: TransactionTablePr
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl">
-              <DropdownMenuItem onClick={() => exportToCSV(transactions)} className="text-xs cursor-pointer">Export CSV</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => exportToExcel(transactions)} className="text-xs cursor-pointer">Export Excel</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => exportToPDF(transactions)} className="text-xs cursor-pointer">Export PDF</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportToCSV(transactions, "ngaturin-transaksi")} className="text-xs cursor-pointer">Export CSV</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportToExcel(transactions, "ngaturin-transaksi")} className="text-xs cursor-pointer">Export Excel</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportToPDF(transactions, "ngaturin-transaksi")} className="text-xs cursor-pointer">Export PDF</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

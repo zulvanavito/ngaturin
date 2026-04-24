@@ -5,6 +5,10 @@ import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { PricingCard } from "@/components/pricing-card";
+import { PricingLifetimeCard } from "@/components/pricing-lifetime-card";
+import { PricingToggle } from "@/components/pricing-toggle";
+import { pricingTiers } from "@/app/pricing/page";
 import {
   ArrowRight,
   TrendingUp,
@@ -290,6 +294,11 @@ const FAQSection = () => {
 };
 
 export default function Home() {
+  const [isYearlyPricing, setIsYearlyPricing] = useState(true);
+
+  const mainTiers = pricingTiers.filter(tier => tier.id !== "lifetime");
+  const lifetimeTier = pricingTiers.find(tier => tier.id === "lifetime");
+
   return (
     <main className="min-h-screen flex flex-col bg-background font-sans">
       <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none transition-all duration-300">
@@ -312,6 +321,7 @@ export default function Home() {
             <div className="hidden md:flex items-center gap-8">
               <Link href="#fitur" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Fitur</Link>
               <Link href="#komparasi" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Bagaimana Ini Bekerja</Link>
+              <Link href="#harga" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Harga</Link>
               <Link href="/blog" className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse shadow-sm" /> 
                 Blog
@@ -601,6 +611,35 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Pricing Section ─────────────────────────────────────────────── */}
+      <section id="harga" className="py-24 bg-muted/5 border-t border-border/10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-heading-sub md:text-heading-section font-black text-foreground mb-4">
+              Investasi Kecil. Dampak Besar.
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto text-body-md md:text-body-semibold">
+              Pilih paket yang sesuai dengan kebutuhanmu. Lebih murah dari segelas kopi, untuk keuangan yang lebih rapi selamanya.
+            </p>
+          </div>
+
+          {/* Toggle */}
+          <PricingToggle isYearly={isYearlyPricing} onToggle={setIsYearlyPricing} />
+
+          {/* Pricing Cards Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+            {mainTiers.map((tier) => (
+              <PricingCard key={tier.id} tier={tier} isYearly={isYearlyPricing} />
+            ))}
+          </div>
+
+          {/* Lifetime Horizontal Card */}
+          {lifetimeTier && (
+             <PricingLifetimeCard tier={lifetimeTier} />
+          )}
+        </div>
+      </section>
+
       {/* ── FAQ Section ─────────────────────────────────────────────────── */}
       <FAQSection />
 
@@ -697,6 +736,7 @@ export default function Home() {
                    <Link href="/auth/login" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Masuk</Link>
                    <Link href="/auth/sign-up" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Daftar</Link>
                    <Link href="#fitur" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Fitur</Link>
+                   <Link href="#harga" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Harga</Link>
                 </div>
                 <div className="flex flex-col gap-4">
                    <h5 className="font-extrabold text-foreground mb-2">Legal</h5>

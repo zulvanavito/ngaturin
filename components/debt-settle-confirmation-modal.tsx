@@ -30,7 +30,7 @@ const formatCurrency = (amount: number) =>
   }).format(amount);
 
 export function DebtSettleConfirmationModal({ open, onClose, onSuccess, debt }: DebtSettleConfirmationModalProps) {
-  const { wallets } = useWallets();
+  const { wallets } = useWallets(false);
   const [syncToWallet, setSyncToWallet] = useState(true);
   const [walletId, setWalletId] = useState("");
   const [isLoading, setIsLoading] = useState(false);

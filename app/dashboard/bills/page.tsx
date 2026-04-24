@@ -26,6 +26,7 @@ import { BillCard, type RecurringBill } from "@/components/bill-card";
 import { BillFormModal } from "@/components/bill-form-modal";
 import { BillPaymentModal } from "@/components/bill-payment-modal";
 import { BillHeatmap } from "@/components/bill-heatmap";
+import { BillCardSkeleton } from "@/components/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 interface Transaction {
@@ -57,10 +58,15 @@ export default function BillsPage() {
   const { showToast } = useToast();
 
   const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
+      const year = viewDate.getFullYear();
+      const month = String(viewDate.getMonth() + 1).padStart(2, '0');
+      const monthStr = `${year}-${month}`;
+      
       const [billsRes, txRes] = await Promise.all([
         fetch("/api/recurring-bills", { cache: "no-store" }),
-        fetch("/api/transactions", { cache: "no-store" }),
+        fetch(`/api/transactions?type=expense&month=${monthStr}`, { cache: "no-store" }),
       ]);
       if (billsRes.ok) {
         const data = await billsRes.json();
@@ -79,7 +85,7 @@ export default function BillsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [viewDate]);
 
   useEffect(() => {
     fetchData();
@@ -214,11 +220,24 @@ export default function BillsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        <p className="text-sm font-bold text-muted-foreground animate-pulse">
-          Memuat tagihan Anda...
-        </p>
+      <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+        <div className="space-y-6">
+          <div className="w-40 h-4 bg-muted animate-pulse rounded"></div>
+          <div className="w-full h-48 bg-muted animate-pulse rounded-[3rem]"></div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-4">
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <BillCardSkeleton />
+               <BillCardSkeleton />
+               <BillCardSkeleton />
+               <BillCardSkeleton />
+             </div>
+          </div>
+          <div className="space-y-4">
+             <div className="w-full h-80 bg-muted animate-pulse rounded-[2.5rem]"></div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -226,18 +245,22 @@ export default function BillsPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
       {/* Modals */}
-      <BillFormModal
-        open={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSuccess={handleFormSuccess}
-        bill={selectedBill}
-      />
-      <BillPaymentModal
-        open={isPaymentOpen}
-        onClose={() => setIsPaymentOpen(false)}
-        onSuccess={handlePaymentSuccess}
-        bill={selectedBill}
-      />
+      {isFormOpen && (
+        <BillFormModal
+          open={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+          onSuccess={handleFormSuccess}
+          bill={selectedBill}
+        />
+      )}
+      {isPaymentOpen && (
+        <BillPaymentModal
+          open={isPaymentOpen}
+          onClose={() => setIsPaymentOpen(false)}
+          onSuccess={handlePaymentSuccess}
+          bill={selectedBill}
+        />
+      )}
 
       {/* Hero Section */}
       <div className="space-y-6">
@@ -517,46 +540,48 @@ export default function BillsPage() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={!!deletingBill}
-        onOpenChange={(o) => !o && setDeletingBill(null)}
-      >
-        <DialogContent className="sm:max-w-sm rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-black text-center md:text-left">
-              Hapus Tagihan
-            </DialogTitle>
-            <DialogDescription className="text-center md:text-left">
-              Tagihan <strong>{deletingBill?.name}</strong> akan dihapus secara
-              permanen.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex flex-col sm:flex-row gap-2">
-            <Button
-              variant="ghost"
-              onClick={() => setDeletingBill(null)}
-              disabled={isDeleting}
-              className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first"
-            >
-              Batal
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="rounded-2xl h-12 px-8 font-black shadow-lg active:scale-95 transition-all w-full sm:w-auto"
-            >
-              {isDeleting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menghapus...
-                </>
-              ) : (
-                "Hapus Permanen"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {deletingBill && (
+        <Dialog
+          open={!!deletingBill}
+          onOpenChange={(o) => !o && setDeletingBill(null)}
+        >
+          <DialogContent className="sm:max-w-sm rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-black text-center md:text-left">
+                Hapus Tagihan
+              </DialogTitle>
+              <DialogDescription className="text-center md:text-left">
+                Tagihan <strong>{deletingBill?.name}</strong> akan dihapus secara
+                permanen.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex flex-col sm:flex-row gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => setDeletingBill(null)}
+                disabled={isDeleting}
+                className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first"
+              >
+                Batal
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="rounded-2xl h-12 px-8 font-black shadow-lg active:scale-95 transition-all w-full sm:w-auto"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menghapus...
+                  </>
+                ) : (
+                  "Hapus Permanen"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

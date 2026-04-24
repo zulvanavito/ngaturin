@@ -11,14 +11,15 @@ export interface Wallet {
   balance: number;
 }
 
-export function useWallets() {
+export function useWallets(includeBalance: boolean = true) {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchWallets = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/wallets");
+      const url = includeBalance ? "/api/wallets" : "/api/wallets?balance=false";
+      const res = await fetch(url);
       const data = await res.json();
       if (res.ok) setWallets(data);
     } catch (err) {
@@ -26,7 +27,7 @@ export function useWallets() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [includeBalance]);
 
   useEffect(() => { fetchWallets(); }, [fetchWallets]);
 

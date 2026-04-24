@@ -12,8 +12,8 @@ import { WalletCard, type WalletData, type WalletTransaction } from "@/component
 import { WalletFormModal } from "@/components/wallet-form-modal";
 import { WalletTransferModal } from "@/components/wallet-transfer-modal";
 import { WalletHistoryModal } from "@/components/wallet-history-modal";
+import { WalletCardSkeleton } from "@/components/skeletons";
 import { useToast } from "@/lib/toast-context";
-
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -23,7 +23,6 @@ const formatCurrency = (amount: number) =>
 
 export default function WalletsPage() {
   const { wallets, loading, refetch } = useWallets();
-  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -32,32 +31,6 @@ export default function WalletsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const { showToast } = useToast();
-
-  const fetchTransactions = useCallback(async () => {
-    try {
-      const res = await fetch("/api/transactions");
-      if (res.ok) {
-        const data = await res.json();
-        setTransactions(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch transactions:", err);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
-
-  // Get transactions for a specific wallet
-  const getWalletTransactions = useCallback((walletId: string) => {
-    return transactions.filter(t => t.wallet_id === walletId);
-  }, [transactions]);
-
-  // Get 5 recent transactions for hover preview
-  const getRecentTransactions = useCallback((walletId: string) => {
-    return getWalletTransactions(walletId).slice(0, 5);
-  }, [getWalletTransactions]);
 
   const totalBalance = useMemo(() => {
     return wallets.reduce((sum, w) => sum + w.balance, 0);
@@ -80,13 +53,11 @@ export default function WalletsPage() {
 
   const handleFormSuccess = () => {
     refetch();
-    fetchTransactions();
     showToast("success", "Dompet berhasil disimpan!");
   };
 
   const handleTransferSuccess = () => {
     refetch();
-    fetchTransactions();
     showToast("success", "Transfer berhasil dilakukan!");
   };
 
@@ -112,9 +83,19 @@ export default function WalletsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        <p className="text-sm font-bold text-muted-foreground animate-pulse">Memuat dompet Anda...</p>
+      <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+        <div className="space-y-6">
+          <div className="w-40 h-4 bg-muted animate-pulse rounded"></div>
+          <div className="w-64 h-12 bg-muted animate-pulse rounded"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          <WalletCardSkeleton />
+          <WalletCardSkeleton />
+          <WalletCardSkeleton />
+          <WalletCardSkeleton />
+          <WalletCardSkeleton />
+          <WalletCardSkeleton />
+        </div>
       </div>
     );
   }
@@ -122,24 +103,29 @@ export default function WalletsPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
       {/* Modals */}
-      <WalletFormModal
-        open={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSuccess={handleFormSuccess}
-        wallet={selectedWallet}
-      />
-      <WalletTransferModal
-        open={isTransferOpen}
-        onClose={() => setIsTransferOpen(false)}
-        onSuccess={handleTransferSuccess}
-        wallets={wallets as WalletData[]}
-      />
-      <WalletHistoryModal
-        open={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-        wallet={selectedWallet}
-        transactions={selectedWallet ? getWalletTransactions(selectedWallet.id) : []}
-      />
+      {isFormOpen && (
+        <WalletFormModal
+          open={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+          onSuccess={handleFormSuccess}
+          wallet={selectedWallet}
+        />
+      )}
+      {isTransferOpen && (
+        <WalletTransferModal
+          open={isTransferOpen}
+          onClose={() => setIsTransferOpen(false)}
+          onSuccess={handleTransferSuccess}
+          wallets={wallets as WalletData[]}
+        />
+      )}
+      {isHistoryOpen && (
+        <WalletHistoryModal
+          open={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+          wallet={selectedWallet}
+        />
+      )}
 
       {/* Hero Section */}
       <div className="space-y-6">
@@ -231,7 +217,6 @@ export default function WalletsPage() {
                 <WalletCard
                   key={wallet.id}
                   wallet={wallet as WalletData}
-                  recentTransactions={getRecentTransactions(wallet.id)}
                   onEdit={handleEdit}
                   onDelete={(id) => setDeleteWalletId(id)}
                   onViewHistory={handleViewHistory}
@@ -257,24 +242,26 @@ export default function WalletsPage() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteWalletId} onOpenChange={() => setDeleteWalletId(null)}>
-        <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-black">Hapus Dompet</DialogTitle>
-            <DialogDescription className="text-muted-foreground font-medium">
-              Apakah Anda yakin ingin menghapus dompet <strong>{wallets.find(w => w.id === deleteWalletId)?.name}</strong>? Transaksi yang terhubung tidak akan ikut terhapus.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
-            <Button variant="ghost" onClick={() => setDeleteWalletId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
-              Batal
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
-              {isDeleting ? "Menghapus..." : "Hapus Dompet"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {deleteWalletId && (
+        <Dialog open={!!deleteWalletId} onOpenChange={() => setDeleteWalletId(null)}>
+          <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-black">Hapus Dompet</DialogTitle>
+              <DialogDescription className="text-muted-foreground font-medium">
+                Apakah Anda yakin ingin menghapus dompet <strong>{wallets.find(w => w.id === deleteWalletId)?.name}</strong>? Transaksi yang terhubung tidak akan ikut terhapus.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
+              <Button variant="ghost" onClick={() => setDeleteWalletId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
+                Batal
+              </Button>
+              <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
+                {isDeleting ? "Menghapus..." : "Hapus Dompet"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

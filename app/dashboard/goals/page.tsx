@@ -20,6 +20,7 @@ import { GoalCard, Goal } from "@/components/goal-card";
 import { GoalFormModal } from "@/components/goal-form-modal";
 import { GoalDepositModal } from "@/components/goal-deposit-modal";
 import { GoalDetailModal } from "@/components/goal-detail-modal";
+import { GoalCardSkeleton } from "@/components/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 export default function GoalsPage() {
@@ -100,34 +101,46 @@ export default function GoalsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        <p className="text-sm font-bold text-muted-foreground animate-pulse">
-          Menghubungkan ke impian Anda...
-        </p>
+      <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+        <div className="space-y-6">
+          <div className="w-40 h-4 bg-muted animate-pulse rounded"></div>
+          <div className="w-64 h-12 bg-muted animate-pulse rounded"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+          <GoalCardSkeleton />
+          <GoalCardSkeleton />
+          <GoalCardSkeleton />
+          <GoalCardSkeleton />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
-      <GoalFormModal
-        open={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSuccess={fetchGoals}
-        goal={selectedGoal}
-      />
-      <GoalDepositModal
-        open={isDepositOpen}
-        onClose={() => setIsDepositOpen(false)}
-        onSuccess={fetchGoals}
-        goal={selectedGoal}
-      />
-      <GoalDetailModal
-        open={isDetailOpen}
-        onClose={() => setIsDetailOpen(false)}
-        goal={selectedGoal}
-      />
+      {isFormOpen && (
+        <GoalFormModal
+          open={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+          onSuccess={fetchGoals}
+          goal={selectedGoal}
+        />
+      )}
+      {isDepositOpen && (
+        <GoalDepositModal
+          open={isDepositOpen}
+          onClose={() => setIsDepositOpen(false)}
+          onSuccess={fetchGoals}
+          goal={selectedGoal}
+        />
+      )}
+      {isDetailOpen && (
+        <GoalDetailModal
+          open={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+          goal={selectedGoal}
+        />
+      )}
 
       {/* Hero Section */}
       <div className="space-y-6">
@@ -280,24 +293,26 @@ export default function GoalsPage() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteGoalId} onOpenChange={() => setDeleteGoalId(null)}>
-        <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-black">Hapus Target</DialogTitle>
-            <DialogDescription className="text-muted-foreground font-medium">
-              Apakah Anda yakin ingin menghapus target ini? Seluruh progres tabungan yang tercatat akan hilang dan tidak dapat dikembalikan.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
-            <Button variant="ghost" onClick={() => setDeleteGoalId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
-              Batal
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
-              {isDeleting ? "Menghapus..." : "Hapus Target"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {deleteGoalId && (
+        <Dialog open={!!deleteGoalId} onOpenChange={() => setDeleteGoalId(null)}>
+          <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-black">Hapus Target</DialogTitle>
+              <DialogDescription className="text-muted-foreground font-medium">
+                Apakah Anda yakin ingin menghapus target ini? Seluruh progres tabungan yang tercatat akan hilang dan tidak dapat dikembalikan.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
+              <Button variant="ghost" onClick={() => setDeleteGoalId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
+                Batal
+              </Button>
+              <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
+                {isDeleting ? "Menghapus..." : "Hapus Target"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

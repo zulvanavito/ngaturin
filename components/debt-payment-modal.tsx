@@ -31,7 +31,7 @@ const formatCurrency = (amount: number) =>
   }).format(amount);
 
 export function DebtPaymentModal({ open, onClose, onSuccess, debt }: DebtPaymentModalProps) {
-  const { wallets } = useWallets();
+  const { wallets } = useWallets(false);
   const [amount, setAmount] = useState("");
   const [walletId, setWalletId] = useState("");
   const [syncToWallet, setSyncToWallet] = useState(true);

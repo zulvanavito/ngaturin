@@ -68,8 +68,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
-import { LoadingState } from "@/components/loading-state";
 import { AssetDetails } from "@/components/investments/asset-details";
+import { InvestmentCardSkeleton, InvestmentChartSkeleton } from "@/components/skeletons";
 
 interface Investment {
   id: string;
@@ -513,6 +513,31 @@ export default function InvestmentsPage() {
     // reset input
     e.target.value = '';
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+        <div className="space-y-6">
+          <div className="w-40 h-4 bg-muted animate-pulse rounded"></div>
+          <div className="w-full h-64 bg-muted animate-pulse rounded-[3rem]"></div>
+        </div>
+        <InvestmentChartSkeleton />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
+          <div className="md:col-span-1 space-y-4">
+            <div className="w-full h-[420px] bg-muted animate-pulse rounded-[2.5rem]"></div>
+          </div>
+          <div className="md:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <InvestmentCardSkeleton />
+              <InvestmentCardSkeleton />
+              <InvestmentCardSkeleton />
+              <InvestmentCardSkeleton />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
@@ -994,12 +1019,7 @@ export default function InvestmentsPage() {
             </div>
           </div>
 
-          {loading ? (
-            <LoadingState
-              message="Memuat portofolio investasi..."
-              className="min-h-[200px]"
-            />
-          ) : investments.length === 0 ? (
+          {investments.length === 0 ? (
             <div className="rounded-[2rem] border border-dashed border-border/50 bg-white/50 dark:bg-card/50 p-12 text-center text-muted-foreground text-sm shadow-sm">
               <TrendingUp className="w-10 h-10 mx-auto mb-3 opacity-20" />
               <p>Belum ada portofolio investasi. Catat aset pertama Anda!</p>

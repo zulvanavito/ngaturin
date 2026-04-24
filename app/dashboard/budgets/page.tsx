@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { BudgetCard, Budget } from "@/components/budget-card";
 import { BudgetFormModal } from "@/components/budget-form-modal";
+import { BudgetCardSkeleton } from "@/components/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 export default function BudgetsPage() {
@@ -24,9 +25,10 @@ export default function BudgetsPage() {
 
   const fetchData = useCallback(async () => {
     try {
+      const currentMonth = new Date().toISOString().substring(0, 7);
       const [budgetsRes, txRes] = await Promise.all([
         fetch("/api/budgets"),
-        fetch("/api/transactions")
+        fetch(`/api/transactions?type=expense&month=${currentMonth}`)
       ]);
 
       if (budgetsRes.ok && txRes.ok) {
@@ -99,21 +101,29 @@ export default function BudgetsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        <p className="text-sm font-bold text-muted-foreground animate-pulse">Memuat data anggaran Anda...</p>
+      <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
+        <div className="space-y-6">
+          <div className="w-40 h-4 bg-muted animate-pulse rounded"></div>
+          <div className="w-64 h-12 bg-muted animate-pulse rounded"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <BudgetCardSkeleton />
+          <BudgetCardSkeleton />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
-      <BudgetFormModal 
-        open={isFormOpen} 
-        onClose={() => setIsFormOpen(false)} 
-        onSuccess={fetchData}
-        budget={selectedBudget}
-      />
+      {isFormOpen && (
+        <BudgetFormModal 
+          open={isFormOpen} 
+          onClose={() => setIsFormOpen(false)} 
+          onSuccess={fetchData}
+          budget={selectedBudget}
+        />
+      )}
 
       {/* Hero Section */}
       <div className="space-y-6">
@@ -239,24 +249,26 @@ export default function BudgetsPage() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteBudgetId} onOpenChange={() => setDeleteBudgetId(null)}>
-        <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-black">Hapus Anggaran</DialogTitle>
-            <DialogDescription className="text-muted-foreground font-medium">
-              Apakah Anda yakin ingin menghapus batas anggaran ini? Data pengeluaran terkait tidak akan terpengaruh, tapi limit ini tidak akan aktif lagi.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
-            <Button variant="ghost" onClick={() => setDeleteBudgetId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
-              Batal
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
-              {isDeleting ? "Menghapus..." : "Hapus Anggaran"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {deleteBudgetId && (
+        <Dialog open={!!deleteBudgetId} onOpenChange={() => setDeleteBudgetId(null)}>
+          <DialogContent className="sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-black">Hapus Anggaran</DialogTitle>
+              <DialogDescription className="text-muted-foreground font-medium">
+                Apakah Anda yakin ingin menghapus batas anggaran ini? Data pengeluaran terkait tidak akan terpengaruh, tapi limit ini tidak akan aktif lagi.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
+              <Button variant="ghost" onClick={() => setDeleteBudgetId(null)} className="rounded-2xl h-12 font-bold w-full sm:w-auto order-last sm:order-first">
+                Batal
+              </Button>
+              <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="rounded-2xl h-12 font-black w-full sm:w-auto">
+                {isDeleting ? "Menghapus..." : "Hapus Anggaran"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

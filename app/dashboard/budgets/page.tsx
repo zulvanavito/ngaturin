@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, ChevronLeft, Loader2, PieChart, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, ChevronLeft, PieChart, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {

@@ -7,44 +7,44 @@ interface PricingToggleProps {
 
 export function PricingToggle({ isYearly, onToggle }: PricingToggleProps) {
   return (
-    <div className="flex flex-col items-center gap-4 mb-12">
-      <div className="relative flex items-center bg-secondary/50 rounded-[9999px] p-1 border border-border/10">
-        <button
-          onClick={() => onToggle(false)}
-          className={`relative z-10 px-6 py-3 text-sm font-semibold rounded-[9999px] transition-colors ${
-            !isYearly
-              ? "text-black bg-primary"
-              : "text-black hover:bg-primary/40"
+    <div className="flex flex-row items-center justify-center gap-4 mb-12">
+      <span
+        className={`text-sm font-medium cursor-pointer transition-colors ${
+          !isYearly ? "text-foreground" : "text-muted-foreground"
+        }`}
+        onClick={() => onToggle(false)}
+      >
+        Bulanan
+      </span>
+
+      <button
+        onClick={() => onToggle(!isYearly)}
+        className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+          isYearly ? "bg-[#2bd887]" : "bg-zinc-200 dark:bg-zinc-700"
+        }`}
+        role="switch"
+        aria-checked={isYearly}
+      >
+        <span className="sr-only">Toggle Pricing</span>
+        <span
+          aria-hidden="true"
+          className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+            isYearly ? "translate-x-6" : "translate-x-0"
           }`}
-        >
-          Bulanan
-        </button>
-        <button
+        />
+      </button>
+
+      <div className="flex items-center gap-2">
+        <span
+          className={`text-sm font-medium cursor-pointer transition-colors ${
+            isYearly ? "text-foreground" : "text-muted-foreground"
+          }`}
           onClick={() => onToggle(true)}
-          className={`relative z-10 px-6 py-3 text-sm font-semibold rounded-[9999px] transition-colors flex items-center gap-2 ${
-            isYearly
-              ? "text-black bg-primary"
-              : "text-black hover:bg-primary/40"
-          }`}
         >
           Tahunan
-        </button>
-
-        {/* Animated Background Pill */}
-        <div
-          className="absolute inset-y-1 bg-white dark:bg-black rounded-[9999px] shadow-sm transition-all duration-300 ease-out border border-border/10"
-          style={{
-            left: isYearly ? "50%" : "0.25rem",
-            right: isYearly ? "0.25rem" : "50%",
-            width: "calc(50% - 0.25rem)",
-          }}
-        />
-      </div>
-
-      {/* Discount Badge */}
-      <div className="flex items-center gap-2 text-xs font-semibold">
-        <span className="bg-primary/20 text-primary-foreground px-3 py-1 rounded-full border border-primary/30">
-          Hemat 20% dengan Tahunan 🎉
+        </span>
+        <span className="inline-flex items-center rounded-md bg-yellow-100 px-2 py-0.5 text-xs font-bold text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-500">
+          Hemat 20%
         </span>
       </div>
     </div>

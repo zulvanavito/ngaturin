@@ -1,4 +1,4 @@
-import { UpdatePasswordForm } from "@/components/update-password-form";
+import { UpdatePasswordForm } from "@/components/auth/update-password-form";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 

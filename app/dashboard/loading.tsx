@@ -1,4 +1,4 @@
-import { LoadingState } from "@/components/loading-state";
+import { LoadingState } from "@/components/layout/loading-state";
 
 export default function DashboardLoading() {
   return (

@@ -15,8 +15,8 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { CategoryIcon, ICON_OPTIONS } from "@/components/category-icon";
-import { Category } from "@/components/category-card";
+import { CategoryIcon, ICON_OPTIONS } from "@/components/categories/category-icon";
+import { Category } from "@/components/categories/category-card";
 
 interface CategoryFormModalProps {
   open: boolean;

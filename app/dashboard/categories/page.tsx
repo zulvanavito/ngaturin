@@ -8,10 +8,10 @@ import Link from "next/link";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { CategoryCard, type Category } from "@/components/category-card";
-import { CategoryFormModal } from "@/components/category-form-modal";
-import { CategoryIcon, SUGGESTED_CATEGORIES } from "@/components/category-icon";
-import { CategoryCardSkeleton } from "@/components/skeletons";
+import { CategoryCard, type Category } from "@/components/categories/category-card";
+import { CategoryFormModal } from "@/components/categories/category-form-modal";
+import { CategoryIcon, SUGGESTED_CATEGORIES } from "@/components/categories/category-icon";
+import { CategoryCardSkeleton } from "@/components/layout/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 export default function CategoriesPage() {

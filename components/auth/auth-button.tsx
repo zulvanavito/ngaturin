@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { LogoutButton } from "./logout-button";
+import { LogoutButton } from "@/components/shared/logout-button";
 
 export async function AuthButton() {
   const supabase = await createClient();

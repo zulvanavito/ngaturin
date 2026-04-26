@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useCategories } from "@/hooks/use-categories";
-import { CategoryIcon } from "@/components/category-icon";
+import { CategoryIcon } from "@/components/categories/category-icon";
 
 interface TransactionFiltersProps {
   searchQuery: string;

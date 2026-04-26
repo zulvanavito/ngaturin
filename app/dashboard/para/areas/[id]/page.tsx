@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ParaProject, ParaArea, getProjectProgress } from "@/lib/para-types";
-import { ParaProjectCard } from "@/components/para-project-card";
-import { ParaCaptureModal } from "@/components/para-capture-modal";
+import { ParaProjectCard } from "@/components/para/para-project-card";
+import { ParaCaptureModal } from "@/components/para/para-capture-modal";
 import {
   ArrowLeft, Briefcase, Plus, Edit3, Trash2, CheckCircle2,
   Archive, X, FolderOpen

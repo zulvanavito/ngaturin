@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { ProfileForm } from "@/components/profile-form";
-import { DataManagementCard } from "@/components/data-management-card";
+import { ProfileForm } from "@/components/profile/profile-form";
+import { DataManagementCard } from "@/components/profile/data-management-card";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 

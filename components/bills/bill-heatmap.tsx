@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { type RecurringBill } from "@/components/bill-card";
+import { type RecurringBill } from "@/components/bills/bill-card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

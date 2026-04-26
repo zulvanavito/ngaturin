@@ -2,7 +2,7 @@ import { Parser } from "json2csv";
 import ExcelJS from "exceljs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import type { Transaction } from "@/components/transaction-form";
+import type { Transaction } from "@/components/finance/transaction-form";
 
 export const exportToCSV = (data: Transaction[], filename: string) => {
   try {

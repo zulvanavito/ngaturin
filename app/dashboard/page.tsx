@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { TransactionForm, type Transaction } from "@/components/transaction-form";
-import { BudgetSnapshot } from "@/components/budget-snapshot";
+import { TransactionForm, type Transaction } from "@/components/finance/transaction-form";
+import { BudgetSnapshot } from "@/components/budgets/budget-snapshot";
 import { useRouter } from "next/navigation";
-import { BillReminderBanner } from "@/components/bill-reminder-banner";
+import { BillReminderBanner } from "@/components/bills/bill-reminder-banner";
 import { 
   Plus, TrendingUp, TrendingDown, Landmark, HandCoins, 
   ArrowRight, Loader2, Search, Bell, Settings, 
@@ -12,9 +12,9 @@ import {
   Zap, CreditCard, ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DashboardCalendarCard } from "@/components/dashboard-calendar-card";
-import { DashboardRecentTx } from "@/components/dashboard-recent-tx";
-import { GoalsSnapshot } from "@/components/goals-snapshot";
+import { DashboardCalendarCard } from "@/components/dashboard/dashboard-calendar-card";
+import { DashboardRecentTx } from "@/components/dashboard/dashboard-recent-tx";
+import { GoalsSnapshot } from "@/components/goals/goals-snapshot";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { 

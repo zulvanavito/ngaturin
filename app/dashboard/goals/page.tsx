@@ -16,11 +16,11 @@ import Link from "next/link";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { GoalCard, Goal } from "@/components/goal-card";
-import { GoalFormModal } from "@/components/goal-form-modal";
-import { GoalDepositModal } from "@/components/goal-deposit-modal";
-import { GoalDetailModal } from "@/components/goal-detail-modal";
-import { GoalCardSkeleton } from "@/components/skeletons";
+import { GoalCard, Goal } from "@/components/goals/goal-card";
+import { GoalFormModal } from "@/components/goals/goal-form-modal";
+import { GoalDepositModal } from "@/components/goals/goal-deposit-modal";
+import { GoalDetailModal } from "@/components/goals/goal-detail-modal";
+import { GoalCardSkeleton } from "@/components/layout/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 export default function GoalsPage() {

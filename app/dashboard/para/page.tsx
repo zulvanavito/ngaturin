@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { ParaProject, ParaArea, ParaTask, getDaysUntilDeadline } from "@/lib/para-types";
-import { ParaProjectCard } from "@/components/para-project-card";
-import { ParaAreaCard } from "@/components/para-area-card";
-import { ParaCaptureModal } from "@/components/para-capture-modal";
-import { ParaGuidanceBanner } from "@/components/para-guidance-banner";
+import { ParaProjectCard } from "@/components/para/para-project-card";
+import { ParaAreaCard } from "@/components/para/para-area-card";
+import { ParaCaptureModal } from "@/components/para/para-capture-modal";
+import { ParaGuidanceBanner } from "@/components/para/para-guidance-banner";
 import { Zap, Briefcase, FolderOpen, BookOpen, Archive, CheckCircle2, AlertTriangle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

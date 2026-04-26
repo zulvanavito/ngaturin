@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp, TrendingDown, Target, Zap, Waves } from "lucide-react";
-import { formatCurrency } from "@/components/balance-card";
+import { formatCurrency } from "@/components/finance/balance-card";
 import type { InsightSummary } from "@/hooks/use-insights";
 
 interface InsightMetricCardsProps {

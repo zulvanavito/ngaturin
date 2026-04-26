@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { ParaResource, ParaArea } from "@/lib/para-types";
-import { ParaResourceCard } from "@/components/para-resource-card";
-import { ParaGuidanceBanner } from "@/components/para-guidance-banner";
+import { ParaResourceCard } from "@/components/para/para-resource-card";
+import { ParaGuidanceBanner } from "@/components/para/para-guidance-banner";
 import { Plus, BookOpen, X, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

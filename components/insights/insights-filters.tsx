@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Tag, Wallet } from "lucide-react";
-import type { Transaction } from "@/components/transaction-form";
+import type { Transaction } from "@/components/finance/transaction-form";
 import { useWallets } from "@/hooks/use-wallets";
 
 interface InsightsFiltersProps {

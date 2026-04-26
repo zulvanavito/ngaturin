@@ -1,6 +1,6 @@
 "use client";
 
-import { Transaction } from "./transaction-form";
+import { Transaction } from "@/components/finance/transaction-form";
 
 interface DashboardRecentTxProps {
   transactions: Transaction[];

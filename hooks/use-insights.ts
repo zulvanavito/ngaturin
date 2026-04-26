@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import type { Transaction } from "@/components/transaction-form";
+import type { Transaction } from "@/components/finance/transaction-form";
 
 export interface InsightSummary {
   totalIncome: number;

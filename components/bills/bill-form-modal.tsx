@@ -12,9 +12,9 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { type RecurringBill } from "@/components/bill-card";
+import { type RecurringBill } from "@/components/bills/bill-card";
 import { useCategories } from "@/hooks/use-categories";
-import { CategoryIcon } from "@/components/category-icon";
+import { CategoryIcon } from "@/components/categories/category-icon";
 
 interface BillFormModalProps {
   open: boolean;

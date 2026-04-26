@@ -11,8 +11,8 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { CategoryIcon } from "@/components/category-icon";
-import { type Debt } from "@/components/debt-card";
+import { CategoryIcon } from "@/components/categories/category-icon";
+import { type Debt } from "@/components/debts/debt-card";
 import { useWallets } from "@/hooks/use-wallets";
 
 interface DebtSettleConfirmationModalProps {

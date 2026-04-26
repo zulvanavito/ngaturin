@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PricingToggle } from "@/components/pricing-toggle";
-import { PricingCard, PricingTier } from "@/components/pricing-card";
-import { PricingLifetimeCard } from "@/components/pricing-lifetime-card";
+import { PricingToggle } from "@/components/pricing/pricing-toggle";
+import { PricingCard, PricingTier } from "@/components/pricing/pricing-card";
+import { PricingLifetimeCard } from "@/components/pricing/pricing-lifetime-card";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -15,7 +15,7 @@ import {
   Headset,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeSwitcher } from "@/components/theme-switcher";
+import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const pricingTiers: PricingTier[] = [

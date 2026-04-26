@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ThemeSwitcher } from "@/components/theme-switcher";
+import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {

@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
-import { CategoryIcon } from "@/components/category-icon";
-import { type WalletData, type WalletTransaction } from "@/components/wallet-card";
-import { TransactionRowSkeleton } from "@/components/skeletons";
+import { CategoryIcon } from "@/components/categories/category-icon";
+import { type WalletData, type WalletTransaction } from "@/components/wallets/wallet-card";
+import { TransactionRowSkeleton } from "@/components/layout/skeletons";
 
 interface WalletHistoryModalProps {
   open: boolean;

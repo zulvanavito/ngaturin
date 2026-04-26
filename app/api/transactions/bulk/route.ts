@@ -80,6 +80,73 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "IDs tidak valid" }, { status: 400 });
   }
 
+  // 1. Fetch transactions to check for debt links
+  const { data: txs } = await supabase
+    .from("transactions")
+    .select("id, amount, debt_id, type")
+    .in("id", ids)
+    .eq("user_id", user.id);
+
+  // 2. Group debt-linked transactions by debt_id
+  if (txs && txs.length > 0) {
+    const debtAdjustments: Record<string, number> = {};
+    for (const tx of txs) {
+      if (tx.debt_id) {
+        debtAdjustments[tx.debt_id] = (debtAdjustments[tx.debt_id] || 0) + Number(tx.amount);
+      }
+    }
+
+    // 3. Process each affected debt
+    for (const [debtId, totalSubtract] of Object.entries(debtAdjustments)) {
+      const { data: debt } = await supabase
+        .from("debts")
+        .select("id, amount, paid_amount, is_settled, type")
+        .eq("id", debtId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (debt) {
+        // Check if any of the deleted transactions for this debt was a "Main Transaction"
+        const deletedMainTx = txs.find(tx => 
+          tx.debt_id === debtId && 
+          ((debt.type === "hutang" && tx.type === "income") || 
+           (debt.type === "piutang" && tx.type === "expense"))
+        );
+
+        if (deletedMainTx) {
+          // CASE A: One of the deleted txs was MAIN -> Cleanup everything
+          // 1. Delete all transactions linked to this debt
+          await supabase
+            .from("transactions")
+            .delete()
+            .eq("debt_id", debt.id)
+            .eq("user_id", user.id);
+
+          // 2. Delete the debt record
+          await supabase
+            .from("debts")
+            .delete()
+            .eq("id", debt.id)
+            .eq("user_id", user.id);
+        } else {
+          // CASE B: Only payments were deleted -> Recalculate
+          const newPaidAmount = Math.max((debt.paid_amount || 0) - totalSubtract, 0);
+          const isStillSettled = newPaidAmount >= debt.amount;
+
+          await supabase
+            .from("debts")
+            .update({
+              paid_amount: newPaidAmount,
+              is_settled: isStillSettled,
+            })
+            .eq("id", debt.id)
+            .eq("user_id", user.id);
+        }
+      }
+    }
+  }
+
+  // 4. Delete all transactions
   const { error } = await supabase
     .from("transactions")
     .delete()

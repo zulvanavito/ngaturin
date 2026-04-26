@@ -42,6 +42,15 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
+
+  // Cleanup: Delete all associated transactions first
+  await supabase
+    .from("transactions")
+    .delete()
+    .eq("debt_id", id)
+    .eq("user_id", user.id);
+
+  // Then delete the debt record
   const { error } = await supabase
     .from("debts")
     .delete()

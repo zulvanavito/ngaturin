@@ -92,6 +92,8 @@ export function DebtFormModal({ open, onClose, onSuccess, debt }: DebtFormModalP
         throw new Error(d.error || "Gagal menyimpan");
       }
 
+      const data = await res.json();
+
       // Wallet Sync: only on NEW records, not edits
       if (!isEditing && syncToWallet && walletId) {
         const isHutang = type === "hutang";
@@ -107,6 +109,7 @@ export function DebtFormModal({ open, onClose, onSuccess, debt }: DebtFormModalP
             type: isHutang ? "income" : "expense",
             wallet_id: walletId,
             date: new Date().toISOString().split("T")[0],
+            debt_id: data.id, // Ambil ID dari hutang yang baru dibuat
           }),
         });
         if (!txRes.ok) {

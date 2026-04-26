@@ -12,7 +12,25 @@ export async function POST() {
   try {
     // 1. Delete relational data first to avoid Foreign Key constraint errors 
     //    if 'ON DELETE CASCADE' is not set in the database schema.
-    const tables = ["transactions", "wallets", "categories", "investments", "debts", "recurring_bills"];
+    const tables = [
+      // Children first (FK constraints)
+      "investment_history",
+      "investment_transactions",
+      "transactions",
+      // Parent financial tables
+      "wallets",
+      "categories",
+      "investments",
+      "debts",
+      "recurring_bills",
+      "goals",
+      "budgets",
+      // PARA tables (children first due to FK constraints)
+      "para_resources",
+      "para_tasks",
+      "para_projects",
+      "para_areas",
+    ];
     for (const table of tables) {
       await supabase.from(table).delete().eq("user_id", user.id);
     }
@@ -28,11 +46,11 @@ export async function POST() {
     await supabase.auth.signOut();
     
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Account Deletion Error:", error);
+    const message = error instanceof Error ? error.message : "Terjadi kesalahan sistem saat menghapus akun";
     return NextResponse.json({ 
-      error: error.message || "Terjadi kesalahan sistem saat menghapus akun",
-      details: error
+      error: message,
     }, { status: 500 });
   }
 }

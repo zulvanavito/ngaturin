@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, FilterX, ChevronDown, SlidersHorizontal } from "lucide-react";
+import { Search, FilterX, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useCategories } from "@/hooks/use-categories";
+import { useWallets } from "@/hooks/use-wallets";
 import { CategoryIcon } from "@/components/categories/category-icon";
 
 interface TransactionFiltersProps {
@@ -28,6 +29,8 @@ interface TransactionFiltersProps {
   onTypeChange: (value: string) => void;
   categoryFilter: string;
   onCategoryChange: (value: string) => void;
+  walletFilter: string;
+  onWalletChange: (value: string) => void;
   onReset: () => void;
 }
 
@@ -38,11 +41,14 @@ export function TransactionFilters({
   onTypeChange,
   categoryFilter,
   onCategoryChange,
+  walletFilter,
+  onWalletChange,
   onReset,
 }: TransactionFiltersProps) {
   const { categories } = useCategories();
+  const { wallets } = useWallets();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const isFilterActive = typeFilter !== "all" || categoryFilter !== "all";
+  const isFilterActive = typeFilter !== "all" || categoryFilter !== "all" || walletFilter !== "all";
 
   return (
     <div className="space-y-4 w-full">
@@ -52,7 +58,8 @@ export function TransactionFilters({
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <Input
             placeholder="Cari catatan transaksi..."
-            className="pl-14 h-16 rounded-[2rem] bg-white dark:bg-card border border-border/40 shadow-sm text-lg font-medium placeholder:text-muted-foreground/50 focus-visible:ring-2 focus-visible:ring-primary/20"
+            className="pl-14 h-16 rounded-[2rem] bg-white dark:bg-card border border-border/40 shadow-sm text-lg font-medium placeholder:text-muted-foreground/50 focus-visible:ring-2 focus-visible:ring-primary/20 overflow-hidden whitespace-nowrap text-ellipsis
+"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -61,8 +68,8 @@ export function TransactionFilters({
         {/* Mobile Filter Button */}
         <Dialog open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
           <DialogTrigger asChild>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="md:hidden h-16 w-16 rounded-[2rem] bg-white dark:bg-card border border-border/40 shadow-sm relative shrink-0"
             >
               <SlidersHorizontal className="w-6 h-6 text-muted-foreground" />
@@ -79,31 +86,56 @@ export function TransactionFilters({
             </DialogHeader>
             <div className="space-y-6 pt-4">
               <div className="space-y-3">
-                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Tipe Transaksi</label>
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
+                  Tipe Transaksi
+                </label>
                 <Select value={typeFilter} onValueChange={onTypeChange}>
                   <SelectTrigger className="h-14 rounded-2xl bg-white dark:bg-card border border-border/40 font-bold px-4">
                     <SelectValue placeholder="Semua Tipe" />
                   </SelectTrigger>
                   <SelectContent className="rounded-2xl border-none shadow-2xl">
-                    <SelectItem value="all" className="font-medium py-3">Semua Tipe</SelectItem>
-                    <SelectItem value="income" className="font-medium py-3 text-emerald-500">Pemasukan</SelectItem>
-                    <SelectItem value="expense" className="font-medium py-3 text-rose-500">Pengeluaran</SelectItem>
+                    <SelectItem value="all" className="font-medium py-3">
+                      Semua Tipe
+                    </SelectItem>
+                    <SelectItem
+                      value="income"
+                      className="font-medium py-3 text-emerald-500"
+                    >
+                      Pemasukan
+                    </SelectItem>
+                    <SelectItem
+                      value="expense"
+                      className="font-medium py-3 text-rose-500"
+                    >
+                      Pengeluaran
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-3">
-                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Kategori</label>
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
+                  Kategori
+                </label>
                 <Select value={categoryFilter} onValueChange={onCategoryChange}>
                   <SelectTrigger className="h-14 rounded-2xl bg-white dark:bg-card border border-border/40 font-bold px-4">
                     <SelectValue placeholder="Semua Kategori" />
                   </SelectTrigger>
                   <SelectContent className="rounded-2xl border-none shadow-2xl max-h-[300px]">
-                    <SelectItem value="all" className="font-medium py-3">Semua Kategori</SelectItem>
+                    <SelectItem value="all" className="font-medium py-3">
+                      Semua Kategori
+                    </SelectItem>
                     {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.name} className="font-medium py-3">
+                      <SelectItem
+                        key={cat.id}
+                        value={cat.name}
+                        className="font-medium py-3"
+                      >
                         <div className="flex items-center gap-2">
-                          <CategoryIcon iconName={cat.icon} className="w-4 h-4 opacity-60" />
+                          <CategoryIcon
+                            iconName={cat.icon}
+                            className="w-4 h-4 opacity-60"
+                          />
                           <span>{cat.name}</span>
                         </div>
                       </SelectItem>
@@ -112,16 +144,53 @@ export function TransactionFilters({
                 </Select>
               </div>
 
+              <div className="space-y-3">
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
+                  Dompet
+                </label>
+                <Select value={walletFilter} onValueChange={onWalletChange}>
+                  <SelectTrigger className="h-14 rounded-2xl bg-white dark:bg-card border border-border/40 font-bold px-4">
+                    <SelectValue placeholder="Semua Dompet" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl border-none shadow-2xl max-h-[300px]">
+                    <SelectItem value="all" className="font-medium py-3">
+                      Semua Dompet
+                    </SelectItem>
+                    <SelectItem value="_none" className="font-medium py-3">
+                      Tanpa Dompet
+                    </SelectItem>
+                    {wallets.map((w) => (
+                      <SelectItem
+                        key={w.id}
+                        value={w.id}
+                        className="font-medium py-3"
+                      >
+                        <div className="flex items-center gap-2">
+                          <CategoryIcon
+                            iconName={w.icon}
+                            className="w-4 h-4 opacity-60"
+                          />
+                          <span>{w.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="pt-6 flex gap-3">
-                <Button 
-                  variant="outline" 
-                  onClick={() => { onReset(); setIsMobileFilterOpen(false); }} 
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    onReset();
+                    setIsMobileFilterOpen(false);
+                  }}
                   className="flex-1 rounded-2xl h-14 font-bold"
                 >
                   Reset
                 </Button>
-                <Button 
-                  onClick={() => setIsMobileFilterOpen(false)} 
+                <Button
+                  onClick={() => setIsMobileFilterOpen(false)}
                   className="flex-1 rounded-2xl h-14 font-black bg-primary text-primary-foreground"
                 >
                   Terapkan
@@ -197,14 +266,44 @@ export function TransactionFilters({
           </SelectContent>
         </Select>
 
-        {/* Wallet Filter Pill (Placeholder for next phase) */}
-        <Button
-          variant="outline"
-          className="h-10 rounded-full bg-white dark:bg-card border border-border/40 font-bold text-[10px] uppercase tracking-widest gap-2 px-6 opacity-50 cursor-not-allowed shrink-0"
-        >
-          <span className="text-muted-foreground">Dompet:</span> Semua{" "}
-          <ChevronDown className="w-3 h-3" />
-        </Button>
+        {/* Wallet Filter Pill */}
+        <Select value={walletFilter} onValueChange={onWalletChange}>
+          <SelectTrigger className="shrink-0 h-10 w-fit min-w-[150px] whitespace-nowrap rounded-full bg-white dark:bg-card border border-border/40 font-bold text-[10px] uppercase tracking-widest gap-2 px-6">
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <span className="text-muted-foreground shrink-0">Dompet:</span>
+              <SelectValue placeholder="Semua" />
+            </div>
+          </SelectTrigger>
+          <SelectContent className="rounded-2xl border-none shadow-2xl max-h-[300px]">
+            <SelectItem
+              value="all"
+              className="text-[10px] font-medium uppercase tracking-widest"
+            >
+              Semua Dompet
+            </SelectItem>
+            <SelectItem
+              value="_none"
+              className="text-[10px] font-medium uppercase tracking-widest"
+            >
+              Tanpa Dompet
+            </SelectItem>
+            {wallets.map((w) => (
+              <SelectItem
+                key={w.id}
+                value={w.id}
+                className="text-[10px] font-medium uppercase tracking-widest"
+              >
+                <div className="flex items-center gap-2">
+                  <CategoryIcon
+                    iconName={w.icon}
+                    className="w-3.5 h-3.5 opacity-60"
+                  />
+                  <span>{w.name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         {/* Reset Button */}
         {isFilterActive && (

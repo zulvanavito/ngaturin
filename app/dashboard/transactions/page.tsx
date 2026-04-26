@@ -44,6 +44,7 @@ export default function TransactionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [walletFilter, setWalletFilter] = useState("all");
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const { showToast } = useToast();
 
@@ -101,9 +102,12 @@ export default function TransactionsPage() {
       const matchSearch = t.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchType = typeFilter === "all" || t.type === typeFilter;
       const matchCategory = categoryFilter === "all" || t.category === categoryFilter;
-      return matchSearch && matchType && matchCategory;
+      const matchWallet =
+        walletFilter === "all" ||
+        (walletFilter === "_none" ? !t.wallet_id : t.wallet_id === walletFilter);
+      return matchSearch && matchType && matchCategory && matchWallet;
     });
-  }, [transactions, searchQuery, typeFilter, categoryFilter]);
+  }, [transactions, searchQuery, typeFilter, categoryFilter, walletFilter]);
 
   // Stats for the current view
   const stats = useMemo(() => {
@@ -126,7 +130,7 @@ export default function TransactionsPage() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, typeFilter, categoryFilter]);
+  }, [searchQuery, typeFilter, categoryFilter, walletFilter]);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
@@ -264,10 +268,13 @@ export default function TransactionsPage() {
           onTypeChange={setTypeFilter}
           categoryFilter={categoryFilter}
           onCategoryChange={setCategoryFilter}
+          walletFilter={walletFilter}
+          onWalletChange={setWalletFilter}
           onReset={() => {
             setSearchQuery("");
             setTypeFilter("all");
             setCategoryFilter("all");
+            setWalletFilter("all");
           }}
         />
       </div>

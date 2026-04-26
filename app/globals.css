@@ -10,7 +10,7 @@
     --card-foreground: 90 3% 6%;
     --popover: 0 0% 100%;
     --popover-foreground: 90 3% 6%;
-    
+
     --primary: 97 74% 67%; /* #9fe870 */
     --primary-foreground: 94 100% 10%; /* #163300 */
     --secondary: 96 9% 91%; /* #e8ebe6 */
@@ -21,11 +21,11 @@
     --accent-foreground: 94 100% 10%;
     --destructive: 358 64% 51%; /* #d03238 */
     --destructive-foreground: 0 0% 100%;
-    
+
     --border: 90 3% 6%; /* Use with alpha /12 in utilities */
     --input: 90 3% 6%;
     --ring: 90 3% 6%;
-    
+
     --chart-1: 97 74% 67%;
     --chart-2: 94 100% 10%;
     --chart-3: 153 58% 85%;
@@ -50,7 +50,7 @@
     --card-foreground: 96 9% 91%;
     --popover: 90 3% 6%;
     --popover-foreground: 96 9% 91%;
-    
+
     --primary: 97 74% 67%;
     --primary-foreground: 94 100% 10%;
     --secondary: 120 2% 27%; /* #454745 */
@@ -61,11 +61,11 @@
     --accent-foreground: 94 100% 10%;
     --destructive: 358 64% 51%;
     --destructive-foreground: 0 0% 100%;
-    
+
     --border: 96 9% 91%;
     --input: 96 9% 91%;
     --ring: 96 9% 91%;
-    
+
     --chart-1: 97 74% 67%;
     --chart-2: 96 9% 91%;
     --chart-3: 153 58% 85%;
@@ -100,7 +100,7 @@
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-[1.05] active:scale-[0.95];
   }
-  
+
   .wise-display-hero {
     @apply font-black leading-[0.85] tracking-tight;
     font-family: var(--font-work-sans);
@@ -118,4 +118,122 @@
   .glass {
     @apply bg-white/70 dark:bg-black/40 backdrop-blur-2xl border-none;
   }
+}
+
+/* ── react-datepicker Wise theme overrides ── */
+.react-datepicker-popper {
+  z-index: 50 !important;
+}
+
+.react-datepicker {
+  font-family: "Inter", sans-serif !important;
+  border: 1px solid rgba(14, 15, 12, 0.12) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 30px rgba(14, 15, 12, 0.12) !important;
+  overflow: hidden;
+  background: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.react-datepicker__header {
+  background: hsl(var(--background)) !important;
+  border-bottom: 1px solid rgba(14, 15, 12, 0.08) !important;
+  padding-top: 12px !important;
+  border-radius: 0 !important;
+}
+
+.react-datepicker__current-month {
+  font-weight: 800 !important;
+  font-size: 0.875rem !important;
+  letter-spacing: -0.02em;
+  color: hsl(var(--foreground)) !important;
+  margin-bottom: 8px !important;
+}
+
+.react-datepicker__day-names {
+  margin-top: 4px !important;
+}
+
+.react-datepicker__day-name {
+  font-weight: 600 !important;
+  font-size: 0.65rem !important;
+  color: hsl(var(--muted)) !important;
+  text-transform: uppercase;
+  width: 2rem !important;
+  line-height: 2rem !important;
+  margin: 1px !important;
+}
+
+.react-datepicker__day {
+  font-weight: 500 !important;
+  font-size: 0.8rem !important;
+  width: 2rem !important;
+  line-height: 2rem !important;
+  margin: 1px !important;
+  border-radius: 8px !important;
+  color: hsl(var(--foreground)) !important;
+  transition: all 150ms ease;
+}
+
+.react-datepicker__day:hover {
+  background: rgba(159, 232, 112, 0.2) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background: #9fe870 !important;
+  color: #163300 !important;
+  font-weight: 700 !important;
+}
+
+.react-datepicker__day--selected:hover {
+  background: #cdffad !important;
+  color: #163300 !important;
+}
+
+.react-datepicker__day--today {
+  font-weight: 800 !important;
+  position: relative;
+}
+
+.react-datepicker__day--today::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #9fe870;
+}
+
+.react-datepicker__day--outside-month {
+  color: hsl(var(--muted)) !important;
+  opacity: 0.4 !important;
+}
+
+.react-datepicker__day--disabled {
+  color: hsl(var(--muted)) !important;
+  opacity: 0.3 !important;
+}
+
+.react-datepicker__navigation {
+  top: 12px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: hsl(var(--foreground)) !important;
+  border-width: 2px 2px 0 0 !important;
+  height: 7px !important;
+  width: 7px !important;
+}
+
+.react-datepicker__navigation:hover *::before {
+  border-color: #9fe870 !important;
+}
+
+.react-datepicker__triangle {
+  display: none !important;
 }

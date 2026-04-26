@@ -125,11 +125,11 @@ const DashboardMockup = () => (
         </div>
 
         <div className="p-6 rounded-[1.5rem] bg-card border border-border/20 shadow-sm flex-1 min-h-[200px] flex items-end justify-between gap-1.5 md:gap-3">
+          {/* eslint-disable-next-line react/forbid-component-props */}
           {[40, 60, 30, 80, 50, 90, 70, 45, 65, 85, 55, 75].map((h, i) => (
             <div
               key={i}
-              className="flex-1 rounded-t-lg bg-primary/30 relative group transition-all duration-300 hover:bg-primary/60"
-              style={{ height: `${h}%` }}
+              className={`flex-1 rounded-t-lg bg-primary/30 relative group transition-all duration-300 hover:bg-primary/60 h-[${h}%]`}
             >
               <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-foreground text-background text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                 Idr {h}k
@@ -605,12 +605,9 @@ export default function Home() {
                 </div>
 
                 <div className="h-4 w-full bg-muted rounded-full flex overflow-hidden">
-                  <div className="h-full bg-primary" style={{ width: "60%" }} />
-                  <div
-                    className="h-full bg-secondary"
-                    style={{ width: "25%" }}
-                  />
-                  <div className="h-full bg-chart-1" style={{ width: "15%" }} />
+                  <div className="h-full bg-primary w-[60%]" />
+                  <div className="h-full bg-secondary w-[25%]" />
+                  <div className="h-full bg-chart-1 w-[15%]" />
                 </div>
                 <div className="flex justify-between mt-3 text-xs font-bold text-muted-foreground">
                   <span className="flex items-center gap-1">

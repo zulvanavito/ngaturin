@@ -8,11 +8,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import { useWallets } from "@/hooks/use-wallets";
-import { WalletCard, type WalletData, type WalletTransaction } from "@/components/wallet-card";
-import { WalletFormModal } from "@/components/wallet-form-modal";
-import { WalletTransferModal } from "@/components/wallet-transfer-modal";
-import { WalletHistoryModal } from "@/components/wallet-history-modal";
-import { WalletCardSkeleton } from "@/components/skeletons";
+import { WalletCard, type WalletData, type WalletTransaction } from "@/components/wallets/wallet-card";
+import { WalletFormModal } from "@/components/wallets/wallet-form-modal";
+import { WalletTransferModal } from "@/components/wallets/wallet-transfer-modal";
+import { WalletHistoryModal } from "@/components/wallets/wallet-history-modal";
+import { WalletCardSkeleton } from "@/components/layout/skeletons";
 import { useToast } from "@/lib/toast-context";
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat("id-ID", {

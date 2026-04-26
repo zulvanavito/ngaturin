@@ -22,11 +22,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { BillCard, type RecurringBill } from "@/components/bill-card";
-import { BillFormModal } from "@/components/bill-form-modal";
-import { BillPaymentModal } from "@/components/bill-payment-modal";
-import { BillHeatmap } from "@/components/bill-heatmap";
-import { BillCardSkeleton } from "@/components/skeletons";
+import { BillCard, type RecurringBill } from "@/components/bills/bill-card";
+import { BillFormModal } from "@/components/bills/bill-form-modal";
+import { BillPaymentModal } from "@/components/bills/bill-payment-modal";
+import { BillHeatmap } from "@/components/bills/bill-heatmap";
+import { BillCardSkeleton } from "@/components/layout/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 interface Transaction {

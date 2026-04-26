@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CategoryIcon } from "@/components/category-icon";
+import { CategoryIcon } from "@/components/categories/category-icon";
 
 export interface Category {
   id: string;

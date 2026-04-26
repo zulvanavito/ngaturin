@@ -1,4 +1,4 @@
-import { Sidebar, MobileHeader } from "@/components/sidebar";
+import { Sidebar, MobileHeader } from "@/components/layout/sidebar";
 
 export default function DashboardLayout({
   children,

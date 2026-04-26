@@ -7,9 +7,9 @@ import Link from "next/link";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { BudgetCard, Budget } from "@/components/budget-card";
-import { BudgetFormModal } from "@/components/budget-form-modal";
-import { BudgetCardSkeleton } from "@/components/skeletons";
+import { BudgetCard, Budget } from "@/components/budgets/budget-card";
+import { BudgetFormModal } from "@/components/budgets/budget-form-modal";
+import { BudgetCardSkeleton } from "@/components/layout/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 export default function BudgetsPage() {

@@ -4,10 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { PricingCard } from "@/components/pricing-card";
-import { PricingLifetimeCard } from "@/components/pricing-lifetime-card";
-import { PricingToggle } from "@/components/pricing-toggle";
+import { ThemeSwitcher } from "@/components/layout/theme-switcher";
+import { PricingCard } from "@/components/pricing/pricing-card";
+import { PricingLifetimeCard } from "@/components/pricing/pricing-lifetime-card";
+import { PricingToggle } from "@/components/pricing/pricing-toggle";
 import { pricingTiers } from "@/app/pricing/page";
 import {
   ArrowRight,

@@ -69,7 +69,7 @@ import {
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
 import { AssetDetails } from "@/components/investments/asset-details";
-import { InvestmentCardSkeleton, InvestmentChartSkeleton } from "@/components/skeletons";
+import { InvestmentCardSkeleton, InvestmentChartSkeleton } from "@/components/layout/skeletons";
 
 interface Investment {
   id: string;

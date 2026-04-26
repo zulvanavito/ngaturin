@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { ParaProject, ParaArea } from "@/lib/para-types";
-import { ParaProjectCard } from "@/components/para-project-card";
-import { ParaCaptureModal } from "@/components/para-capture-modal";
-import { ParaGuidanceBanner } from "@/components/para-guidance-banner";
+import { ParaProjectCard } from "@/components/para/para-project-card";
+import { ParaCaptureModal } from "@/components/para/para-capture-modal";
+import { ParaGuidanceBanner } from "@/components/para/para-guidance-banner";
 import { Briefcase, Archive, CheckCircle2, Plus, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

@@ -11,8 +11,8 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { CategoryIcon } from "@/components/category-icon";
-import { type WalletData } from "@/components/wallet-card";
+import { CategoryIcon } from "@/components/categories/category-icon";
+import { type WalletData } from "@/components/wallets/wallet-card";
 
 const WALLET_ICON_OPTIONS = [
   { name: "Wallet", label: "Dompet" },

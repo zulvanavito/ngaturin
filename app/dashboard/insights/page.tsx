@@ -24,17 +24,17 @@ import { Button } from "@/components/ui/button";
 import { Badge as UIBadge } from "@/components/ui/badge"; 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useInsights } from "@/hooks/use-insights";
-import { InsightsFilters } from "@/components/insights-filters";
-import { InsightsHero } from "@/components/insights-hero";
-import { InsightMetricCards } from "@/components/insight-metric-cards";
-import { formatCurrency } from "@/components/balance-card";
+import { InsightsFilters } from "@/components/insights/insights-filters";
+import { InsightsHero } from "@/components/insights/insights-hero";
+import { InsightMetricCards } from "@/components/insights/insight-metric-cards";
+import { formatCurrency } from "@/components/finance/balance-card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Parser } from "json2csv";
 import ExcelJS from "exceljs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Link from "next/link";
-import type { Transaction } from "@/components/transaction-form";
+import type { Transaction } from "@/components/finance/transaction-form";
 
 // Vibrant Premium Palette
 const CHART_COLORS = [

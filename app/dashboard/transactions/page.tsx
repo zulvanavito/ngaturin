@@ -4,10 +4,10 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Plus, ChevronLeft} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { TransactionList } from "@/components/transaction-list";
-import { TransactionFilters } from "@/components/transaction-filters";
-import { TransactionForm, type Transaction } from "@/components/transaction-form";
-import { TransactionRowSkeleton } from "@/components/skeletons";
+import { TransactionList } from "@/components/finance/transaction-list";
+import { TransactionFilters } from "@/components/finance/transaction-filters";
+import { TransactionForm, type Transaction } from "@/components/finance/transaction-form";
+import { TransactionRowSkeleton } from "@/components/layout/skeletons";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { 

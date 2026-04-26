@@ -12,7 +12,7 @@ import {
 import { Settings2, TrendingDown, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
-import { CategoryIcon } from "@/components/category-icon";
+import { CategoryIcon } from "@/components/categories/category-icon";
 
 export interface Transaction {
   id: string;

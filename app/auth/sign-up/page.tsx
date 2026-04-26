@@ -1,7 +1,7 @@
-import { SignUpForm } from "@/components/sign-up-form";
+import { SignUpForm } from "@/components/auth/sign-up-form";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { AuthSlideshow } from "@/components/auth-slideshow";
+import { AuthSlideshow } from "@/components/auth/auth-slideshow";
 
 export default function Page() {
   return (

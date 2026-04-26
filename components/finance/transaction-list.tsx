@@ -3,15 +3,15 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, TrendingUp, TrendingDown, Clock, Wallet, FileText, ChevronDown, } from "lucide-react";
-import { formatCurrency } from "@/components/balance-card";
-import type { Transaction } from "@/components/transaction-form";
+import { formatCurrency } from "@/components/finance/balance-card";
+import type { Transaction } from "@/components/finance/transaction-form";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/lib/toast-context";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { CategoryIcon } from "@/components/category-icon";
+import { CategoryIcon } from "@/components/categories/category-icon";
 import { useWallets } from "@/hooks/use-wallets";
 import { useCategories } from "@/hooks/use-categories";
 

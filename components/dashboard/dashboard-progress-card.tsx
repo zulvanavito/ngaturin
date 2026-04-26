@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect, useCallback } from "react";
-import type { Transaction } from "./transaction-form";
+import type { Transaction } from "@/components/finance/transaction-form";
 import { createClient } from "@/lib/supabase/client";
 
 interface CategoryProgress {

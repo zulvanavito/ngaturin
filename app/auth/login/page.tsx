@@ -1,7 +1,7 @@
-import { LoginForm } from "@/components/login-form";
+import { LoginForm } from "@/components/auth/login-form";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { AuthSlideshow } from "@/components/auth-slideshow";
+import { AuthSlideshow } from "@/components/auth/auth-slideshow";
 
 export default function Page() {
   return (

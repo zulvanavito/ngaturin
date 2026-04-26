@@ -7,12 +7,12 @@ import Link from "next/link";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { DebtCard, type Debt } from "@/components/debt-card";
-import { DebtFormModal } from "@/components/debt-form-modal";
-import { DebtPaymentModal } from "@/components/debt-payment-modal";
-import { DebtUnsettleModal } from "@/components/debt-unsettle-modal";
-import { DebtSettleConfirmationModal } from "@/components/debt-settle-confirmation-modal";
-import { DebtCardSkeleton } from "@/components/skeletons";
+import { DebtCard, type Debt } from "@/components/debts/debt-card";
+import { DebtFormModal } from "@/components/debts/debt-form-modal";
+import { DebtPaymentModal } from "@/components/debts/debt-payment-modal";
+import { DebtUnsettleModal } from "@/components/debts/debt-unsettle-modal";
+import { DebtSettleConfirmationModal } from "@/components/debts/debt-settle-confirmation-modal";
+import { DebtCardSkeleton } from "@/components/layout/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 const formatCurrency = (amount: number) =>

@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { ParaProject, ParaResource } from "@/lib/para-types";
-import { ParaResourceCard } from "@/components/para-resource-card";
-import { ParaGuidanceBanner } from "@/components/para-guidance-banner";
+import { ParaResourceCard } from "@/components/para/para-resource-card";
+import { ParaGuidanceBanner } from "@/components/para/para-guidance-banner";
 import { Archive, Briefcase, RotateCcw, Trash2 } from "lucide-react";
 
 export default function ParaArchivePage() {

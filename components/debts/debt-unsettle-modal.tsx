@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { type Debt } from "@/components/debt-card";
+import { type Debt } from "@/components/debts/debt-card";
 
 interface Transaction {
   id: string;

@@ -201,11 +201,6 @@ ngaturin/
 └── .env.local                      # Environment variables (tidak di-commit)
 ```
 
-## 📄 Legal
-
-[Kebijakan Privasi](app/privacy-policy/page.tsx)
-[Ketentuan Layanan](app/terms-of-service/page.tsx)
-
 ## 📄 Lisensi
 
 MIT

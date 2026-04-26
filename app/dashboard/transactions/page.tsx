@@ -7,6 +7,7 @@ import Link from "next/link";
 import { TransactionList } from "@/components/finance/transaction-list";
 import { TransactionFilters } from "@/components/finance/transaction-filters";
 import { TransactionForm, type Transaction } from "@/components/finance/transaction-form";
+import { BulkTransactionForm } from "@/components/finance/bulk-transaction-form";
 import { TransactionRowSkeleton } from "@/components/layout/skeletons";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,6 +38,7 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showBulkAddForm, setShowBulkAddForm] = useState(false);
 
   // Filters State
   const [searchQuery, setSearchQuery] = useState("");
@@ -197,7 +199,7 @@ export default function TransactionsPage() {
                   <DropdownMenuItem className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
                     <ScanLine className="w-4 h-4" /> Scan Struk
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
+                  <DropdownMenuItem onClick={() => setShowBulkAddForm(true)} className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
                     <CopyPlus className="w-4 h-4" /> Tambah Banyak
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -339,6 +341,27 @@ export default function TransactionsPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Bulk Add Transaction Dialog */}
+      <Dialog 
+        open={showBulkAddForm} 
+        onOpenChange={(open) => {
+          if (!open) setShowBulkAddForm(false);
+        }}
+      >
+        <DialogContent className="sm:max-w-4xl rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8 max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogTitle className="sr-only">Input Transaksi Massal</DialogTitle>
+          {showBulkAddForm && (
+            <BulkTransactionForm
+              onSuccess={() => {
+                fetchTransactions();
+                setShowBulkAddForm(false);
+              }}
+              onCancel={() => setShowBulkAddForm(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Floating Selection Bar */}
       <AnimatePresence>
         {selectedIds.length > 0 && (
@@ -470,7 +493,7 @@ export default function TransactionsPage() {
                 <DropdownMenuItem className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
                   <ScanLine className="w-4 h-4" /> Scan Struk
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
+                <DropdownMenuItem onClick={() => setShowBulkAddForm(true)} className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
                   <CopyPlus className="w-4 h-4" /> Tambah Banyak
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -802,7 +802,7 @@ export default function Home() {
                   asChild
                   size="lg"
                   variant="secondary"
-                  className="h-16 px-10 text-lg font-extrabold rounded-2xl shadow-xl transition-all hover:-translate-y-1"
+                  className="h-16 px-10 bg-primary-foreground text-lg text-primary font-extrabold rounded-2xl shadow-xl transition-all hover:-translate-y-1 hover:bg-primary-foreground/90"
                 >
                   <Link href="/auth/sign-up">Daftar Sekarang</Link>
                 </Button>

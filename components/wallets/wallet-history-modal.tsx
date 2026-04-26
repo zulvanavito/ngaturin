@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { ArrowUpRight, ArrowDownLeft, ArrowLeftRight, X } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, ArrowLeftRight} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -50,8 +50,6 @@ export function WalletHistoryModal({ open, onClose, wallet }: WalletHistoryModal
     }
   }, [open, wallet, fetchHistory]);
 
-  if (!wallet) return null;
-
   const stats = useMemo(() => {
     let totalIn = 0;
     let totalOut = 0;
@@ -65,7 +63,9 @@ export function WalletHistoryModal({ open, onClose, wallet }: WalletHistoryModal
     return { totalIn, totalOut };
   }, [transactions]);
 
-  const txIcon = (type: string, desc: string) => {
+  if (!wallet) return null;
+
+  const txIcon = (type: string) => {
     if (type === "transfer") return <ArrowLeftRight className="w-3.5 h-3.5" />;
     if (type === "income") return <ArrowDownLeft className="w-3.5 h-3.5 text-income" />;
     return <ArrowUpRight className="w-3.5 h-3.5 text-expense" />;
@@ -135,7 +135,7 @@ export function WalletHistoryModal({ open, onClose, wallet }: WalletHistoryModal
                 return (
                   <div key={tx.id} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-muted/20 transition-colors">
                     <div className="w-9 h-9 rounded-xl bg-muted/30 flex items-center justify-center shrink-0">
-                      {txIcon(tx.type, tx.description)}
+                      {txIcon(tx.type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-foreground truncate">{tx.description}</p>

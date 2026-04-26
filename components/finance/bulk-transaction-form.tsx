@@ -7,11 +7,17 @@ import { useWallets } from "@/hooks/use-wallets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Check, Loader2 } from "lucide-react";
+import { Plus, Trash2, Check, Loader2, CalendarDays } from "lucide-react";
 import { useToast } from "@/lib/toast-context";
 import { CategoryIcon } from "@/components/categories/category-icon";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface BulkRow {
   date: string;
@@ -40,7 +46,10 @@ const defaultRow = (): BulkRow => ({
   description: "",
 });
 
-export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionFormProps) {
+export function BulkTransactionForm({
+  onSuccess,
+  onCancel,
+}: BulkTransactionFormProps) {
   const { showToast } = useToast();
   const { categories: allCategories, loading: catLoading } = useCategories();
   const { wallets } = useWallets();
@@ -77,8 +86,10 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
   };
 
   const onSubmit = async (data: BulkFormValues) => {
-    const validRows = data.rows.filter(r => r.amount && r.category && r.description);
-    
+    const validRows = data.rows.filter(
+      (r) => r.amount && r.category && r.description,
+    );
+
     if (validRows.length === 0) {
       setApiError("Minimal 1 baris transaksi yang lengkap harus diisi");
       return;
@@ -92,7 +103,7 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          transactions: validRows.map(r => ({
+          transactions: validRows.map((r) => ({
             ...r,
             amount: Number(r.amount),
           })),
@@ -104,7 +115,10 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
         throw new Error(errData.error || "Gagal menyimpan transaksi");
       }
 
-      showToast("success", `${validRows.length} transaksi berhasil ditambahkan!`);
+      showToast(
+        "success",
+        `${validRows.length} transaksi berhasil ditambahkan!`,
+      );
       onSuccess();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
@@ -117,7 +131,6 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
 
   return (
     <div className="flex flex-col min-h-0 flex-1">
-      {/* Header — always visible */}
       <div className="mb-4 sm:mb-6 px-1 shrink-0">
         <h2 className="text-2xl font-black tracking-tight">
           Input Transaksi Massal
@@ -127,18 +140,33 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0 gap-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex-1 flex flex-col min-h-0 gap-4"
+      >
         {/* Scrollable rows area */}
         <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto custom-scrollbar -mx-1 px-1">
           {/* Desktop Table */}
           <div className="hidden md:block">
             <div className="grid grid-cols-[120px_110px_130px_140px_1fr_1fr_44px] gap-2 mb-2 px-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tanggal</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Jumlah</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tipe</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Dompet</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Kategori</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Catatan</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Tanggal
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Jumlah
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Tipe
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Dompet
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Kategori
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Catatan
+              </span>
               <span></span>
             </div>
 
@@ -155,7 +183,9 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
                     <Input
                       type="date"
                       value={watchedRows[index]?.date || ""}
-                      onChange={(e) => setValue(`rows.${index}.date`, e.target.value)}
+                      onChange={(e) =>
+                        setValue(`rows.${index}.date`, e.target.value)
+                      }
                       className="h-10 rounded-xl border-border/30 text-sm px-2"
                     />
                     <Input
@@ -163,16 +193,23 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
                       placeholder="0"
                       min="1"
                       value={watchedRows[index]?.amount || ""}
-                      onChange={(e) => setValue(`rows.${index}.amount`, e.target.value)}
+                      onChange={(e) =>
+                        setValue(`rows.${index}.amount`, e.target.value)
+                      }
                       className="h-10 rounded-xl border-border/30 text-sm px-2"
                     />
                     <Select
                       value={rowType}
                       onValueChange={(val) => {
-                        setValue(`rows.${index}.type`, val as "income" | "expense");
+                        setValue(
+                          `rows.${index}.type`,
+                          val as "income" | "expense",
+                        );
                         const currentCat = watchedRows[index]?.category;
                         const stillValid = allCategories.some(
-                          (c) => c.name === currentCat && (c.type === val || c.type === "all")
+                          (c) =>
+                            c.name === currentCat &&
+                            (c.type === val || c.type === "all"),
                         );
                         if (!stillValid) setValue(`rows.${index}.category`, "");
                       }}
@@ -181,23 +218,47 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl border-none shadow-2xl">
-                        <SelectItem value="expense" className="text-[11px] font-bold">Pengeluaran</SelectItem>
-                        <SelectItem value="income" className="text-[11px] font-bold">Pemasukan</SelectItem>
+                        <SelectItem
+                          value="expense"
+                          className="text-[11px] font-bold"
+                        >
+                          Pengeluaran
+                        </SelectItem>
+                        <SelectItem
+                          value="income"
+                          className="text-[11px] font-bold"
+                        >
+                          Pemasukan
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <Select
                       value={watchedRows[index]?.wallet_id || "_none"}
-                      onValueChange={(val) => setValue(`rows.${index}.wallet_id`, val)}
+                      onValueChange={(val) =>
+                        setValue(`rows.${index}.wallet_id`, val)
+                      }
                     >
                       <SelectTrigger className="h-10 rounded-xl border-border/30 text-sm px-2">
                         <SelectValue placeholder="Dompet" />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl border-none shadow-2xl">
-                        <SelectItem value="_none" className="text-[11px] font-bold">Tanpa Dompet</SelectItem>
+                        <SelectItem
+                          value="_none"
+                          className="text-[11px] font-bold"
+                        >
+                          Tanpa Dompet
+                        </SelectItem>
                         {wallets.map((w) => (
-                          <SelectItem key={w.id} value={w.id} className="text-[11px] font-medium">
+                          <SelectItem
+                            key={w.id}
+                            value={w.id}
+                            className="text-[11px] font-medium"
+                          >
                             <div className="flex items-center gap-2">
-                              <CategoryIcon iconName={w.icon} className="w-3.5 h-3.5 opacity-70" />
+                              <CategoryIcon
+                                iconName={w.icon}
+                                className="w-3.5 h-3.5 opacity-70"
+                              />
                               <span>{w.name}</span>
                             </div>
                           </SelectItem>
@@ -206,17 +267,30 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
                     </Select>
                     <Select
                       value={watchedRows[index]?.category || ""}
-                      onValueChange={(val) => setValue(`rows.${index}.category`, val)}
+                      onValueChange={(val) =>
+                        setValue(`rows.${index}.category`, val)
+                      }
                       disabled={catLoading || filteredCats.length === 0}
                     >
                       <SelectTrigger className="h-10 rounded-xl border-border/30 text-sm px-2">
-                        <SelectValue placeholder={catLoading ? "Memuat..." : "Pilih salah satu..."} />
+                        <SelectValue
+                          placeholder={
+                            catLoading ? "Memuat..." : "Pilih salah satu..."
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl border-none shadow-2xl max-h-[200px]">
                         {filteredCats.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.name} className="text-[11px] font-medium">
+                          <SelectItem
+                            key={cat.id}
+                            value={cat.name}
+                            className="text-[11px] font-medium"
+                          >
                             <div className="flex items-center gap-2">
-                              <CategoryIcon iconName={cat.icon} className="w-3.5 h-3.5 opacity-70" />
+                              <CategoryIcon
+                                iconName={cat.icon}
+                                className="w-3.5 h-3.5 opacity-70"
+                              />
                               <span>{cat.name}</span>
                             </div>
                           </SelectItem>
@@ -224,9 +298,11 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
                       </SelectContent>
                     </Select>
                     <Input
-                      placeholder="cth. Kopi Kenangan"
+                      placeholder="cth.  Kopi Kenangan"
                       value={watchedRows[index]?.description || ""}
-                      onChange={(e) => setValue(`rows.${index}.description`, e.target.value)}
+                      onChange={(e) =>
+                        setValue(`rows.${index}.description`, e.target.value)
+                      }
                       className="h-10 rounded-xl border-border/30 text-sm px-3"
                     />
                     <Button
@@ -254,7 +330,7 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
               return (
                 <div
                   key={field.id}
-                  className="p-4 rounded-2xl bg-muted/20 border border-border/20 space-y-3"
+                  className="p-4 rounded-2xl bg-muted/15 border border-border/20 space-y-3"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
@@ -272,110 +348,213 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-[3fr_2fr] gap-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tanggal</label>
-                      <Input
-                        type="date"
-                        value={watchedRows[index]?.date || ""}
-                        onChange={(e) => setValue(`rows.${index}.date`, e.target.value)}
-                        className="h-10 rounded-xl border-border/30 text-sm"
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                        Tanggal
+                      </label>
+                      <DatePicker
+                        selected={
+                          watchedRows[index]?.date
+                            ? new Date(watchedRows[index].date + "T00:00:00")
+                            : new Date()
+                        }
+                        onChange={(date: Date | null) => {
+                          if (date) {
+                            const y = date.getFullYear();
+                            const m = String(date.getMonth() + 1).padStart(
+                              2,
+                              "0",
+                            );
+                            const d = String(date.getDate()).padStart(2, "0");
+                            setValue(`rows.${index}.date`, `${y}-${m}-${d}`);
+                          }
+                        }}
+                        dateFormat="dd/MM/yyyy"
+                        maxDate={new Date()}
+                        popperPlacement="bottom-start"
+                        customInput={
+                          <button
+                            type="button"
+                            className="h-10 w-full rounded-xl border border-border/30 bg-transparant px-3 text-sm text-left flex items-center gap-2 hover:border-border/50 transition-colors"
+                          >
+                            <CalendarDays className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                            <span className="truncate">
+                              {watchedRows[index]?.date
+                                ? new Date(
+                                    watchedRows[index].date + "T00:00:00",
+                                  ).toLocaleDateString("id-ID", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                  })
+                                : "Pilih..."}
+                            </span>
+                          </button>
+                        }
+                        wrapperClassName="w-full"
                       />
                     </div>
+                    
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Jumlah</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                        Jumlah
+                      </label>
                       <Input
                         type="number"
                         placeholder="0"
                         min="1"
                         value={watchedRows[index]?.amount || ""}
-                        onChange={(e) => setValue(`rows.${index}.amount`, e.target.value)}
+                        onChange={(e) =>
+                          setValue(`rows.${index}.amount`, e.target.value)
+                        }
                         className="h-10 rounded-xl border-border/30 text-sm"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tipe</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                      Tipe
+                    </label>
                     <Select
                       value={rowType}
                       onValueChange={(val) => {
-                        setValue(`rows.${index}.type`, val as "income" | "expense");
+                        setValue(
+                          `rows.${index}.type`,
+                          val as "income" | "expense",
+                        );
                         const currentCat = watchedRows[index]?.category;
                         const stillValid = allCategories.some(
-                          (c) => c.name === currentCat && (c.type === val || c.type === "all")
+                          (c) =>
+                            c.name === currentCat &&
+                            (c.type === val || c.type === "all"),
                         );
                         if (!stillValid) setValue(`rows.${index}.category`, "");
                       }}
                     >
-                      <SelectTrigger className="h-10 rounded-xl border-border/30 text-sm">
+                      <SelectTrigger className="h-10 rounded-xl w-full border-border/30 text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl border-none shadow-2xl">
-                        <SelectItem value="expense" className="text-[11px] font-bold">Pengeluaran</SelectItem>
-                        <SelectItem value="income" className="text-[11px] font-bold">Pemasukan</SelectItem>
+                        <SelectItem
+                          value="expense"
+                          className="text-[11px] font-medium"
+                        >
+                          Pengeluaran
+                        </SelectItem>
+                        <SelectItem
+                          value="income"
+                          className="text-[11px] font-medium"
+                        >
+                          Pemasukan
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Dompet</label>
-                    <Select
-                      value={watchedRows[index]?.wallet_id || "_none"}
-                      onValueChange={(val) => setValue(`rows.${index}.wallet_id`, val)}
-                    >
-                      <SelectTrigger className="h-10 rounded-xl border-border/30 text-sm">
-                        <SelectValue placeholder="Dompet" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl border-none shadow-2xl">
-                        <SelectItem value="_none" className="text-[11px] font-bold">Tanpa Dompet</SelectItem>
-                        {wallets.map((w) => (
-                          <SelectItem key={w.id} value={w.id} className="text-[11px] font-medium">
-                            <div className="flex items-center gap-2">
-                              <CategoryIcon iconName={w.icon} className="w-3.5 h-3.5 opacity-70" />
-                              <span>{w.name}</span>
-                            </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                        Dompet
+                      </label>
+                      <Select
+                        value={watchedRows[index]?.wallet_id || "_none"}
+                        onValueChange={(val) =>
+                          setValue(`rows.${index}.wallet_id`, val)
+                        }
+                      >
+                        <SelectTrigger className="h-10 rounded-xl w-full border-border/30 text-sm">
+                          <SelectValue placeholder="Dompet" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-none shadow-2xl">
+                          <SelectItem
+                            value="_none"
+                            className="text-[11px] font-memedium"
+                          >
+                            Tanpa Dompet
                           </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                          {wallets.map((w) => (
+                            <SelectItem
+                              key={w.id}
+                              value={w.id}
+                              className="text-[11px] font-medium"
+                            >
+                              <div className="flex items-center gap-2">
+                                <CategoryIcon
+                                  iconName={w.icon}
+                                  className="w-3.5 h-3.5 opacity-70"
+                                />
+                                <span className="truncate w-20">{w.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                        Kategori
+                      </label>
+                      <Select
+                        value={watchedRows[index]?.category || ""}
+                        onValueChange={(val) =>
+                          setValue(`rows.${index}.category`, val)
+                        }
+                        disabled={catLoading || filteredCats.length === 0}
+                      >
+                        <SelectTrigger className="h-10 rounded-xl w-full border-border/30 text-sm">
+                          <SelectValue
+                            placeholder={catLoading ? "Memuat..." : "Pilih..."}
+                          />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-none shadow-2xl max-h-[200px]">
+                          {filteredCats.map((cat) => (
+                            <SelectItem
+                              key={cat.id}
+                              value={cat.name}
+                              className="text-[11px] font-medium"
+                            >
+                              <div className="flex items-center gap-2">
+                                <CategoryIcon
+                                  iconName={cat.icon}
+                                  className="w-3.5 h-3.5 opacity-70"
+                                />
+                                <span className="truncate w-20">
+                                  {cat.name}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Kategori</label>
-                    <Select
-                      value={watchedRows[index]?.category || ""}
-                      onValueChange={(val) => setValue(`rows.${index}.category`, val)}
-                      disabled={catLoading || filteredCats.length === 0}
-                    >
-                      <SelectTrigger className="h-10 rounded-xl border-border/30 text-sm">
-                        <SelectValue placeholder={catLoading ? "Memuat..." : "Pilih kategori..."} />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl border-none shadow-2xl max-h-[200px]">
-                        {filteredCats.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.name} className="text-[11px] font-medium">
-                            <div className="flex items-center gap-2">
-                              <CategoryIcon iconName={cat.icon} className="w-3.5 h-3.5 opacity-70" />
-                              <span>{cat.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Catatan</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                      Catatan
+                    </label>
                     <Input
                       placeholder="cth. Kopi Kenangan"
                       value={watchedRows[index]?.description || ""}
-                      onChange={(e) => setValue(`rows.${index}.description`, e.target.value)}
+                      onChange={(e) =>
+                        setValue(`rows.${index}.description`, e.target.value)
+                      }
                       className="h-10 rounded-xl border-border/30 text-sm"
                     />
                   </div>
                 </div>
               );
             })}
+            <button
+              type="button"
+              onClick={handleAddRow}
+              className="w-full text-center text-sm font-bold flex items-center justify-center gap-2 py-2 text-foreground/80 hover:text-foreground transition-colors"
+            >
+              + Tambah Baris
+            </button>
           </div>
         </div>
 
@@ -386,8 +565,8 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
           </div>
         )}
 
-        {/* Footer — always visible */}
-        <div className="flex items-center justify-between pt-4 border-t border-border/20 shrink-0">
+        {/* Desktop Footer */}
+        <div className="hidden md:flex items-center justify-between pt-4 border-t border-border/20 shrink-0">
           <Button
             type="button"
             variant="outline"
@@ -419,7 +598,40 @@ export function BulkTransactionForm({ onSuccess, onCancel }: BulkTransactionForm
               ) : (
                 <>
                   <Check className="w-4 h-4 stroke-[3px]" />
-                  Simpan Semua
+                  Simpan Semau
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Footer */}
+        <div className="md:hidden flex flex-col gap-4 shrink-0">
+          <div className="h-px w-full bg-border/40"></div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              className="rounded-full h-11 font-bold text-xs uppercase tracking-widest border-border/40"
+            >
+              Batal
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-full bg-[#9fe870] text-[#163300] hover:bg-[#cdffad] font-black text-xs uppercase tracking-widest h-11 gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Menyimpan...
+                </>
+              ) : (
+                <>
+                  <Check className="w-3.5 h-3.5 stroke-[3px]" />
+                  Simpan
                 </>
               )}
             </Button>

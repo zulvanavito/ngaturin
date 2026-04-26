@@ -219,7 +219,7 @@ export function TransactionList({
                             <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                               <Clock className="w-3 h-3" /> Waktu Transaksi
                             </p>
-                            <p className="text-sm font-medium tracking-tight">{new Date(tx.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</p>
+                            <p className="text-sm font-medium tracking-tight">{new Date(tx.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</p>
                           </div>
                           <div className="space-y-2">
                             <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">

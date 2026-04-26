@@ -82,15 +82,17 @@ export function Sidebar() {
   return (
     <aside className="w-64 h-full bg-card border-r border-border/40 hidden md:flex flex-col py-6 px-4 shrink-0 overflow-y-auto custom-scrollbar">
       <Link href="/dashboard" className="flex items-center gap-3 mb-8 px-2">
-        <Image
-          src="/logo.png"
-          alt="Ngaturin Logo"
-          width={32}
-          height={32}
-          className="object-contain"
-        />
+        <div className="w-8 h-8 relative">
+          <Image
+            src="/logo.png"
+            alt="Ngaturin Logo"
+            fill
+            sizes="max-width: 640px) 64px, (max-width: 768px) 96px, 128px "
+            className="object-contain"
+          />
+        </div>
         <span className="font-bold text-xl tracking-tight text-foreground">
-          Ngaturin
+          Ngaturin.
         </span>
       </Link>
 
@@ -223,15 +225,16 @@ export function MobileHeader() {
   return (
     <header className="md:hidden flex items-center justify-between px-4 h-16 bg-card border-b border-border/40 shrink-0 sticky top-0 z-50">
       <Link href="/dashboard" className="flex items-center gap-2">
-        <Image
-          src="/logo.png"
-          alt="Ngaturin Logo"
-          width={28}
-          height={28}
-          className="rounded-xl object-contain"
-          style={{ width: "auto", height: "auto" }}
-        />
-        <span className="font-bold text-lg tracking-tight">Ngaturin</span>
+        <div className="w-8 h-8 relative">
+          <Image
+            src="/logo.png"
+            alt="Ngaturin Logo"
+            fill
+            sizes="max-width: 640px) 64px, (max-width: 768px) 96px, 128px "
+            className="object-contain"
+          />
+        </div>
+        <span className="font-bold text-lg tracking-tight">Ngaturin.</span>
       </Link>
 
       <Sheet open={open} onOpenChange={setOpen}>
@@ -251,21 +254,22 @@ export function MobileHeader() {
                 className="flex items-center gap-3 px-2"
                 onClick={() => setOpen(false)}
               >
-                <Image
-                  src="/logo.png"
-                  alt="Ngaturin Logo"
-                  width={32}
-                  height={32}
-                  className="rounded-xl object-contain"
-                  style={{ width: "auto", height: "auto" }}
-                />
+                <div className="w-8 h-8 relative">
+                  <Image
+                    src="/logo.png"
+                    alt="Ngaturin Logo"
+                    fill
+                    sizes="max-width: 640px) 64px, (max-width: 768px) 96px, 128px "
+                    className="object-contain"
+                  />
+                </div>
                 <span className="font-bold text-xl tracking-tight text-foreground">
-                  Ngaturin
+                  Ngaturin.
                 </span>
               </Link>
             </SheetTitle>
             <SheetDescription className="sr-only">
-              Navigasi menu aplikasi Ngaturin
+              Navigasi menu aplikasi Ngaturin.
             </SheetDescription>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto p-4 space-y-1">

@@ -83,6 +83,7 @@ export function DebtSettleConfirmationModal({ open, onClose, onSuccess, debt }: 
             type: isHutang ? "expense" : "income",
             wallet_id: walletId,
             date: new Date().toISOString().split("T")[0],
+            debt_id: debt.id,
           }),
         });
         if (!txRes.ok) {

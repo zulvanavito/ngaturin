@@ -10,13 +10,18 @@ export async function POST() {
   }
 
   const tables = [
-    // Financial tables
+    // Children first (FK constraints)
+    "investment_history",
+    "investment_transactions",
     "transactions",
+    // Parent financial tables
     "wallets",
     "categories",
     "investments",
     "debts",
     "recurring_bills",
+    "goals",
+    "budgets",
     // PARA tables (children first due to FK constraints)
     "para_resources",
     "para_tasks",
@@ -29,7 +34,8 @@ export async function POST() {
       await supabase.from(table).delete().eq("user_id", user.id);
     }
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Terjadi kesalahan sistem";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

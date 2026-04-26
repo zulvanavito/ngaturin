@@ -25,6 +25,7 @@ export interface Transaction {
   date: string;
   wallet_id?: string;
   wallets?: { name: string } | null;
+  debt_id?: string | null;
   created_at: string;
   updated_at: string;
 }

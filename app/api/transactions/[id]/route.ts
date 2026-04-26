@@ -93,6 +93,69 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // 1. Fetch the transaction before deleting to check for debt_id
+  const { data: tx } = await supabase
+    .from("transactions")
+    .select("id, amount, debt_id, type")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!tx) {
+    return NextResponse.json({ error: "Transaksi tidak ditemukan" }, { status: 404 });
+  }
+
+  // 2. If linked to a debt, recalculate or reset debt status
+  if (tx.debt_id) {
+    const { data: debt } = await supabase
+      .from("debts")
+      .select("id, amount, paid_amount, is_settled, type")
+      .eq("id", tx.debt_id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (debt) {
+      const isMainTransaction = 
+        (debt.type === "hutang" && tx.type === "income") || 
+        (debt.type === "piutang" && tx.type === "expense");
+
+      if (isMainTransaction) {
+        // CASE A: Main transaction deleted -> Full Cleanup
+        // 1. Delete all transactions linked to this debt (including payments and self)
+        await supabase
+          .from("transactions")
+          .delete()
+          .eq("debt_id", debt.id)
+          .eq("user_id", user.id);
+
+        // 2. Delete the debt record itself
+        await supabase
+          .from("debts")
+          .delete()
+          .eq("id", debt.id)
+          .eq("user_id", user.id);
+
+        // Since we already deleted the main transaction (self) in step 1, 
+        // we can return success early.
+        return NextResponse.json({ success: true });
+      } else {
+        // CASE B: Payment transaction deleted -> Normal recalculation (Existing Logic)
+        const newPaidAmount = Math.max((debt.paid_amount || 0) - Number(tx.amount), 0);
+        const isStillSettled = newPaidAmount >= debt.amount;
+
+        await supabase
+          .from("debts")
+          .update({
+            paid_amount: newPaidAmount,
+            is_settled: isStillSettled,
+          })
+          .eq("id", debt.id)
+          .eq("user_id", user.id);
+      }
+    }
+  }
+
+  // 3. Delete the transaction
   const { error } = await supabase
     .from("transactions")
     .delete()

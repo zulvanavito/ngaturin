@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { HandCoins, AlertCircle, Loader2, ArrowRight } from "lucide-react";
+import { HandCoins, AlertCircle, Loader2} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -91,6 +91,7 @@ export function DebtPaymentModal({ open, onClose, onSuccess, debt }: DebtPayment
             type: isHutang ? "expense" : "income",
             wallet_id: walletId,
             date: new Date().toISOString().split("T")[0],
+            debt_id: debt.id,
           }),
         });
         if (!txRes.ok) {

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { TransactionList } from "@/components/finance/transaction-list";
 import { TransactionFilters } from "@/components/finance/transaction-filters";
+import type { DateRangePreset, SortOption } from "@/components/finance/transaction-filters";
 import { TransactionForm, type Transaction } from "@/components/finance/transaction-form";
 import { BulkTransactionForm } from "@/components/finance/bulk-transaction-form";
 import { TransactionRowSkeleton } from "@/components/layout/skeletons";
@@ -45,6 +46,10 @@ export default function TransactionsPage() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [walletFilter, setWalletFilter] = useState("all");
+  const [dateRangePreset, setDateRangePreset] = useState<DateRangePreset>("all");
+  const [customDateFrom, setCustomDateFrom] = useState("");
+  const [customDateTo, setCustomDateTo] = useState("");
+  const [sortOption, setSortOption] = useState<SortOption>("newest");
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const { showToast } = useToast();
 
@@ -96,18 +101,76 @@ export default function TransactionsPage() {
     fetchTransactions();
   }, [fetchTransactions]);
 
+  // Compute date range boundaries
+  const dateRange = useMemo(() => {
+    const now = new Date();
+    let from: Date | null = null;
+    let to: Date | null = null;
+
+    switch (dateRangePreset) {
+      case "7d":
+        from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+        to = now;
+        break;
+      case "30d":
+        from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+        to = now;
+        break;
+      case "this_month":
+        from = new Date(now.getFullYear(), now.getMonth(), 1);
+        to = now;
+        break;
+      case "this_year":
+        from = new Date(now.getFullYear(), 0, 1);
+        to = now;
+        break;
+      case "custom":
+        if (customDateFrom) from = new Date(customDateFrom + "T00:00:00");
+        if (customDateTo) to = new Date(customDateTo + "T23:59:59");
+        break;
+      default:
+        break;
+    }
+    return { from, to };
+  }, [dateRangePreset, customDateFrom, customDateTo]);
+
   // Filtering Logic
   const filteredTransactions = useMemo(() => {
-    return transactions.filter((t) => {
+    const filtered = transactions.filter((t) => {
       const matchSearch = t.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchType = typeFilter === "all" || t.type === typeFilter;
       const matchCategory = categoryFilter === "all" || t.category === categoryFilter;
       const matchWallet =
         walletFilter === "all" ||
         (walletFilter === "_none" ? !t.wallet_id : t.wallet_id === walletFilter);
-      return matchSearch && matchType && matchCategory && matchWallet;
+
+      let matchDate = true;
+      if (dateRange.from || dateRange.to) {
+        const txDate = new Date(t.date + "T00:00:00");
+        if (dateRange.from && txDate < dateRange.from) matchDate = false;
+        if (dateRange.to && txDate > dateRange.to) matchDate = false;
+      }
+
+      return matchSearch && matchType && matchCategory && matchWallet && matchDate;
     });
-  }, [transactions, searchQuery, typeFilter, categoryFilter, walletFilter]);
+
+    // Sorting
+    filtered.sort((a, b) => {
+      switch (sortOption) {
+        case "oldest":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case "amount_desc":
+          return Number(b.amount) - Number(a.amount);
+        case "amount_asc":
+          return Number(a.amount) - Number(b.amount);
+        case "newest":
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
+
+    return filtered;
+  }, [transactions, searchQuery, typeFilter, categoryFilter, walletFilter, dateRange, sortOption]);
 
   // Stats for the current view
   const stats = useMemo(() => {
@@ -130,7 +193,7 @@ export default function TransactionsPage() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, typeFilter, categoryFilter, walletFilter]);
+  }, [searchQuery, typeFilter, categoryFilter, walletFilter, dateRangePreset, customDateFrom, customDateTo, sortOption]);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
@@ -270,11 +333,23 @@ export default function TransactionsPage() {
           onCategoryChange={setCategoryFilter}
           walletFilter={walletFilter}
           onWalletChange={setWalletFilter}
+          dateRangePreset={dateRangePreset}
+          onDateRangePresetChange={setDateRangePreset}
+          customDateFrom={customDateFrom}
+          onCustomDateFromChange={setCustomDateFrom}
+          customDateTo={customDateTo}
+          onCustomDateToChange={setCustomDateTo}
+          sortOption={sortOption}
+          onSortChange={setSortOption}
           onReset={() => {
             setSearchQuery("");
             setTypeFilter("all");
             setCategoryFilter("all");
             setWalletFilter("all");
+            setDateRangePreset("all");
+            setCustomDateFrom("");
+            setCustomDateTo("");
+            setSortOption("newest");
           }}
         />
       </div>

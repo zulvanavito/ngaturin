@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, FilterX, SlidersHorizontal } from "lucide-react";
+import { Search, FilterX, SlidersHorizontal, Calendar, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -22,6 +22,9 @@ import { useCategories } from "@/hooks/use-categories";
 import { useWallets } from "@/hooks/use-wallets";
 import { CategoryIcon } from "@/components/categories/category-icon";
 
+export type DateRangePreset = "all" | "7d" | "30d" | "this_month" | "this_year" | "custom";
+export type SortOption = "newest" | "oldest" | "amount_desc" | "amount_asc";
+
 interface TransactionFiltersProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
@@ -31,8 +34,32 @@ interface TransactionFiltersProps {
   onCategoryChange: (value: string) => void;
   walletFilter: string;
   onWalletChange: (value: string) => void;
+  dateRangePreset: DateRangePreset;
+  onDateRangePresetChange: (value: DateRangePreset) => void;
+  customDateFrom: string;
+  onCustomDateFromChange: (value: string) => void;
+  customDateTo: string;
+  onCustomDateToChange: (value: string) => void;
+  sortOption: SortOption;
+  onSortChange: (value: SortOption) => void;
   onReset: () => void;
 }
+
+const DATE_RANGE_LABELS: Record<DateRangePreset, string> = {
+  all: "Semua Waktu",
+  "7d": "7 Hari Terakhir",
+  "30d": "30 Hari Terakhir",
+  this_month: "Bulan Ini",
+  this_year: "Tahun Ini",
+  custom: "Kustom",
+};
+
+const SORT_LABELS: Record<SortOption, string> = {
+  newest: "Terbaru",
+  oldest: "Terlama",
+  amount_desc: "Nominal ↓",
+  amount_asc: "Nominal ↑",
+};
 
 export function TransactionFilters({
   searchQuery,
@@ -43,12 +70,20 @@ export function TransactionFilters({
   onCategoryChange,
   walletFilter,
   onWalletChange,
+  dateRangePreset,
+  onDateRangePresetChange,
+  customDateFrom,
+  onCustomDateFromChange,
+  customDateTo,
+  onCustomDateToChange,
+  sortOption,
+  onSortChange,
   onReset,
 }: TransactionFiltersProps) {
   const { categories } = useCategories();
   const { wallets } = useWallets();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const isFilterActive = typeFilter !== "all" || categoryFilter !== "all" || walletFilter !== "all";
+  const isFilterActive = typeFilter !== "all" || categoryFilter !== "all" || walletFilter !== "all" || dateRangePreset !== "all" || sortOption !== "newest";
 
   return (
     <div className="space-y-4 w-full">
@@ -178,6 +213,61 @@ export function TransactionFilters({
                 </Select>
               </div>
 
+              <div className="space-y-3">
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
+                  Rentang Waktu
+                </label>
+                <Select value={dateRangePreset} onValueChange={(v) => onDateRangePresetChange(v as DateRangePreset)}>
+                  <SelectTrigger className="h-14 rounded-2xl bg-white dark:bg-card border border-border/40 font-bold px-4">
+                    <SelectValue placeholder="Semua Waktu" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl border-none shadow-2xl">
+                    {(Object.keys(DATE_RANGE_LABELS) as DateRangePreset[]).map((key) => (
+                      <SelectItem key={key} value={key} className="font-medium py-3">
+                        {DATE_RANGE_LABELS[key]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {dateRangePreset === "custom" && (
+                  <div className="flex gap-2 pt-1">
+                    <input
+                      type="date"
+                      title="Tanggal mulai"
+                      value={customDateFrom}
+                      onChange={(e) => onCustomDateFromChange(e.target.value)}
+                      className="flex-1 h-12 rounded-xl bg-white dark:bg-card border border-border/40 px-3 text-sm font-medium"
+                    />
+                    <span className="self-center text-xs text-muted-foreground font-bold">s/d</span>
+                    <input
+                      type="date"
+                      title="Tanggal akhir"
+                      value={customDateTo}
+                      onChange={(e) => onCustomDateToChange(e.target.value)}
+                      className="flex-1 h-12 rounded-xl bg-white dark:bg-card border border-border/40 px-3 text-sm font-medium"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
+                  Urutkan
+                </label>
+                <Select value={sortOption} onValueChange={(v) => onSortChange(v as SortOption)}>
+                  <SelectTrigger className="h-14 rounded-2xl bg-white dark:bg-card border border-border/40 font-bold px-4">
+                    <SelectValue placeholder="Terbaru" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl border-none shadow-2xl">
+                    {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
+                      <SelectItem key={key} value={key} className="font-medium py-3">
+                        {SORT_LABELS[key]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="pt-6 flex gap-3">
                 <Button
                   variant="outline"
@@ -300,6 +390,71 @@ export function TransactionFilters({
                   />
                   <span>{w.name}</span>
                 </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Date Range Filter Pill */}
+        <Select value={dateRangePreset} onValueChange={(v) => onDateRangePresetChange(v as DateRangePreset)}>
+          <SelectTrigger className="shrink-0 h-10 w-fit min-w-[160px] whitespace-nowrap rounded-full bg-white dark:bg-card border border-border/40 font-bold text-[10px] uppercase tracking-widest gap-2 px-6">
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <Calendar className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="text-muted-foreground shrink-0">Waktu:</span>
+              <SelectValue placeholder="Semua Waktu" />
+            </div>
+          </SelectTrigger>
+          <SelectContent className="rounded-2xl border-none shadow-2xl">
+            {(Object.keys(DATE_RANGE_LABELS) as DateRangePreset[]).map((key) => (
+              <SelectItem
+                key={key}
+                value={key}
+                className="text-[10px] font-medium uppercase tracking-widest"
+              >
+                {DATE_RANGE_LABELS[key]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Custom Date Inputs (visible when custom is selected) */}
+        {dateRangePreset === "custom" && (
+          <div className="flex items-center gap-2 shrink-0">
+            <input
+              type="date"
+              title="Tanggal mulai"
+              value={customDateFrom}
+              onChange={(e) => onCustomDateFromChange(e.target.value)}
+              className="h-10 rounded-full bg-white dark:bg-card border border-border/40 px-4 text-[11px] font-bold"
+            />
+            <span className="text-[10px] font-bold text-muted-foreground">s/d</span>
+            <input
+              type="date"
+              title="Tanggal akhir"
+              value={customDateTo}
+              onChange={(e) => onCustomDateToChange(e.target.value)}
+              className="h-10 rounded-full bg-white dark:bg-card border border-border/40 px-4 text-[11px] font-bold"
+            />
+          </div>
+        )}
+
+        {/* Sort Pill */}
+        <Select value={sortOption} onValueChange={(v) => onSortChange(v as SortOption)}>
+          <SelectTrigger className="shrink-0 h-10 w-fit min-w-[130px] whitespace-nowrap rounded-full bg-white dark:bg-card border border-border/40 font-bold text-[10px] uppercase tracking-widest gap-2 px-6">
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="text-muted-foreground shrink-0">Urut:</span>
+              <SelectValue placeholder="Terbaru" />
+            </div>
+          </SelectTrigger>
+          <SelectContent className="rounded-2xl border-none shadow-2xl">
+            {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
+              <SelectItem
+                key={key}
+                value={key}
+                className="text-[10px] font-medium uppercase tracking-widest"
+              >
+                {SORT_LABELS[key]}
               </SelectItem>
             ))}
           </SelectContent>

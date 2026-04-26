@@ -203,8 +203,8 @@ ngaturin/
 
 ## 📄 Legal
 
-- [Kebijakan Privasi](/privacy-policy)
-- [Ketentuan Layanan](/terms-of-service)
+[Kebijakan Privasi](app/privacy-policy/page.tsx)
+[Ketentuan Layanan](app/terms-of-service/page.tsx)
 
 ## 📄 Lisensi
 

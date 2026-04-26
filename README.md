@@ -1,21 +1,34 @@
+# Ngaturin - Atur Keuangan Pribadimu!
+
 <p align="center">
-  <img src="public/readme-banner.png" width="100%" alt="Ngaturin Banner" />
+  <img src="public/logo.png" width="150" alt="Ngaturin Logo" />
 </p>
 
 <p align="center">
-  <img src="public/logo.png" width="80" alt="Ngaturin Logo" />
+  <strong>Kelola Hidup & Uang Dalam Satu Tampilan.</strong><br/>
+  Platform manajemen keuangan & produktivitas pribadi yang memadukan catatan transaksi, metode PARA, dan pelacakan investasi.
 </p>
 
-# Ngaturin 💰
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js">
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React">
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Supabase-20232A?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
+</p>
 
+---
+
+## 🚀 Tentang Proyek
 
 **Ngaturin** adalah platform manajemen keuangan & produktivitas pribadi berbasis web. Lebih dari sekadar expense tracker — Ngaturin memadukan pencatatan keuangan komprehensif, metode organisasi **PARA (Projects, Areas, Resources, Archives)**, dan pelacakan investasi ke dalam satu tampilan terpadu. Dibangun dengan Next.js 16, Supabase, dan TailwindCSS.
 
-> *"Kelola Hidup & Uang Dalam Satu Tampilan."*
+> _"Kelola Hidup & Uang Dalam Satu Tampilan."_
 
 ## ✨ Fitur
 
 ### 💳 Keuangan
+
 - **Transaksi** — Catat pemasukan, pengeluaran, dan transfer antar dompet.
 - **Multi-Dompet** — Kelola saldo terpisah (kas, bank, e-money, kartu kredit, dll.) dengan transfer antar dompet.
 - **Anggaran (Budgets)** — Tetapkan batas pengeluaran per kategori dan pantau progresnya.
@@ -26,17 +39,20 @@
 - **Insights & Analitik** — Ringkasan tren pengeluaran, cashflow, dan analisis AI.
 
 ### 📈 Investasi
+
 - **Portofolio Investasi** — Catat dan pantau aset investasi (saham, reksadana, crypto, dll.).
 - **Sinkronisasi Harga** — Integrasi Yahoo Finance untuk harga aset real-time.
 - **Histori Transaksi Investasi** — Tracking buy/sell per aset.
 
 ### 🗂️ Produktivitas (PARA)
+
 - **Projects** — Kelola proyek aktif dengan task dan deadline.
 - **Areas** — Tanggung jawab berkelanjutan yang perlu dipelihara.
 - **Resources** — Kumpulkan referensi dan materi belajar.
 - **Archives** — Arsipkan item yang sudah selesai.
 
 ### 🛡️ Lainnya
+
 - **Autentikasi Multi-Metode** — Email/password dan Google OAuth via Supabase Auth.
 - **Dashboard Interaktif** — Ringkasan total aset, chart 7 hari, financial health score.
 - **Ekspor Data** — Export transaksi ke CSV, Excel, dan PDF.
@@ -46,23 +62,23 @@
 
 ## 🛠️ Teknologi
 
-| Bagian | Teknologi |
-| :--- | :--- |
-| **Framework** | Next.js 16 (App Router, Turbopack) |
-| **Styling** | TailwindCSS 3, Framer Motion |
-| **UI Components** | Radix UI (Shadcn UI), Lucide React |
-| **Charts** | Recharts |
+| Bagian             | Teknologi                                       |
+| :----------------- | :---------------------------------------------- |
+| **Framework**      | Next.js 16 (App Router, Turbopack)              |
+| **Styling**        | TailwindCSS 3, Framer Motion                    |
+| **UI Components**  | Radix UI (Shadcn UI), Lucide React              |
+| **Charts**         | Recharts                                        |
 | **Backend & Auth** | Supabase (PostgreSQL, Auth, Row Level Security) |
-| **Investasi** | Yahoo Finance 2 (market data) |
-| **Ekspor** | ExcelJS, jsPDF, json2csv |
-| **Analytics** | Vercel Speed Insights |
-| **Deployment** | Vercel |
+| **Investasi**      | Yahoo Finance 2 (market data)                   |
+| **Ekspor**         | ExcelJS, jsPDF, json2csv                        |
+| **Analytics**      | Vercel Speed Insights                           |
+| **Deployment**     | Vercel                                          |
 
 ## 📋 Prasyarat
 
 - Node.js versi 18.x atau lebih baru
 - Akun [Supabase](https://supabase.com) (gratis)
-- *(Opsional)* Akun Google Cloud Console untuk OAuth Google
+- _(Opsional)_ Akun Google Cloud Console untuk OAuth Google
 
 ## 🚀 Cara Menjalankan
 
@@ -184,11 +200,6 @@ ngaturin/
 ├── tailwind.config.ts              # Konfigurasi TailwindCSS
 └── .env.local                      # Environment variables (tidak di-commit)
 ```
-
-## 📄 Legal
-
-- [Kebijakan Privasi](/privacy-policy)
-- [Ketentuan Layanan](/terms-of-service)
 
 ## 📄 Lisensi
 

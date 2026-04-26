@@ -3,18 +3,10 @@
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { KeyRound, CheckCircle2 } from "lucide-react";
+import { KeyRound, CheckCircle2, RotateCw, Lock, Eye, EyeOff, AlertTriangle } from "lucide-react";
 
 export function UpdatePasswordForm({
   className,
@@ -22,6 +14,8 @@ export function UpdatePasswordForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,28 +24,19 @@ export function UpdatePasswordForm({
   useEffect(() => {
     const checkSession = async () => {
       const supabase = createClient();
-      
-      // First try to get the existing session
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session) {
         setIsSessionValid(true);
       } else {
-        // If no immediate session, wait a bit for Supabase client to parse the URL hash
-        // The URL from email looks like /auth/update-password#access_token=...&refresh_token=...
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (_event, session) => {
-            if (session) {
-              setIsSessionValid(true);
-            }
+            if (session) setIsSessionValid(true);
           }
         );
 
-        // Set a timeout to show error if session isn't established after a few seconds
         const timeout = setTimeout(() => {
-          if (isSessionValid === null) {
-             setIsSessionValid(false);
-          }
+          if (isSessionValid === null) setIsSessionValid(false);
         }, 3000);
 
         return () => {
@@ -76,8 +61,8 @@ export function UpdatePasswordForm({
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password minimal 6 karakter");
+    if (password.length < 8) {
+      setError("Password minimal 8 karakter");
       setIsLoading(false);
       return;
     }
@@ -95,110 +80,118 @@ export function UpdatePasswordForm({
 
   if (success) {
     return (
-      <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-sm text-center py-6">
-        <CardHeader className="space-y-4">
-          <div className="mx-auto w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2">
-            <CheckCircle2 className="w-8 h-8 text-emerald-500" />
-          </div>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
+      <div className="flex flex-col items-center text-center space-y-6 max-w-sm mx-auto">
+        <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2">
+          <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground">
             Password Berhasil Diubah!
-          </CardTitle>
-          <CardDescription className="text-base">
-            Akun Anda kini sudah aman
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Password Anda berhasil diperbarui. Silakan gunakan password baru pada sesi masuk berikutnya.
+          </h2>
+          <p className="text-muted-foreground font-medium text-sm px-4">
+            Akun Anda kini sudah aman. Silakan gunakan password baru Anda untuk masuk.
           </p>
-          <Button asChild className="w-full gradient-primary text-white font-medium hover:opacity-90 h-11">
-            <Link href="/dashboard">Lanjut ke Dashboard</Link>
-          </Button>
-        </CardContent>
-      </Card>
+        </div>
+        <Button asChild className="w-full h-14 rounded-full font-extrabold text-lg gradient-primary text-white shadow-xl shadow-primary/20 hover:brightness-110">
+          <Link href="/dashboard">Lanjut ke Dashboard</Link>
+        </Button>
+      </div>
     );
   }
 
   if (isSessionValid === false) {
     return (
-      <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-sm text-center py-6">
-        <CardHeader className="space-y-4">
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-red-600 to-rose-500 bg-clip-text text-transparent">
+      <div className="flex flex-col items-center text-center space-y-6 max-w-sm mx-auto">
+        <div className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mb-2">
+          <AlertTriangle className="w-10 h-10 text-destructive" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground">
             Tautan Tidak Valid
-          </CardTitle>
-          <CardDescription className="text-base text-red-500">
-            Sesi otentikasi tidak ditemukan
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Tautan reset password ini mungkin sudah kedaluwarsa atau tidak valid. Silakan lakukan permintaan reset password kembali.
+          </h2>
+          <p className="text-muted-foreground font-medium text-sm px-4">
+            Tautan reset password ini mungkin sudah kedaluwarsa atau tidak valid.
           </p>
-          <Button asChild className="w-full h-11" variant="outline">
-            <Link href="/auth/forgot-password">Coba Mintal Ulang Tautan</Link>
-          </Button>
-        </CardContent>
-      </Card>
+        </div>
+        <Button asChild variant="outline" className="w-full h-14 rounded-full font-bold text-base border-2 border-border/40 hover:bg-muted/30">
+          <Link href="/auth/forgot-password">Minta Tautan Baru</Link>
+        </Button>
+      </div>
     );
   }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-sm">
-        <CardHeader className="text-center space-y-2">
-          <div className="mx-auto w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-2">
-            <KeyRound className="w-6 h-6 text-white" />
-          </div>
-          <CardTitle className="text-2xl font-bold">Buat Password Baru</CardTitle>
-          <CardDescription>
-            Silakan ketikkan password baru Anda
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleUpdatePassword}>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password Baru</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Minimal 6 karakter"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-11"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="repeat-password">Ulangi Password Baru</Label>
-                <Input
-                  id="repeat-password"
-                  type="password"
-                  placeholder="Ketik ulang password baru"
-                  required
-                  value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
-                  className="h-11"
-                />
-              </div>
-              {error && (
-                <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg text-center">
-                  {error}
-                </div>
-              )}
-              <Button type="submit" className="w-full h-11 gradient-primary text-white font-medium hover:opacity-90 transition-opacity" disabled={isLoading || isSessionValid === null}>
-                {isLoading || isSessionValid === null ? (
-                  <svg className="w-4 h-4 mr-2 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                ) : null}
-                {isSessionValid === null ? "Memeriksa Sesi..." : isLoading ? "Menyimpan..." : "Simpan Password Baru"}
-              </Button>
+    <div className={cn("flex flex-col gap-8 w-full max-w-sm mx-auto", className)} {...props}>
+      <div className="flex flex-col items-center text-center space-y-3 mb-2">
+        <div className="w-12 h-12 bg-primary/20 text-primary rounded-2xl flex items-center justify-center mb-2 lg:hidden">
+           <KeyRound className="w-6 h-6" />
+        </div>
+        <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Password Baru</h2>
+        <p className="text-muted-foreground font-medium text-sm px-4">
+          Silakan masukkan password baru yang kuat untuk akun Anda.
+        </p>
+      </div>
+
+      <form onSubmit={handleUpdatePassword}>
+        <div className="flex flex-col gap-5">
+          <div className="grid gap-2">
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password Baru"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-14 rounded-2xl bg-muted/30 border-transparent font-semibold pl-6 pr-20 text-base focus-visible:ring-primary focus-visible:border-primary transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-12 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+              <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50 pointer-events-none" />
             </div>
-          </form>
-        </CardContent>
-      </Card>
+          </div>
+
+          <div className="grid gap-2">
+            <div className="relative">
+              <Input
+                id="repeat-password"
+                type={showRepeatPassword ? "text" : "password"}
+                placeholder="Ulangi Password Baru"
+                required
+                value={repeatPassword}
+                onChange={(e) => setRepeatPassword(e.target.value)}
+                className="h-14 rounded-2xl bg-muted/30 border-transparent font-semibold pl-6 pr-20 text-base focus-visible:ring-primary focus-visible:border-primary transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowRepeatPassword(!showRepeatPassword)}
+                className="absolute right-12 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showRepeatPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+              <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50 pointer-events-none" />
+            </div>
+          </div>
+          
+          {error && (
+            <div className="bg-destructive/10 text-destructive text-sm font-bold p-4 rounded-xl border border-destructive/20 mt-2">
+              {error}
+            </div>
+          )}
+          
+          <Button type="submit" className="w-full h-14 mt-4 wise-button-pill text-lg shadow-xl shadow-primary/20 hover:brightness-110 font-extrabold" disabled={isLoading || isSessionValid === null}>
+            {isLoading || isSessionValid === null ? (
+              <RotateCw className="w-5 h-5 mr-3 animate-spin" />
+            ) : null}
+            {isSessionValid === null ? "Memeriksa Sesi..." : isLoading ? "Menyimpan..." : "Simpan Password"}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

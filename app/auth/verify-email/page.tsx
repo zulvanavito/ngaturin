@@ -1,8 +1,9 @@
-import { LoginForm } from "@/components/auth/login-form";
+import { VerifyEmailContent } from "@/components/auth/verify-email-content";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { AuthSlideshow } from "@/components/auth/auth-slideshow";
 import Image from "next/image";
+import { Suspense } from "react";
 
 export default function Page() {
   return (
@@ -36,16 +37,18 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Right Panel: Form (Full Height) */}
+      {/* Right Panel: Content (Full Height) */}
       <div className="w-full lg:w-1/2 p-8 md:p-14 flex flex-col justify-center bg-background relative">
         <Link
-          href="/"
+          href="/auth/login"
           className="absolute top-8 left-8 flex items-center gap-2 text-sm font-bold text-muted-foreground transition-all hover:-translate-x-1 hover:text-foreground"
         >
           <ArrowLeft className="w-4 h-4" />
-          Kembali
+          Kembali ke Login
         </Link>
-        <LoginForm />
+        <Suspense>
+          <VerifyEmailContent />
+        </Suspense>
       </div>
     </div>
   );

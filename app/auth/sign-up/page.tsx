@@ -2,22 +2,24 @@ import { SignUpForm } from "@/components/auth/sign-up-form";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { AuthSlideshow } from "@/components/auth/auth-slideshow";
+import Image from "next/image";
 
 export default function Page() {
   return (
     <div className="flex min-h-svh w-full bg-background selection:bg-primary selection:text-primary-foreground">
-      
-      {/* Left Panel: Illustration (Full Height) */}
       <div className="hidden lg:flex w-1/2 bg-zinc-950 dark:bg-[#0e0f0c] p-12 flex-col items-center justify-between relative overflow-hidden">
-        {/* Background Blob */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="w-full flex justify-start z-10">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center font-extrabold text-[#163300] text-xl">
-              N
-            </div>
-            <span className="font-extrabold text-2xl tracking-tight text-white">
+            <Image
+              src="/logo.png"
+              alt="Ngaturin Logo"
+              width={35}
+              height={35}
+              className="object-contain drop-shadow transition-transform group-hover:scale-105"
+            />
+            <span className="font-extrabold text-xl tracking-tight text-white hidden sm:block">
               Ngaturin.
             </span>
           </Link>
@@ -26,7 +28,9 @@ export default function Page() {
         <AuthSlideshow />
 
         <div className="w-full flex justify-center z-10">
-          <p className="text-sm text-white/40 font-semibold">© 2026 Ngaturin. Hak Cipta Dilindungi.</p>
+          <p className="text-sm text-white/40 font-semibold">
+            © 2026 Ngaturin. Hak Cipta Dilindungi.
+          </p>
         </div>
       </div>
 

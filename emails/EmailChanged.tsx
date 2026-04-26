@@ -44,7 +44,7 @@ export default function EmailChanged() {
             {/* Hero Banner Placeholder */}
             <Section className="px-8 pb-4 text-center">
               <Img
-                src="http://localhost:3000/illustration/email/Forgot password-cuate.png"
+                src="http://ngaturin.web.id/illustration/email/Forgot password-cuate.png"
                 alt="Reset Password Ngaturin"
                 width="200"
                 height="200"
@@ -72,7 +72,7 @@ export default function EmailChanged() {
                 Jika Anda tidak merasa mengubah alamat email Anda, segera amankan akun Anda dengan menghubungi kami di{" "}
                 <EmailLink
                   href="mailto:ngaturinhidup@gmail.com"
-                  className="text-[#d03238] font-bold underline"
+                  className="text-[#054d28] font-bold underline"
                 >
                   ngaturinhidup@gmail.com
                 </EmailLink>.

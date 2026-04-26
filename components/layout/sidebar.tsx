@@ -87,8 +87,7 @@ export function Sidebar() {
           alt="Ngaturin Logo"
           width={32}
           height={32}
-          className="rounded-xl object-contain"
-          style={{ width: "auto", height: "auto" }}
+          className="object-contain"
         />
         <span className="font-bold text-xl tracking-tight text-foreground">
           Ngaturin

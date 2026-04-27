@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ClientProviders } from "@/components/shared/client-providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
@@ -41,6 +42,7 @@ export default function RootLayout({
             {children}
           </ClientProviders>
           <SpeedInsights />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>

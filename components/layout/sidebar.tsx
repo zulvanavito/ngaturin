@@ -19,7 +19,6 @@ import {
   Target,
   PieChart,
   History,
-  Crown,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -48,7 +47,6 @@ const mainLinks = [
 
 
 const bottomLinks = [
-  { name: "Upgrade Pro", href: "/pricing", icon: Crown },
   { name: "Panduan", href: "/dashboard/guide", icon: LifeBuoy },
   { name: "Profil", href: "/dashboard/profile", icon: User },
 ];

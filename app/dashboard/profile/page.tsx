@@ -1,9 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { ProfileForm } from "@/components/profile/profile-form";
-import { DataManagementCard } from "@/components/profile/data-management-card";
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ProfilePageClient } from "@/components/profile/profile-page-client";
+
+export const metadata = {
+  title: "Profil & Langganan | Ngaturin",
+  description: "Kelola profil, keamanan, langganan, dan data akun Anda.",
+};
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -22,33 +24,21 @@ export default async function ProfilePage() {
     .select("*")
     .order("date", { ascending: false });
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-20">
-      <div className="max-w-2xl mx-auto w-full">
-        <Link 
-          href="/dashboard" 
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Kembali ke Dashboard
-        </Link>
-        
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Profil Pengguna</h1>
-          <p className="text-muted-foreground mt-2 font-medium">
-            Perbarui informasi pribadi dan pengaturan kata sandi Anda.
-          </p>
-        </div>
-        
-        <ProfileForm user={user} />
-      </div>
+  // Get current active subscription
+  const { data: subscription } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-      <div className="border-t border-border/40 pt-8 mt-8">
-        <div className="max-w-2xl mx-auto w-full">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground mb-6">Manajemen Data</h2>
-          <DataManagementCard transactions={transactions || []} />
-        </div>
-      </div>
-    </div>
+  return (
+    <ProfilePageClient
+      user={JSON.parse(JSON.stringify(user))}
+      transactions={transactions || []}
+      subscription={subscription}
+      clientKey={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY!}
+    />
   );
 }

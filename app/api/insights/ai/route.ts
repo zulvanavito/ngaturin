@@ -34,16 +34,16 @@ export async function POST(req: Request) {
 
       // 2. Critical Alerts (Bills/Debt)
       if (upcomingBills.length > 0) {
-        parts.push(`⚠️ Kamu punya tagihan yang akan datang senilai **Rp${totalUpcomingBills.toLocaleString('id-ID')}**. Pastikan saldo lancar cukup agar tidak menunggak.`);
+        parts.push(`Kamu punya tagihan yang akan datang senilai **Rp${totalUpcomingBills.toLocaleString('id-ID')}**. Pastikan saldo lancar cukup agar tidak menunggak.`);
       }
 
       if (totalDebtAmount > (totalInvestment * 2)) {
-        parts.push(`🚨 Rasio hutangmu terhadap aset investasi terlihat cukup tinggi. Pertimbangkan untuk mereview kembali prioritas pengeluaran.`);
+        parts.push(`Rasio hutangmu terhadap aset investasi terlihat cukup tinggi. Pertimbangkan untuk mereview kembali prioritas pengeluaran.`);
       }
 
       // 3. Positive Reinforcement
       if (netCashflow > 0 && totalInvestment > 0) {
-        parts.push(`✨ Bagus! *Cashflow* positifmu bisa dialokasikan untuk memperkuat portofolio investasi atau melunasi hutang lebih awal.`);
+        parts.push(`Bagus! *Cashflow* positifmu bisa dialokasikan untuk memperkuat portofolio investasi atau melunasi hutang lebih awal.`);
       }
 
       aiNarrative = parts.join(" ") || "Keuanganmu terlihat stabil. Terus pantau pengeluaran harianmu agar tetap sesuai anggaran.";

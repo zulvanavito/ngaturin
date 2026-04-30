@@ -85,7 +85,7 @@
 
 @layer base {
   * {
-    @apply border-border/15 dark:border-border/15;
+    @apply border-border/10 dark:border-border/10;
   }
   body {
     @apply bg-background text-foreground;
@@ -112,7 +112,7 @@
   }
 
   .wise-card {
-    @apply rounded-[30px] border border-black/12 bg-white shadow-[0_0_0_1px_rgba(14,15,12,0.12)];
+    @apply rounded-[30px] border border-black/10 bg-white shadow-[0_0_0_1px_rgba(14,15,12,0.12)];
   }
 
   .glass {

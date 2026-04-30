@@ -1,6 +1,6 @@
 "use client";
 
-import { Zap } from "lucide-react";
+import { Zap, Coins } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 
 interface DashboardSummaryCardProps {
@@ -27,7 +27,7 @@ export function DashboardSummaryCard({
             <span className="text-muted-foreground">O</span>
           </div>
           <p className="text-muted-foreground text-sm mt-1">
-            Halo, {userName} <span className="inline-block translate-y-[2px]">👋</span>
+            Halo, {userName}
           </p>
         </div>
         
@@ -62,7 +62,7 @@ export function DashboardSummaryCard({
                 {formatCurrency(remainingBudget)}
               </span>
               <div className="flex items-center gap-2 mt-2 text-muted-foreground text-sm">
-                <span className="text-amber-300 text-lg">💰</span> budget harian yang tersisa
+                <Coins className="w-4 h-4 text-amber-500" /> budget harian yang tersisa
               </div>
             </div>
           </div>

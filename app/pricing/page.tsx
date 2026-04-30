@@ -450,6 +450,16 @@ export default function PricingPage() {
             </div>
           </div>
         </div>
+
+        {/* Footer Info */}
+        <div className="mt-20 text-center">
+          <p className="text-sm text-muted-foreground font-medium">
+            Punya pertanyaan sebelum berlangganan? <Link href="/contact" className="text-primary hover:underline font-bold">Hubungi Kami</Link>
+          </p>
+          <p className="text-[10px] text-muted-foreground/60 mt-2">
+            Transaksi aman dan terenkripsi. Baca <Link href="/refund-policy" className="hover:underline">Kebijakan Pengembalian</Link> kami.
+          </p>
+        </div>
       </main>
     )}
       

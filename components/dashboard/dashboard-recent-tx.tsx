@@ -2,6 +2,14 @@
 
 import { Transaction } from "@/components/finance/transaction-form";
 import { formatCurrency } from "@/lib/utils/format";
+import { 
+  Repeat, 
+  Utensils, 
+  ShoppingBag, 
+  Coins, 
+  Banknote, 
+  CreditCard 
+} from "lucide-react";
 
 interface DashboardRecentTxProps {
   transactions: Transaction[];
@@ -11,14 +19,15 @@ export function DashboardRecentTx({ transactions }: DashboardRecentTxProps) {
   
   
   const getIconAndColor = (category: string, type: string) => {
-    // Basic mapping for nice visuals based on image references
-    if (type === 'transfer') return { icon: '⇄', bg: 'bg-blue-100', text: 'text-blue-500' };
-    if (category?.toLowerCase().includes('makan') || category?.toLowerCase().includes('jajan') || category?.toLowerCase().includes('sate')) return { icon: '🍡', bg: 'bg-pink-100', text: 'text-pink-500' };
-    if (category?.toLowerCase().includes('shopee') || category?.toLowerCase().includes('belanja')) return { icon: '🛍️', bg: 'bg-purple-100', text: 'text-purple-500' };
-    if (type === 'income' || category?.toLowerCase().includes('hadiah') || category?.toLowerCase().includes('angpao')) return { icon: '💰', bg: 'bg-yellow-100', text: 'text-yellow-600' };
+    if (type === 'transfer') return { icon: <Repeat className="w-4 h-4 text-blue-500" />, bg: 'bg-blue-100' };
+    if (category?.toLowerCase().includes('makan') || category?.toLowerCase().includes('jajan') || category?.toLowerCase().includes('sate')) return { icon: <Utensils className="w-4 h-4 text-pink-500" />, bg: 'bg-pink-100' };
+    if (category?.toLowerCase().includes('shopee') || category?.toLowerCase().includes('belanja')) return { icon: <ShoppingBag className="w-4 h-4 text-purple-500" />, bg: 'bg-purple-100' };
+    if (type === 'income' || category?.toLowerCase().includes('hadiah') || category?.toLowerCase().includes('angpao')) return { icon: <Coins className="w-4 h-4 text-yellow-600" />, bg: 'bg-yellow-100' };
     
-    // default
-    return { icon: type === 'income' ? '💵' : '💳', bg: 'bg-slate-100', text: 'text-slate-500' };
+    return { 
+      icon: type === 'income' ? <Banknote className="w-4 h-4 text-slate-500" /> : <CreditCard className="w-4 h-4 text-slate-500" />, 
+      bg: 'bg-slate-100' 
+    };
   };
 
   // Ensure we at least show 4 things from the reference
@@ -47,7 +56,7 @@ export function DashboardRecentTx({ transactions }: DashboardRecentTxProps) {
                   {icon}
                 </div>
 
-                {/* Info block — full width, wraps naturally */}
+                {/* Info block  full width, wraps naturally */}
                 <div className="flex-1 min-w-0">
                   {/* Row 1: category + amount */}
                   <div className="flex items-center justify-between gap-2">
@@ -65,7 +74,7 @@ export function DashboardRecentTx({ transactions }: DashboardRecentTxProps) {
                   {/* Row 2: description + date */}
                   <div className="flex items-center justify-between gap-2 mt-0.5">
                     <span className="text-xs text-muted-foreground truncate">
-                      {tx.description || '—'}
+                      {tx.description || ''}
                     </span>
                     <span className="text-xs text-muted-foreground shrink-0">
                       {new Date(tx.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}

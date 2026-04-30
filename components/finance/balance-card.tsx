@@ -7,16 +7,8 @@ interface BalanceCardProps {
   totalExpense: number;
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-export { formatCurrency };
+import { formatCurrency } from "@/lib/utils/format";
+export { formatCurrency } from "@/lib/utils/format";
 
 export function BalanceCard({ totalIncome, totalExpense }: BalanceCardProps) {
   const balance = totalIncome - totalExpense;

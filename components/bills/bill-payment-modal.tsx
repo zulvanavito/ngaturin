@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { CreditCard, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -21,8 +22,6 @@ interface BillPaymentModalProps {
   bill: RecurringBill | null;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
 
 export function BillPaymentModal({ open, onClose, onSuccess, bill }: BillPaymentModalProps) {
   const { wallets } = useWallets();

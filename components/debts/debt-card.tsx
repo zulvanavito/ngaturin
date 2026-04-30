@@ -1,5 +1,6 @@
 "use client";
 
+import { formatCurrency } from "@/lib/utils/format";
 import {
   MoreVertical,
   Pencil,
@@ -39,12 +40,6 @@ interface DebtCardProps {
   onToggleSettle: (debt: Debt) => void;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
 
 function getDeadlineInfo(
   dueDate: string | null,

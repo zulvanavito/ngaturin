@@ -12,7 +12,8 @@ import { BulkTransactionForm } from "@/components/finance/bulk-transaction-form"
 import { TransactionRowSkeleton } from "@/components/layout/skeletons";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
+import { formatCurrency } from "@/lib/utils/format";
+import {
   Download, 
   FileSpreadsheet, 
   FileText, 
@@ -195,9 +196,7 @@ export default function TransactionsPage() {
     setCurrentPage(1);
   }, [searchQuery, typeFilter, categoryFilter, walletFilter, dateRangePreset, customDateFrom, customDateTo, sortOption]);
 
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
-
+  
   if (isLoading) {
     return (
       <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">

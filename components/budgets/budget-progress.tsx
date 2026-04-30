@@ -1,18 +1,13 @@
 "use client";
 
+import { formatCurrency } from "@/lib/utils/format";
+
 interface BudgetProgressProps {
   category: string;
   spent: number;
   budget: number;
 }
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
 
 export function BudgetProgress({ category, spent, budget }: BudgetProgressProps) {
   const percentage = Math.min((spent / budget) * 100, 100);

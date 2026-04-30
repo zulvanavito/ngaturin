@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { ArrowUpRight, ArrowDownLeft, ArrowLeftRight} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -16,12 +17,6 @@ interface WalletHistoryModalProps {
   wallet: WalletData | null;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
 
 export function WalletHistoryModal({ open, onClose, wallet }: WalletHistoryModalProps) {
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);

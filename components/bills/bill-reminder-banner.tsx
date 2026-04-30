@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bell, X } from "lucide-react";
+import { formatCurrency } from "@/lib/utils/format";
 
 interface RecurringBill {
   id: string;
@@ -12,9 +13,6 @@ interface RecurringBill {
   is_active: boolean;
 }
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
-}
 
 export function BillReminderBanner() {
   const [urgentBills, setUrgentBills] = useState<RecurringBill[]>([]);

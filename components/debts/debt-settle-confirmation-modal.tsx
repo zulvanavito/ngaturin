@@ -5,6 +5,7 @@ import { CheckCircle2, AlertTriangle, Loader2} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -22,12 +23,6 @@ interface DebtSettleConfirmationModalProps {
   debt: Debt | null;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
 
 export function DebtSettleConfirmationModal({ open, onClose, onSuccess, debt }: DebtSettleConfirmationModalProps) {
   const { wallets } = useWallets(false);

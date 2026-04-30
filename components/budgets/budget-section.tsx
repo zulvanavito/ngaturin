@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Target, X, Loader2, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { formatCurrency } from "@/lib/utils/format";
 
 interface Budget {
   id: string;
@@ -26,11 +27,6 @@ interface BudgetSectionProps {
 
 const ITEMS_PER_PAGE = 6; // 2x3 grid
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency", currency: "IDR", minimumFractionDigits: 0,
-  }).format(amount);
-}
 
 function formatRupiah(value: string) {
   const n = value.replace(/\D/g, "");

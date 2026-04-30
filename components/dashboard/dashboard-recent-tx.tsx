@@ -1,6 +1,7 @@
 "use client";
 
 import { Transaction } from "@/components/finance/transaction-form";
+import { formatCurrency } from "@/lib/utils/format";
 
 interface DashboardRecentTxProps {
   transactions: Transaction[];
@@ -8,14 +9,7 @@ interface DashboardRecentTxProps {
 
 export function DashboardRecentTx({ transactions }: DashboardRecentTxProps) {
   
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
+  
   const getIconAndColor = (category: string, type: string) => {
     // Basic mapping for nice visuals based on image references
     if (type === 'transfer') return { icon: '⇄', bg: 'bg-blue-100', text: 'text-blue-500' };

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Plus, ChevronLeft, TrendingDown, TrendingUp, HandCoins, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -15,12 +16,6 @@ import { DebtSettleConfirmationModal } from "@/components/debts/debt-settle-conf
 import { DebtCardSkeleton } from "@/components/layout/skeletons";
 import { useToast } from "@/lib/toast-context";
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
 
 export default function DebtsPage() {
   const [debts, setDebts] = useState<Debt[]>([]);

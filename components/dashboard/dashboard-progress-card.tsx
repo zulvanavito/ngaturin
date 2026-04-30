@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import type { Transaction } from "@/components/finance/transaction-form";
 import { createClient } from "@/lib/supabase/client";
+import { formatCurrency } from "@/lib/utils/format";
 
 interface CategoryProgress {
   name: string;
@@ -37,13 +38,6 @@ export function DashboardProgressCard({ transactions }: DashboardProgressCardPro
 
   useEffect(() => { fetchBudgets(); }, [fetchBudgets]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
   
   const categoryExpenses = useMemo(() => {
     const currentMonthTx = transactions.filter(t => {

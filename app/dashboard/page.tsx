@@ -16,6 +16,7 @@ import { DashboardCalendarCard } from "@/components/dashboard/dashboard-calendar
 import { DashboardRecentTx } from "@/components/dashboard/dashboard-recent-tx";
 import { GoalsSnapshot } from "@/components/goals/goals-snapshot";
 import { createClient } from "@/lib/supabase/client";
+import { formatCurrency } from "@/lib/utils/format";
 import Link from "next/link";
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, 
@@ -56,7 +57,7 @@ export default function DashboardPage() {
   const [userEmail, setUserEmail] = useState("");
   const router = useRouter();
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user?.user_metadata?.full_name) {
@@ -65,7 +66,7 @@ export default function DashboardPage() {
       setUserName(user.email.split("@")[0]);
       setUserEmail(user.email);
     }
-  };
+  }, []);
 
   const fetchTransactions = useCallback(async () => {
     try {
@@ -75,8 +76,6 @@ export default function DashboardPage() {
       setTransactions(data);
     } catch (error) {
       console.error("Error fetching transactions:", error);
-    } finally {
-      setIsLoading(false);
     }
   }, []);
 
@@ -108,17 +107,26 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    fetchUser();
-    fetchTransactions();
-    fetchDebts();
-    fetchInvestments();
-    fetchWallets();
-  }, [fetchTransactions, fetchDebts, fetchInvestments, fetchWallets]);
+    const loadAll = async () => {
+      setIsLoading(true);
+      await Promise.all([
+        fetchUser(),
+        fetchTransactions(),
+        fetchDebts(),
+        fetchInvestments(),
+        fetchWallets(),
+      ]);
+      setIsLoading(false);
+    };
+    loadAll();
+  }, [fetchUser, fetchTransactions, fetchDebts, fetchInvestments, fetchWallets]);
 
   // --- Calculations ---
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
+  // Hoist date values into useMemo — avoids recreation every render (server-hoist-static-io)
+  const { currentMonth, currentYear } = useMemo(() => {
+    const today = new Date();
+    return { currentMonth: today.getMonth(), currentYear: today.getFullYear() };
+  }, []);
 
   const monthlyTransactions = useMemo(() =>
     transactions.filter(t => {
@@ -134,18 +142,17 @@ export default function DashboardPage() {
     monthlyTransactions.filter(t => t.type === "expense").reduce((sum, t) => sum + Number(t.amount), 0),
     [monthlyTransactions]);
 
+  // Remove over-memoization for simple primitives (rerender-simple-expression-in-memo)
   const activeDebts = useMemo(() => debts.filter(d => !d.is_settled), [debts]);
-  const totalOwed = useMemo(() => activeDebts.filter(d => d.type === "owe").reduce((s, d) => s + Number(d.amount), 0), [activeDebts]);
-  const totalReceivable = useMemo(() => activeDebts.filter(d => d.type === "owed").reduce((s, d) => s + Number(d.amount), 0), [activeDebts]);
-  const netDebt = useMemo(() => totalReceivable - totalOwed, [totalReceivable, totalOwed]);
+  const totalOwed = activeDebts.filter(d => d.type === "owe").reduce((s, d) => s + Number(d.amount), 0);
+  const totalReceivable = activeDebts.filter(d => d.type === "owed").reduce((s, d) => s + Number(d.amount), 0);
+  const netDebt = totalReceivable - totalOwed;
 
-  const totalInvestmentValue = useMemo(() => investments.reduce((s, i) => s + Number(i.current_value), 0), [investments]);
-  const totalWalletBalance = useMemo(() => wallets.reduce((s, w) => s + Number(w.balance), 0), [wallets]);
-  const totalWealth = useMemo(() => totalWalletBalance + totalInvestmentValue + netDebt, [totalWalletBalance, totalInvestmentValue, netDebt]);
+  const totalInvestmentValue = investments.reduce((s, i) => s + Number(i.current_value), 0);
+  const totalWalletBalance = wallets.reduce((s, w) => s + Number(w.balance), 0);
+  const totalWealth = totalWalletBalance + totalInvestmentValue + netDebt;
 
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
-
+  
   // --- Chart Data: Last 7 Days ---
   const chartData = useMemo(() => {
     const days = [];

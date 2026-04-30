@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ClientProviders } from "@/components/shared/client-providers";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/next";
+import { DeferredAnalytics } from "@/components/shared/deferred-analytics";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
@@ -41,8 +40,7 @@ export default function RootLayout({
           <ClientProviders>
             {children}
           </ClientProviders>
-          <SpeedInsights />
-          <Analytics />
+          <DeferredAnalytics />
         </ThemeProvider>
       </body>
     </html>

@@ -1,7 +1,8 @@
 "use client";
 
 import { Target, Calendar, Type, Clock, AlignLeft, Info } from "lucide-react";
-import { 
+import { formatCurrency } from "@/lib/utils/format";
+import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription 
 } from "@/components/ui/dialog";
 import { Goal } from "./goal-card";
@@ -12,13 +13,6 @@ interface GoalDetailModalProps {
   goal: Goal | null;
 }
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
 
 export function GoalDetailModal({ open, onClose, goal }: GoalDetailModalProps) {
   if (!goal) return null;

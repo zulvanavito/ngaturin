@@ -2,6 +2,7 @@
 
 import { PieChart, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,13 +24,6 @@ interface BudgetCardProps {
   onDelete: (budgetId: string) => void;
 }
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
 
 export function BudgetCard({
   budget,

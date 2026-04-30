@@ -5,6 +5,7 @@ import { Undo2, Loader2, AlertCircle, Trash2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -27,12 +28,6 @@ interface DebtUnsettleModalProps {
   debt: Debt | null;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
 
 type PaidAmountAction = "keep" | "reset" | "subtract";
 

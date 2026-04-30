@@ -2,7 +2,8 @@
 
 import { Target, Calendar, MoreVertical, Plus, Pencil, Trash2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
+import { formatCurrency } from "@/lib/utils/format";
+import {
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
@@ -30,13 +31,6 @@ interface GoalCardProps {
   onDetail: (goal: Goal) => void;
 }
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
 
 export function GoalCard({ goal, onDeposit, onEdit, onDelete, onDetail }: GoalCardProps) {
   const progress = Math.min(Math.round((goal.current_amount / goal.target_amount) * 100), 100);

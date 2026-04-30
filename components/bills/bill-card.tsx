@@ -2,6 +2,7 @@
 
 import { MoreVertical, Pencil, Trash2, CheckCircle2, Clock, AlertTriangle, CreditCard, RefreshCw, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -27,8 +28,6 @@ interface BillCardProps {
   onToggleActive: (bill: RecurringBill) => void;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
 
 function getDueInfo(dueDay: number, isPaid: boolean): { label: string; color: string; isOverdue: boolean } {
   if (isPaid) return { label: "Lunas bulan ini", color: "text-income", isOverdue: false };

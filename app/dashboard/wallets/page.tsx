@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Plus, ChevronLeft, Loader2, ArrowLeftRight, Wallet as WalletIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -14,12 +15,6 @@ import { WalletTransferModal } from "@/components/wallets/wallet-transfer-modal"
 import { WalletHistoryModal } from "@/components/wallets/wallet-history-modal";
 import { WalletCardSkeleton } from "@/components/layout/skeletons";
 import { useToast } from "@/lib/toast-context";
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
 
 export default function WalletsPage() {
   const { wallets, loading, refetch } = useWallets();

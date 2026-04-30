@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   Plus,
   ChevronLeft,
@@ -35,12 +36,6 @@ interface Transaction {
   date: string;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
 
 export default function BillsPage() {
   const [bills, setBills] = useState<RecurringBill[]>([]);

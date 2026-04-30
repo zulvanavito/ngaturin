@@ -5,6 +5,7 @@ import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -21,12 +22,6 @@ interface WalletTransferModalProps {
   wallets: WalletData[];
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
 
 export function WalletTransferModal({ open, onClose, onSuccess, wallets }: WalletTransferModalProps) {
   const [fromId, setFromId] = useState("");

@@ -191,7 +191,8 @@ export function BulkTransactionForm({
                     <Input
                       type="number"
                       placeholder="0"
-                      min="1"
+                      min="0.01"
+                      step="any"
                       value={watchedRows[index]?.amount || ""}
                       onChange={(e) =>
                         setValue(`rows.${index}.amount`, e.target.value)
@@ -403,7 +404,8 @@ export function BulkTransactionForm({
                       <Input
                         type="number"
                         placeholder="0"
-                        min="1"
+                        min="0.01"
+                        step="any"
                         value={watchedRows[index]?.amount || ""}
                         onChange={(e) =>
                           setValue(`rows.${index}.amount`, e.target.value)

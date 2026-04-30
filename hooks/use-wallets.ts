@@ -11,19 +11,38 @@ export interface Wallet {
   balance: number;
 }
 
-export function useWallets(includeBalance: boolean = true) {
-  const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [loading, setLoading] = useState(true);
+let cachedWallets: Wallet[] | null = null;
+let fetchPromise: Promise<Wallet[]> | null = null;
 
-  const fetchWallets = useCallback(async () => {
-    try {
-      setLoading(true);
+export function useWallets(includeBalance: boolean = true) {
+  const [wallets, setWallets] = useState<Wallet[]>(cachedWallets || []);
+  const [loading, setLoading] = useState(!cachedWallets);
+
+  const fetchWallets = useCallback(async (force = false) => {
+    if (cachedWallets && !force) {
+      setWallets(cachedWallets);
+      setLoading(false);
+      return;
+    }
+
+    if (!fetchPromise || force) {
       const url = includeBalance ? "/api/wallets" : "/api/wallets?balance=false";
-      const res = await fetch(url);
-      const data = await res.json();
-      if (res.ok) setWallets(data);
+      fetchPromise = fetch(url).then(async (res) => {
+        if (!res.ok) throw new Error("Gagal memuat dompet");
+        const data = await res.json();
+        cachedWallets = data;
+        return data;
+      });
+    }
+
+    try {
+      setLoading(!cachedWallets);
+      const data = await fetchPromise;
+      setWallets(data);
     } catch (err) {
       console.error("useWallets error:", err);
+      cachedWallets = null; // Reset on error
+      fetchPromise = null;
     } finally {
       setLoading(false);
     }
@@ -31,5 +50,5 @@ export function useWallets(includeBalance: boolean = true) {
 
   useEffect(() => { fetchWallets(); }, [fetchWallets]);
 
-  return { wallets, loading, refetch: fetchWallets };
+  return { wallets, loading, refetch: () => fetchWallets(true) };
 }

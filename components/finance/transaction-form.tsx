@@ -93,7 +93,7 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
         setDescription("");
         setAmount("");
         setCategory("");
-        setWalletId("");
+        setWalletId("_none");
         setType("expense");
         setDate(new Date().toISOString().split("T")[0]);
       }
@@ -171,7 +171,8 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
               id="amount"
               type="number"
               placeholder="50000"
-              min="1"
+              min="0.01"
+              step="any"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required

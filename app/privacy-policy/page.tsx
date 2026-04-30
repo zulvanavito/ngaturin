@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Kebijakan Privasi — Ngaturin",
@@ -12,12 +12,12 @@ export const metadata: Metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <main className="min-h-screen flex flex-col bg-background">
-      {/* ── Navbar ─────────────────────────────────────────────────────── */}
+      {/* Navbar */}
       <nav className="w-full border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex justify-between items-center px-6 h-16">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl gradient-primary flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-sm leading-none">
+            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+              <span className="text-primary-foreground font-bold text-sm leading-none">
                 N.
               </span>
             </div>
@@ -27,9 +27,8 @@ export default function PrivacyPolicyPage() {
         </div>
       </nav>
 
-      {/* ── Content ────────────────────────────────────────────────────── */}
+      {/* Content */}
       <div className="flex-1 max-w-4xl mx-auto px-6 py-12 md:py-20 w-full">
-        {/* Back link */}
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
@@ -38,19 +37,19 @@ export default function PrivacyPolicyPage() {
           Kembali ke Beranda
         </Link>
 
-        {/* Header */}
         <div className="mb-12">
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 text-primary">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-3">
             Kebijakan Privasi
           </h1>
-          <p className="text-muted-foreground text-sm">
-            Terakhir diperbarui: 24 Maret 2026
+          <p className="text-muted-foreground text-sm font-medium">
+            Terakhir diperbarui: 1 Mei 2026
           </p>
         </div>
 
-        {/* Body */}
-        <article className="prose prose-neutral dark:prose-invert max-w-none space-y-10 text-foreground/90 leading-relaxed">
-          {/* 1 */}
+        <article className="prose prose-neutral dark:prose-invert max-w-none space-y-10 text-foreground/90 leading-relaxed font-medium">
           <section>
             <h2 className="text-xl font-bold text-foreground mb-3">
               1. Pendahuluan
@@ -231,10 +230,10 @@ export default function PrivacyPolicyPage() {
               Jika Anda memiliki pertanyaan tentang Kebijakan Privasi ini,
               silakan hubungi kami melalui email di{" "}
               <a
-                href="mailto:shawnanggara@gmail.com"
+                href="mailto:ngaturinhidup@gmail.com"
                 className="text-primary hover:underline font-medium"
               >
-                shawnanggara@gmail.com
+                ngaturinhidup@gmail.com
               </a>
               .
             </p>
@@ -242,33 +241,13 @@ export default function PrivacyPolicyPage() {
         </article>
       </div>
 
-      {/* ── Footer ──────────────────────────────────────────────────────── */}
+      {/* Footer */}
       <footer className="border-t border-border/50 py-8">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg gradient-primary flex items-center justify-center">
-              <span className="text-white font-bold text-xs leading-none">
-                N.
-              </span>
-            </div>
             <span className="font-semibold text-foreground">Ngaturin</span>
             <span className="text-border">·</span>
-            <span>© 2026. All rights reserved.</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/privacy-policy"
-              className="hover:text-foreground transition-colors font-medium text-foreground"
-            >
-              Kebijakan Privasi
-            </Link>
-            <span className="text-border">·</span>
-            <Link
-              href="/terms-of-service"
-              className="hover:text-foreground transition-colors"
-            >
-              Ketentuan Layanan
-            </Link>
+            <span>© 2026. Hak Cipta Dilindungi.</span>
           </div>
         </div>
       </footer>

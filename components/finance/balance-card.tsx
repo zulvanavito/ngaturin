@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUp, TrendingDown, Wallet, PiggyBank } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, PiggyBank, CheckCircle2, AlertTriangle } from "lucide-react";
 
 interface BalanceCardProps {
   totalIncome: number;
@@ -43,8 +43,9 @@ export function BalanceCard({ totalIncome, totalExpense }: BalanceCardProps) {
 
           {/* Balance */}
           <p className="text-3xl font-bold tracking-tight text-white mb-1">{formatCurrency(balance)}</p>
-          <p className={`text-xs font-medium mb-4 ${balance >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-            {balance >= 0 ? "💚 Keuangan sehat" : "⚠️ Pengeluaran melebihi pemasukan"}
+          <p className={`text-xs font-medium mb-4 flex items-center gap-1.5 ${balance >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+            {balance >= 0 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
+            {balance >= 0 ? "Keuangan sehat" : "Pengeluaran melebihi pemasukan"}
           </p>
 
           {/* Divider */}
@@ -88,8 +89,9 @@ export function BalanceCard({ totalIncome, totalExpense }: BalanceCardProps) {
               <span className="text-xs font-medium tracking-widest text-zinc-400 uppercase">Total Saldo</span>
             </div>
             <p className="text-3xl lg:text-4xl font-bold tracking-tight text-white">{formatCurrency(balance)}</p>
-            <p className={`text-xs mt-2 font-medium ${balance >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-              {balance >= 0 ? "💚 Keuangan sehat" : "⚠️ Pengeluaran melebihi pemasukan"}
+            <p className={`text-xs mt-2 font-medium flex items-center gap-1.5 ${balance >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+              {balance >= 0 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
+              {balance >= 0 ? "Keuangan sehat" : "Pengeluaran melebihi pemasukan"}
             </p>
           </div>
           {totalIncome > 0 && (

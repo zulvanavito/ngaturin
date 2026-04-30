@@ -23,6 +23,8 @@ import {
   RefreshCw,
   HandCoins,
   ChevronDown,
+  Flame,
+  Utensils,
 } from "lucide-react";
 
 const featuresData = [
@@ -198,7 +200,7 @@ const MobileMockup = () => (
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-background border border-border/50 flex flex-shrink-0 items-center justify-center">
-              <span className="text-[10px]">🍔</span>
+              <Utensils className="w-4 h-4 text-primary" />
             </div>
             <div className="flex-1">
               <div className="h-2 w-16 bg-foreground/70 rounded mb-1" />
@@ -548,8 +550,8 @@ export default function Home() {
                           Catat Pengeluaran Harian
                         </span>
                       </div>
-                      <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-md font-bold">
-                        🔥 5 Hari
+                      <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-md font-bold flex items-center gap-1">
+                        <Flame className="w-3 h-3 fill-current" /> 5 Hari
                       </span>
                     </div>
                     <div className="bg-background border border-border/30 px-4 py-3 rounded-2xl flex items-center gap-3 opacity-60">
@@ -905,6 +907,27 @@ export default function Home() {
                 >
                   Ketentuan Layanan
                 </Link>
+                <Link
+                  href="/refund-policy"
+                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Kebijakan Pengembalian
+                </Link>
+              </div>
+              <div className="flex flex-col gap-4">
+                <h5 className="font-extrabold text-foreground mb-2">Dukungan</h5>
+                <Link
+                  href="/contact"
+                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Kontak Kami
+                </Link>
+                <a
+                  href="mailto:ngaturinhidup@gmail.com"
+                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Bantuan
+                </a>
               </div>
             </div>
           </div>

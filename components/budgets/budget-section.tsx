@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Target, X, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Plus, Target, X, Loader2, Pencil, Trash2, AlertTriangle, Circle, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils/format";
 
@@ -36,7 +36,7 @@ function formatRupiah(value: string) {
   }).format(parseInt(n, 10));
 }
 
-// ── Budget Card ────────────────────────────────────────────────────────────────
+//  Budget Card 
 function BudgetCard({
   budget,
   spent,
@@ -93,15 +93,15 @@ function BudgetCard({
         </div>
       </div>
 
-      {/* Percentage badge */}
-      <div className={`mt-3 text-right text-xs font-semibold ${textColor}`}>
-        {pct}% {pct >= 100 ? "⚠️ Melebihi!" : pct >= 90 ? "🔴 Hampir habis" : pct >= 75 ? "🟡 Waspada" : "🟢 Aman"}
+      <div className={`mt-3 text-right text-xs font-semibold flex items-center justify-end gap-1.5 ${textColor}`}>
+        {pct >= 100 ? <AlertTriangle className="w-3 h-3" /> : <Circle className="w-2.5 h-2.5 fill-current" />}
+        {pct}% {pct >= 100 ? "Melebihi!" : pct >= 90 ? "Hampir habis" : pct >= 75 ? "Waspada" : "Aman"}
       </div>
     </div>
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
+//  Main Component 
 export function BudgetSection({ transactions }: BudgetSectionProps) {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
@@ -123,7 +123,7 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
   const supabase = createClient();
   const currentMonth = new Date().toISOString().substring(0, 7);
 
-  // ── Fetch ───────────────────────────────────────────────────────────────────
+  //  Fetch 
   const fetchBudgets = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -143,14 +143,14 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
 
   useEffect(() => { fetchBudgets(); }, [fetchBudgets]);
 
-  // ── Pagination ──────────────────────────────────────────────────────────────
+  //  Pagination 
   const totalPages = Math.ceil(budgets.length / ITEMS_PER_PAGE);
   const paginatedBudgets = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return budgets.slice(start, start + ITEMS_PER_PAGE);
   }, [budgets, currentPage]);
 
-  // ── Helpers ─────────────────────────────────────────────────────────────────
+  //  Helpers 
   const getSpent = (cat: string) =>
     transactions.filter(t => t.type === "expense" && t.category === cat)
       .reduce((sum, t) => sum + Number(t.amount), 0);
@@ -176,7 +176,7 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
     setFormAmount("");
   };
 
-  // ── Save (Add / Edit) ───────────────────────────────────────────────────────
+  //  Save (Add / Edit) 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -193,7 +193,7 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
           .update({ amount: parsedAmount, category: formCategory })
           .eq("id", editingBudget.id);
       } else {
-        // Add new — if same category exists this month, update instead
+        // Add new  if same category exists this month, update instead
         const existing = budgets.find(b => b.category === formCategory);
         if (existing) {
           await supabase.from("budgets").update({ amount: parsedAmount }).eq("id", existing.id);
@@ -212,7 +212,7 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
     }
   };
 
-  // ── Delete ──────────────────────────────────────────────────────────────────
+  //  Delete 
   const handleDelete = async () => {
     if (!deletingBudget) return;
     setIsDeleting(true);
@@ -230,7 +230,7 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
     }
   };
 
-  // ── Loading skeleton ────────────────────────────────────────────────────────
+  //  Loading skeleton 
   if (loading) {
     return (
       <Card className="shadow-sm border-0 bg-card/60 backdrop-blur-xl animate-pulse h-40">
@@ -251,7 +251,7 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
               <Target className="w-5 h-5 text-primary" /> Anggaran Bulanan
             </CardTitle>
             <CardDescription>
-              {budgets.length} anggaran aktif · Bulan Ini
+              {budgets.length} anggaran aktif  Bulan Ini
             </CardDescription>
           </div>
           <Button variant="default" size="sm" onClick={openAdd} className="h-9 gap-1 hover:bg-primary/70">
@@ -289,12 +289,12 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
                     <Button variant="outline" size="sm" className="h-8 px-3 rounded-lg"
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={currentPage === 1}>
-                      ← Sebelumnya
+                      <ChevronLeft className="w-4 h-4 mr-1" /> Sebelumnya
                     </Button>
                     <Button variant="outline" size="sm" className="h-8 px-3 rounded-lg"
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}>
-                      Selanjutnya →
+                      Selanjutnya <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </div>
@@ -304,7 +304,7 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
         </CardContent>
       </Card>
 
-      {/* ── Add / Edit Dialog ─────────────────────────────────────────────── */}
+      {/*  Add / Edit Dialog  */}
       <Dialog open={isFormOpen} onOpenChange={(open) => { if (!open) closeForm(); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -338,9 +338,9 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
               </Select>
               {!catLoading && expenseCategories.length === 0 && (
                 <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                  ⚠️ Belum ada kategori.{" "}
-                  <Link href="/dashboard/categories" className="font-semibold underline">
-                    Tambah sekarang →
+                  <AlertTriangle className="w-3 h-3" /> Belum ada kategori.{" "}
+                  <Link href="/dashboard/categories" className="font-semibold underline flex items-center gap-1">
+                    Tambah sekarang <ChevronRight className="w-3 h-3" />
                   </Link>
                 </p>
               )}
@@ -373,7 +373,7 @@ export function BudgetSection({ transactions }: BudgetSectionProps) {
         </DialogContent>
       </Dialog>
 
-      {/* ── Delete Confirmation ───────────────────────────────────────────── */}
+      {/*  Delete Confirmation  */}
       <Dialog open={!!deletingBudget} onOpenChange={(open) => { if (!open) setDeletingBudget(null); }}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>

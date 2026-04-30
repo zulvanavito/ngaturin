@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Settings2, TrendingDown, TrendingUp } from "lucide-react";
+import { Settings2, TrendingDown, TrendingUp, Loader2, AlertTriangle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
 import { CategoryIcon } from "@/components/categories/category-icon";
@@ -217,14 +217,14 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
            
             {catLoading && (
               <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1 animate-pulse">
-                <span>⌛</span> Memuat daftar kategori...
+                <Loader2 className="w-3 h-3 animate-spin" /> Memuat daftar kategori...
               </p>
             )}
             {!catLoading && filteredCategories.length === 0 && (
               <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1">
-                <span>⚠️</span> Belum ada kategori.
-                <Link href="/dashboard/categories" className="font-semibold underline hover:text-amber-700 dark:hover:text-amber-300">
-                  Tambahkan sekarang →
+                <AlertTriangle className="w-3 h-3" /> Belum ada kategori.
+                <Link href="/dashboard/categories" className="font-semibold underline hover:text-amber-700 dark:hover:text-amber-300 flex items-center gap-1">
+                  Tambahkan sekarang <ArrowRight className="w-3 h-3" />
                 </Link>
               </p>
             )}
@@ -270,7 +270,7 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
         <div className="mt-auto pt-6">
           {error && (
             <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-500/10 text-rose-500 text-xs font-bold mb-4">
-              <span className="shrink-0 text-base">⚠️</span> {error}
+              <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
             </div>
           )}
 

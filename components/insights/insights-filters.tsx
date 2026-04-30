@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Tag, Wallet } from "lucide-react";
+import { Calendar, Tag, Wallet, TrendingUp, TrendingDown } from "lucide-react";
 import type { Transaction } from "@/components/finance/transaction-form";
 import { useWallets } from "@/hooks/use-wallets";
 
@@ -127,8 +127,16 @@ export function InsightsFilters({
           </SelectTrigger>
           <SelectContent className="rounded-2xl border-border/40 backdrop-blur-3xl">
             <SelectItem value="all">Semua Tipe</SelectItem>
-            <SelectItem value="income">📈 Pemasukan</SelectItem>
-            <SelectItem value="expense">📉 Pengeluaran</SelectItem>
+            <SelectItem value="income">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-emerald-500" /> Pemasukan
+              </div>
+            </SelectItem>
+            <SelectItem value="expense">
+              <div className="flex items-center gap-2">
+                <TrendingDown className="w-4 h-4 text-rose-500" /> Pengeluaran
+              </div>
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>

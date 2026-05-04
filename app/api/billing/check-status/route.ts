@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { coreApi } from "@/lib/midtrans";
 
-export const dynamic = 'force-dynamic';
-
 export async function GET(request: Request) {
+  // Pindahkan request.url ke luar try-catch agar mekanisme "Bail out of prerendering" Next.js tidak tertangkap
+  const { searchParams } = new URL(request.url);
+  const orderId = searchParams.get("orderId");
+
   try {
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!serviceRoleKey) {
@@ -16,9 +18,6 @@ export async function GET(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       serviceRoleKey
     );
-    const { searchParams } = new URL(request.url);
-    const orderId = searchParams.get("orderId");
-
     if (!orderId) {
       return NextResponse.json({ error: "orderId is required" }, { status: 400 });
     }

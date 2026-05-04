@@ -1,96 +1,115 @@
 "use client";
 
-import { Transaction } from "@/components/finance/transaction-form";
+import { useState, useEffect, useCallback } from "react";
+import { type Transaction } from "@/components/finance/transaction-form";
 import { formatCurrency } from "@/lib/utils/format";
-import { 
-  Repeat, 
-  Utensils, 
-  ShoppingBag, 
-  Coins, 
-  Banknote, 
-  CreditCard 
-} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-interface DashboardRecentTxProps {
-  transactions: Transaction[];
-  onEdit?: (transaction: Transaction) => void;
-}
+export function DashboardRecentTx() {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export function DashboardRecentTx({ transactions, onEdit }: DashboardRecentTxProps) {
-  
-  
-  const getIconAndColor = (category: string, type: string) => {
-    if (type === 'transfer') return { icon: <Repeat className="w-4 h-4 text-blue-500" />, bg: 'bg-blue-100' };
-    if (category?.toLowerCase().includes('makan') || category?.toLowerCase().includes('jajan') || category?.toLowerCase().includes('sate')) return { icon: <Utensils className="w-4 h-4 text-pink-500" />, bg: 'bg-pink-100' };
-    if (category?.toLowerCase().includes('shopee') || category?.toLowerCase().includes('belanja')) return { icon: <ShoppingBag className="w-4 h-4 text-purple-500" />, bg: 'bg-purple-100' };
-    if (type === 'income' || category?.toLowerCase().includes('hadiah') || category?.toLowerCase().includes('angpao')) return { icon: <Coins className="w-4 h-4 text-yellow-600" />, bg: 'bg-yellow-100' };
-    
-    return { 
-      icon: type === 'income' ? <Banknote className="w-4 h-4 text-slate-500" /> : <CreditCard className="w-4 h-4 text-slate-500" />, 
-      bg: 'bg-slate-100' 
-    };
-  };
+  const fetchTransactions = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/transactions?_t=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Failed");
+      const data = await res.json();
+      setTransactions(Array.isArray(data) ? data : []);
+    } catch {
+      /* silent */
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  // Ensure we at least show 4 things from the reference
-  const renderList = transactions.length > 0 ? transactions.slice(0, 4) : [];
+  useEffect(() => { fetchTransactions(); }, [fetchTransactions]);
+
+  if (loading) {
+    return (
+      <div className="bg-white dark:bg-card rounded-[2rem] border border-border/10 p-6 space-y-4">
+        <Skeleton className="h-5 w-36" />
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex items-center gap-3">
+            <Skeleton className="w-9 h-9 rounded-xl" />
+            <div className="flex-1 space-y-1.5">
+              <Skeleton className="h-3.5 w-24" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+            <Skeleton className="h-4 w-20" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const recent = transactions.slice(0, 5);
 
   return (
-    <div className="bg-white dark:bg-card rounded-[2rem] border border-border/40 p-5 shadow-sm flex flex-col overflow-hidden">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-bold text-foreground text-base">Transaksi Terbaru</h3>
+    <section className="bg-white dark:bg-card rounded-[2rem] border border-border/10 p-6">
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-base font-black tracking-tight text-foreground" style={{ fontFeatureSettings: '"calt"' }}>
+          Transaksi Terakhir
+        </h3>
+        <Link
+          href="/dashboard/transactions"
+          className="text-[10px] font-black text-muted-foreground/60 hover:text-primary transition-colors uppercase tracking-widest"
+        >
+          Lihat Semua
+        </Link>
       </div>
-      
-      <div className="flex flex-col gap-3 w-full overflow-y-auto">
-        {renderList.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
+
+      <div className="space-y-1">
+        {recent.length === 0 ? (
+          <div className="flex items-center justify-center py-8 text-muted-foreground text-sm font-semibold" style={{ fontFeatureSettings: '"calt"' }}>
             Belum ada transaksi
           </div>
         ) : (
-          renderList.map((tx, idx) => {
-            const isIncome = tx.type === 'income';
-            const { icon, bg } = getIconAndColor(tx.category, tx.type);
-            
+          recent.map((tx, idx) => {
+            const isIncome = tx.type === "income";
+            const isTransfer = tx.type === "transfer";
+
             return (
-              <div 
-                key={tx.id || idx} 
-                className={`flex items-start gap-3 py-2.5 border-b border-border/40 last:border-0 ${onEdit ? 'cursor-pointer hover:bg-muted/30 -mx-2 px-2 rounded-xl transition-colors' : ''}`}
-                onClick={() => onEdit?.(tx)}
+              <div
+                key={tx.id || idx}
+                className="flex items-center gap-3 py-3 border-b border-border/5 last:border-0"
               >
-                {/* Icon */}
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 mt-0.5 ${bg} dark:bg-opacity-20`}>
-                  {icon}
+                {/* Indicator Dot */}
+                <div className={`w-2 h-2 rounded-full shrink-0 ${
+                  isIncome ? "bg-emerald-500" : isTransfer ? "bg-blue-500" : "bg-foreground/20"
+                }`} />
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate" style={{ fontFeatureSettings: '"calt"' }}>
+                    {tx.category || tx.description || "Tanpa kategori"}
+                  </p>
+                  <p className="text-[11px] font-semibold text-muted-foreground truncate mt-0.5" style={{ fontFeatureSettings: '"calt"' }}>
+                    {tx.description || ""} · {new Date(tx.date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
+                  </p>
                 </div>
 
-                {/* Info block  full width, wraps naturally */}
-                <div className="flex-1 min-w-0">
-                  {/* Row 1: category + amount */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold text-sm text-foreground truncate">
-                      {tx.category || tx.description}
-                    </span>
-                    <span className={`text-sm font-bold shrink-0 ${
-                      isIncome ? 'text-income' :
-                      tx.type === 'transfer' ? 'text-primary' : 'text-foreground'
-                    }`}>
-                      {isIncome ? '+ ' : tx.type === 'expense' ? '- ' : ''}
-                      {formatCurrency(Math.abs(tx.amount))}
-                    </span>
-                  </div>
-                  {/* Row 2: description + date */}
-                  <div className="flex items-center justify-between gap-2 mt-0.5">
-                    <span className="text-xs text-muted-foreground truncate">
-                      {tx.description || ''}
-                    </span>
-                    <span className="text-xs text-muted-foreground shrink-0">
-                      {new Date(tx.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-                    </span>
-                  </div>
-                </div>
+                {/* Amount */}
+                <span className={`text-sm font-black tabular-nums shrink-0 ${
+                  isIncome ? "text-emerald-600 dark:text-emerald-400" : isTransfer ? "text-blue-600 dark:text-blue-400" : "text-foreground"
+                }`} style={{ fontFeatureSettings: '"calt"' }}>
+                  {isIncome ? "+ " : tx.type === "expense" ? "- " : ""}
+                  {formatCurrency(Math.abs(tx.amount))}
+                </span>
               </div>
             );
           })
         )}
       </div>
-    </div>
+
+      {/* Bottom Link */}
+      <Link
+        href="/dashboard/transactions"
+        className="mt-4 flex items-center justify-center gap-2 py-3 text-xs font-black text-muted-foreground hover:text-primary transition-all border-t border-border/10 uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98]"
+      >
+        Lihat semua riwayat <ArrowRight className="w-3 h-3" />
+      </Link>
+    </section>
   );
 }

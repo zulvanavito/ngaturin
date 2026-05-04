@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { Plus, ChevronLeft} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -37,13 +38,15 @@ import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/export-utils";
 import { useToast } from "@/lib/toast-context";
 
 export default function TransactionsPage() {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q") || "";
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showBulkAddForm, setShowBulkAddForm] = useState(false);
 
   // Filters State
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [walletFilter, setWalletFilter] = useState("all");

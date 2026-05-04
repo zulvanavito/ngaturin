@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { coreApi } from "@/lib/midtrans";
+import { Resend } from "resend";
+import SubscriptionReceiptEmail from "@/components/emails/subscription-receipt";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(request: Request) {
   // Pindahkan request.url ke luar try-catch agar mekanisme "Bail out of prerendering" Next.js tidak tertangkap
@@ -70,6 +74,34 @@ export async function GET(request: Request) {
         .from("subscriptions")
         .update(updateData)
         .eq("midtrans_order_id", orderId);
+
+      // --- Send Email Confirmation if newly settled ---
+      if (newStatus === "settlement" && subscription.status !== "settlement") {
+        try {
+          const { data: userData } = await supabaseAdmin.auth.admin.getUserById(subscription.user_id);
+          const userEmail = userData?.user?.email;
+
+          if (userEmail) {
+            const planName = subscription.plan_id === "plus" ? "Ngaturin PLUS" : "Ngaturin PRO";
+            const planInterval = subscription.interval === "monthly" ? "Bulanan" : "Tahunan";
+            
+            await resend.emails.send({
+              from: "Ngaturin <noreply@ngaturin.com>", // Ganti dengan domain terverifikasi Anda
+              to: [userEmail],
+              subject: "Pembayaran Berhasil: Tanda Terima Ngaturin",
+              react: SubscriptionReceiptEmail({
+                customerName: userData?.user?.user_metadata?.full_name || "Pengguna",
+                orderId: orderId,
+                planName: `${planName} (${planInterval})`,
+                amount: subscription.amount,
+                paymentMethod: midtransStatus.payment_type ? midtransStatus.payment_type.replace(/_/g, " ").toUpperCase() : "Online Payment",
+              }),
+            });
+          }
+        } catch (emailErr) {
+          console.error("Failed to send receipt email from check-status:", emailErr);
+        }
+      }
     }
 
     // Return the latest mapped status

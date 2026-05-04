@@ -24,21 +24,22 @@ export default async function ProfilePage() {
     .select("*")
     .order("date", { ascending: false });
 
-  // Get current active subscription
-  const { data: subscription } = await supabase
+  // Get all subscriptions for history
+  const { data: subscriptionHistory } = await supabase
     .from("subscriptions")
     .select("*")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .order("created_at", { ascending: false });
+
+  // Get current active subscription (latest)
+  const subscription = subscriptionHistory?.[0] || null;
 
   return (
     <ProfilePageClient
       user={JSON.parse(JSON.stringify(user))}
       transactions={transactions || []}
       subscription={subscription}
-      clientKey={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY!}
+      subscriptionHistory={subscriptionHistory || []}
     />
   );
 }

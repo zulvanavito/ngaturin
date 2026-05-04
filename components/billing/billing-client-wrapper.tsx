@@ -2,12 +2,13 @@
 
 import { useState, useCallback } from "react";
 import Script from "next/script";
-import { BillingDetails } from "./billing-details";
+import { BillingDetails, type Subscription } from "./billing-details";
 import { useToast } from "@/lib/toast-context";
 import { useRouter } from "next/navigation";
 
 declare global {
   interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     snap: any;
   }
 }
@@ -16,10 +17,10 @@ export function BillingClientWrapper({
   initialSubscription,
   clientKey
 }: { 
-  initialSubscription: any,
+  initialSubscription: Subscription | null,
   clientKey: string
 }) {
-  const [subscription, setSubscription] = useState(initialSubscription);
+  const [subscription] = useState(initialSubscription);
   const [loading, setLoading] = useState(false);
   const [snapReady, setSnapReady] = useState(false);
   const router = useRouter();
@@ -51,15 +52,15 @@ export function BillingClientWrapper({
       setLoading(false);
 
       window.snap.pay(data.token, {
-        onSuccess: (result: any) => {
+        onSuccess: () => {
           showToast("success", "Pembayaran berhasil! 🎉");
           router.refresh();
         },
-        onPending: (result: any) => {
+        onPending: () => {
           showToast("info", "Menunggu pembayaran...");
           router.refresh();
         },
-        onError: (result: any) => {
+        onError: () => {
           showToast("error", "Pembayaran gagal.");
         },
         onClose: () => {
@@ -76,7 +77,10 @@ export function BillingClientWrapper({
   return (
     <>
       <Script
-        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        src={process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true' 
+          ? "https://app.midtrans.com/snap/snap.js" 
+          : "https://app.sandbox.midtrans.com/snap/snap.js"
+        }
         data-client-key={clientKey}
         strategy="afterInteractive"
         onLoad={() => {

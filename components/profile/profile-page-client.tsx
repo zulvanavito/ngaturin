@@ -4,29 +4,31 @@ import { useState, useRef, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { useSearchParams, useRouter } from "next/navigation";
 import { 
-  User as UserIcon, 
-  KeyRound, 
+  User as UserIcon,  
   Crown, 
   Database,
   ChevronRight,
   ShieldCheck,
-  Settings2
+  Settings2,
+  Clock
 } from "lucide-react";
 import { ProfileForm } from "@/components/profile/profile-form";
-import { ProfileSubscriptionTab } from "@/components/profile/profile-subscription-tab";
+import { ProfileSubscriptionTab, type Subscription } from "@/components/profile/profile-subscription-tab";
+import { ProfilePurchaseHistoryTab } from "@/components/profile/profile-purchase-history-tab";
 import { DataManagementCard } from "@/components/profile/data-management-card";
 import type { Transaction } from "@/components/finance/transaction-form";
 
 interface ProfilePageClientProps {
   user: User;
   transactions: Transaction[];
-  subscription: any;
-  clientKey: string;
+  subscription: Subscription | null;
+  subscriptionHistory: Subscription[];
 }
 
 const PROFILE_SECTIONS = [
   { id: "account", title: "Profil & Keamanan", icon: UserIcon },
   { id: "subscription", title: "Paket Langganan", icon: Crown },
+  { id: "history", title: "Riwayat Pembelian", icon: Clock },
   { id: "data", title: "Manajemen Data", icon: Database },
 ];
 
@@ -34,7 +36,7 @@ export function ProfilePageClient({
   user,
   transactions,
   subscription,
-  clientKey,
+  subscriptionHistory,
 }: ProfilePageClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -73,7 +75,12 @@ export function ProfilePageClient({
         return (
           <ProfileSubscriptionTab
             currentSubscription={subscription}
-            clientKey={clientKey}
+          />
+        );
+      case "history":
+        return (
+          <ProfilePurchaseHistoryTab
+            subscriptionHistory={subscriptionHistory}
           />
         );
       case "data":

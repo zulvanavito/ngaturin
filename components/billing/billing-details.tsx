@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,14 +7,11 @@ import {
   Crown, 
   CheckCircle2, 
   ArrowRight, 
-  Clock, 
-  CreditCard,
-  AlertCircle
 } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
-interface Subscription {
+export interface Subscription {
   id: string;
   plan_id: string;
   status: string;
@@ -153,7 +149,7 @@ function PricingSimpleCard({
       <p className="text-muted-foreground text-sm font-medium mb-6">
         {description}
       </p>
-      <ul className="space-y-3 mb-8 flex-1">
+      <ul className="space-y-3 mb-6 flex-1">
         {features.map((f, i) => (
           <li key={i} className="flex items-center gap-2 text-sm font-bold">
             <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
@@ -161,6 +157,13 @@ function PricingSimpleCard({
           </li>
         ))}
       </ul>
+      
+      {!isActive && (
+        <p className="text-xs text-muted-foreground text-center font-medium mb-4">
+          * Pembayaran 1x, tidak diperpanjang otomatis.
+        </p>
+      )}
+
       <Button 
         onClick={onSelect}
         disabled={isActive}

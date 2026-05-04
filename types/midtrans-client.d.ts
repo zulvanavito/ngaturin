@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 declare module 'midtrans-client' {
   interface SnapOptions {
     isProduction: boolean;
@@ -37,8 +38,17 @@ declare module 'midtrans-client' {
     createTransactionRedirectUrl(parameter: TransactionParameter): Promise<string>;
   }
 
+  class CoreApi {
+    constructor(options: SnapOptions);
+    charge(parameter: any): Promise<any>;
+    transaction: {
+      status(orderId: string): Promise<any>;
+    };
+  }
+
   const midtransClient: {
     Snap: typeof Snap;
+    CoreApi: typeof CoreApi;
   };
 
   export default midtransClient;

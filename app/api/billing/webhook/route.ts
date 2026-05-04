@@ -2,14 +2,18 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 
-// We use service role key to bypass RLS for webhook updates
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
-
 export async function POST(request: Request) {
   try {
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!serviceRoleKey) {
+      console.error("Missing SUPABASE_SERVICE_ROLE_KEY");
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
+
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      serviceRoleKey
+    );
     const body = await request.json();
     const {
       order_id,
@@ -54,8 +58,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
     }
 
+    // Idempotency check: if already settled in DB and incoming is settlement, ignore
+    if (subscription.status === "settlement" && status === "settlement") {
+      console.log(`Order ${order_id} is already settled, ignoring webhook.`);
+      return NextResponse.json({ status: "ok", message: "Already processed" });
+    }
+
     // Update subscription
-    const updateData: any = {
+    const updateData: Record<string, string> = {
       status,
       payment_type,
       updated_at: new Date().toISOString(),
@@ -85,8 +95,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ status: "ok" });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Webhook Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

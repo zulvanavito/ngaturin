@@ -13,9 +13,10 @@ import {
 
 interface DashboardRecentTxProps {
   transactions: Transaction[];
+  onEdit?: (transaction: Transaction) => void;
 }
 
-export function DashboardRecentTx({ transactions }: DashboardRecentTxProps) {
+export function DashboardRecentTx({ transactions, onEdit }: DashboardRecentTxProps) {
   
   
   const getIconAndColor = (category: string, type: string) => {
@@ -50,7 +51,11 @@ export function DashboardRecentTx({ transactions }: DashboardRecentTxProps) {
             const { icon, bg } = getIconAndColor(tx.category, tx.type);
             
             return (
-              <div key={tx.id || idx} className="flex items-start gap-3 py-2.5 border-b border-border/40 last:border-0">
+              <div 
+                key={tx.id || idx} 
+                className={`flex items-start gap-3 py-2.5 border-b border-border/40 last:border-0 ${onEdit ? 'cursor-pointer hover:bg-muted/30 -mx-2 px-2 rounded-xl transition-colors' : ''}`}
+                onClick={() => onEdit?.(tx)}
+              >
                 {/* Icon */}
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 mt-0.5 ${bg} dark:bg-opacity-20`}>
                   {icon}

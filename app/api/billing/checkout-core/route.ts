@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { snap } from "@/lib/midtrans";
+import { coreApi } from "@/lib/midtrans";
 import { NextResponse } from "next/server";
 import { nanoid } from "nanoid";
 
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { planId, interval } = await request.json();
+    const { planId, interval, payment_type, bank } = await request.json();
 
     if (!PRICING[planId as keyof typeof PRICING]) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
@@ -32,7 +32,8 @@ export async function POST(request: Request) {
     const amount = PRICING[planId as keyof typeof PRICING][interval as 'monthly' | 'yearly'];
     const orderId = `SUBS-${planId.toUpperCase()}-${nanoid(8)}`;
 
-    const parameter = {
+    const parameter: any = {
+      payment_type: payment_type,
       transaction_details: {
         order_id: orderId,
         gross_amount: amount,
@@ -51,7 +52,11 @@ export async function POST(request: Request) {
       ],
     };
 
-    const transaction = await snap.createTransaction(parameter);
+    if (payment_type === 'bank_transfer') {
+      parameter.bank_transfer = { bank: bank };
+    }
+
+    const transaction = await coreApi.charge(parameter);
 
     // Clean up any existing pending transactions for this user to prevent clutter
     await supabase
@@ -70,7 +75,8 @@ export async function POST(request: Request) {
         amount: amount,
         interval: interval,
         midtrans_order_id: orderId,
-        snap_token: transaction.token,
+        payment_type: payment_type,
+        payment_details: transaction // Save the full response here (VA numbers, actions array, etc)
       });
 
     if (dbError) {
@@ -79,7 +85,6 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ 
-      token: transaction.token,
       orderId: orderId 
     });
 

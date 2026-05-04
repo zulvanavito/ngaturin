@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import Script from "next/script";
-import { useToast } from "@/lib/toast-context";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,14 +16,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-
-declare global {
-  interface Window {
-    snap: any;
-  }
-}
-
-interface Subscription {
+export interface Subscription {
   id: string;
   plan_id: string;
   status: string;
@@ -34,6 +25,7 @@ interface Subscription {
   current_period_end: string | null;
   midtrans_order_id: string;
   payment_type: string | null;
+  created_at?: string;
 }
 
 const plans = [
@@ -72,16 +64,11 @@ const plans = [
 
 export function ProfileSubscriptionTab({
   currentSubscription,
-  clientKey,
 }: {
   currentSubscription: Subscription | null;
-  clientKey: string;
 }) {
-  const [loading, setLoading] = useState(false);
-  const [snapReady, setSnapReady] = useState(false);
   const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
   const router = useRouter();
-  const { showToast } = useToast();
 
   const isPremium =
     currentSubscription?.status === "settlement" &&
@@ -91,65 +78,14 @@ export function ProfileSubscriptionTab({
   const activePlan = isPremium ? currentSubscription?.plan_id : "free";
 
   const handleUpgrade = useCallback(
-    async (planId: string) => {
-      if (!snapReady) {
-        showToast("error", "Sistem pembayaran sedang dimuat, coba lagi.");
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const response = await fetch("/api/billing/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ planId, interval: billingInterval }),
-        });
-
-        const data = await response.json();
-
-        if (data.error) {
-          showToast("error", data.error);
-          setLoading(false);
-          return;
-        }
-
-        setLoading(false);
-
-        window.snap.pay(data.token, {
-          onSuccess: () => {
-            showToast("success", "Pembayaran berhasil!");
-            router.refresh();
-          },
-          onPending: () => {
-            showToast("info", "Menunggu pembayaran...");
-            router.refresh();
-          },
-          onError: () => {
-            showToast("error", "Pembayaran gagal.");
-          },
-          onClose: () => {
-            showToast("info", "Popup pembayaran ditutup.");
-          },
-        });
-      } catch (error) {
-        console.error("Upgrade error:", error);
-        showToast("error", "Terjadi kesalahan sistem.");
-        setLoading(false);
-      }
+    (planId: string) => {
+      router.push(`/dashboard/billing/checkout?planId=${planId}&interval=${billingInterval}`);
     },
-    [snapReady, billingInterval, showToast, router]
+    [billingInterval, router]
   );
 
   return (
     <>
-      <Script
-        src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key={clientKey}
-        strategy="afterInteractive"
-        onLoad={() => setSnapReady(true)}
-        onError={() => showToast("error", "Gagal memuat sistem pembayaran.")}
-      />
-
       <div className="space-y-8">
         {/* Current Status Banner */}
         <div className="relative overflow-hidden rounded-[2rem] border border-border/40 dark:border-primary/10 bg-white dark:bg-[#0e0f0c] p-8 md:p-10 shadow-sm">
@@ -321,7 +257,7 @@ export function ProfileSubscriptionTab({
 
                 <Button
                   onClick={() => handleUpgrade(plan.id)}
-                  disabled={isActive || loading}
+                  disabled={!!isActive}
                   className={`wise-button-pill w-full font-bold h-12 text-base ${
                     plan.highlight
                       ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
@@ -392,16 +328,6 @@ export function ProfileSubscriptionTab({
           </div>
         </section>
       </div>
-
-      {/* Loading Overlay */}
-      {loading && (
-        <div className="fixed inset-0 bg-background/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="rounded-[2rem] border border-border/40 bg-white dark:bg-card p-8 flex flex-col items-center gap-4 shadow-2xl">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="font-bold text-lg">Menyiapkan pembayaran...</p>
-          </div>
-        </div>
-      )}
     </>
   );
 }

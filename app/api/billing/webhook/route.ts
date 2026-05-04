@@ -1,6 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import { Resend } from "resend";
+import SubscriptionReceiptEmail from "@/components/emails/subscription-receipt";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
@@ -91,6 +95,39 @@ export async function POST(request: Request) {
     if (updateError) {
       console.error("Webhook Update Error:", updateError);
       return NextResponse.json({ error: "Failed to update subscription" }, { status: 500 });
+    }
+
+    // --- Send Email Confirmation if newly settled ---
+    if (status === "settlement" && subscription.status !== "settlement") {
+      try {
+        // Fetch user email using Supabase Admin
+        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(subscription.user_id);
+        const userEmail = userData?.user?.email;
+
+        if (userEmail) {
+          const planName = subscription.plan_id === "plus" ? "Ngaturin PLUS" : "Ngaturin PRO";
+          const planInterval = subscription.interval === "monthly" ? "Bulanan" : "Tahunan";
+          
+          await resend.emails.send({
+            from: "Ngaturin <noreply@ngaturin.com>", // Ganti dengan domain terverifikasi Anda
+            to: [userEmail],
+            subject: "Pembayaran Berhasil: Tanda Terima Ngaturin",
+            react: SubscriptionReceiptEmail({
+              customerName: userData?.user?.user_metadata?.full_name || "Pengguna",
+              orderId: order_id,
+              planName: `${planName} (${planInterval})`,
+              amount: subscription.amount,
+              paymentMethod: payment_type ? payment_type.replace(/_/g, " ").toUpperCase() : "Online Payment",
+            }),
+          });
+          console.log(`Confirmation email sent successfully to ${userEmail}`);
+        } else {
+          console.warn("User email not found for sending receipt.");
+        }
+      } catch (emailErr) {
+        // Do not fail the webhook if email fails
+        console.error("Failed to send receipt email:", emailErr);
+      }
     }
 
     return NextResponse.json({ status: "ok" });

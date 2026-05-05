@@ -39,7 +39,7 @@
     "react-email": "6.0.0",
     "react-hook-form": "^7.74.0",
     "recharts": "^3.7.0",
-    "resend": "^4.1.2",
+    "resend": "^4.8.0",
     "tailwind-merge": "^3.3.0",
     "yahoo-finance2": "^3.14.0"
   },

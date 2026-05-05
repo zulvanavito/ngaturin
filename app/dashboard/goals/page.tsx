@@ -5,7 +5,6 @@ import {
   Plus,
   Target,
   ChevronLeft,
-  Loader2,
   Sparkles,
   AlertCircle,
   ChevronDown,
@@ -281,13 +280,13 @@ export default function GoalsPage() {
         <div className="relative z-10 flex-1 space-y-1 text-center md:text-left">
           <h3 className="text-xl font-bold">Tips: Konsistensi adalah kunci</h3>
           <p className="text-sm text-white/60">
-            Gunakan fitur pengingat atau otomatisasi untuk memindahkan dana ke
-            tabungan target Anda setiap gajian.
+            Aktifkan fitur nabung otomatis di setiap target Anda dan atur
+            tanggal gajian di profil untuk mulai menabung tanpa ribet.
           </p>
         </div>
-        <Link href="/dashboard/investments">
+        <Link href="/dashboard/profile">
           <Button className="bg-white text-black hover:bg-white/90 rounded-full h-12 px-8 font-bold shrink-0 relative z-10 transition-transform group-hover:scale-105">
-            Lihat Reksa Dana →
+            Atur Sekarang →
           </Button>
         </Link>
       </div>

@@ -44,7 +44,7 @@ export default function AutoSaveReport({
   const hasSuccess = successGoals.length > 0;
   const hasFailed = failedGoals.length > 0;
   const hasCompleted = completedGoals.length > 0;
-  
+
   const totalSaved = successGoals.reduce((sum, g) => sum + g.amount, 0);
 
   return (
@@ -54,34 +54,52 @@ export default function AutoSaveReport({
         <Body className="bg-[#f4f7f3] font-sans m-0 p-0">
           <Container className="bg-white w-full max-w-[600px] mx-auto p-0 pb-12 overflow-hidden shadow-xl rounded-b-[40px]">
             {/* Header */}
-            <Section style={{ paddingTop: "40px", paddingBottom: "8px", textAlign: "center" }}>
-              <Row align="center" style={{ width: "fit-content", margin: "0 auto" }}>
+            <Section
+              style={{
+                paddingTop: "40px",
+                paddingBottom: "8px",
+                textAlign: "center",
+              }}
+            >
+              <Row
+                align="center"
+                style={{ width: "fit-content", margin: "0 auto" }}
+              >
                 <Column align="right" style={{ paddingRight: "8px" }}>
                   <Img
-                    src="https://img.logoipsum.com/296.svg"
+                    src="https://ngaturin.web.id/logo.png"
                     alt="Ngaturin Logo"
                     width="35"
                     height="35"
-                    style={{ display: "inline-block", verticalAlign: "middle" }}
+                    className="inline-block align-middle"
                   />
                 </Column>
                 <Column align="left">
-                  <Text style={{ fontSize: "24px", fontWeight: "900", color: "#0e0f0c", margin: 0, letterSpacing: "-0.5px", lineHeight: "1", textTransform: "capitalize" }}>
+                  <Text
+                    style={{
+                      fontSize: "24px",
+                      fontWeight: "900",
+                      color: "#0e0f0c",
+                      margin: 0,
+                      letterSpacing: "-0.5px",
+                      lineHeight: "1",
+                      textTransform: "capitalize",
+                    }}
+                  >
                     Ngaturin.
                   </Text>
                 </Column>
               </Row>
             </Section>
 
-
             {/* Hero Illustration */}
-            <Section style={{ paddingLeft: "32px", paddingRight: "32px", marginTop: "16px", textAlign: "center" }}>
-               <Img
-                src="https://raw.githubusercontent.com/Zulvanavito/ngaturin/main/public/illustrations/Saving%20money-pana.png"
-                alt="Saving Money"
-                width="240"
-                height="240"
-                style={{ margin: "0 auto", display: "block" }}
+            <Section className="px-8 pb-4 text-center">
+              <Img
+                src="https://ngaturin.web.id/illustration/email/Saving money-pana.png"
+                alt="Ngaturin Saving"
+                width="200"
+                height="200"
+                className="mx-auto block"
               />
             </Section>
 
@@ -98,8 +116,10 @@ export default function AutoSaveReport({
 
             {/* Summary Stat */}
             {hasSuccess && (
-               <Section className="px-10 mt-8 text-center">
-                <Text className="text-[#0e0f0c] text-[18px] font-semibold m-0">Total yang berhasil ditabung:</Text>
+              <Section className="px-10 mt-8 text-center">
+                <Text className="text-[#0e0f0c] text-[18px] font-semibold m-0">
+                  Total yang berhasil ditabung:
+                </Text>
                 <Heading className="text-[48px] font-black text-[#054d28] m-0 leading-tight">
                   Rp {totalSaved.toLocaleString("id-ID")}
                 </Heading>
@@ -112,7 +132,7 @@ export default function AutoSaveReport({
                 Halo {userName},
               </Text>
               <Text className="text-[#454745] text-[16px] leading-[24px] mt-2 mb-0 font-medium">
-                {hasSuccess || hasFailed 
+                {hasSuccess || hasFailed
                   ? "Berikut adalah rincian aktivitas menabung otomatis Anda hari ini. Satu langkah lebih dekat menuju impian Anda!"
                   : "Sepertinya hari ini tidak ada jadwal menabung otomatis. Tetap semangat mengelola keuangan Anda!"}
               </Text>
@@ -125,25 +145,41 @@ export default function AutoSaveReport({
                   ✅ TARGET TERCAPAI HARI INI
                 </Text>
                 {successGoals.map((goal, i) => {
-                  const progress = Math.min(Math.round((goal.currentAmount / goal.targetAmount) * 100), 100);
+                  const progress = Math.min(
+                    Math.round((goal.currentAmount / goal.targetAmount) * 100),
+                    100,
+                  );
                   return (
-                    <Section key={i} className="bg-[#f0fae8] border-[1.5px] border-[#9fe870] rounded-[24px] p-6 mb-4 shadow-sm">
+                    <Section
+                      key={i}
+                      className="bg-[#f0fae8] border-[1.5px] border-[#9fe870] rounded-[24px] p-6 mb-4 shadow-sm"
+                    >
                       <Row>
                         <Column>
-                          <Text className="text-[18px] font-black text-[#0e0f0c] m-0">{goal.title}</Text>
-                          <Text className="text-[15px] font-bold text-[#054d28] m-0 mt-1">+ Rp {goal.amount.toLocaleString("id-ID")}</Text>
+                          <Text className="text-[18px] font-black text-[#0e0f0c] m-0">
+                            {goal.title}
+                          </Text>
+                          <Text className="text-[15px] font-bold text-[#054d28] m-0 mt-1">
+                            + Rp {goal.amount.toLocaleString("id-ID")}
+                          </Text>
                         </Column>
                         <Column align="right">
                           <Section className="bg-white rounded-full px-4 py-2 border border-[#9fe870]">
-                            <Text className="text-[14px] font-black text-[#0e0f0c] m-0">{progress}%</Text>
+                            <Text className="text-[14px] font-black text-[#0e0f0c] m-0">
+                              {progress}%
+                            </Text>
                           </Section>
                         </Column>
                       </Row>
                       <Section className="bg-white/50 h-[8px] w-full rounded-full mt-4 overflow-hidden">
-                        <Section className="bg-[#054d28] h-full" style={{ width: `${progress}%` }} />
+                        <Section
+                          className="bg-[#054d28] h-full"
+                          style={{ width: `${progress}%` }}
+                        />
                       </Section>
                       <Text className="text-[12px] font-semibold text-[#868685] m-0 mt-3 uppercase tracking-wider">
-                        Rp {goal.currentAmount.toLocaleString("id-ID")} dari Rp {goal.targetAmount.toLocaleString("id-ID")}
+                        Rp {goal.currentAmount.toLocaleString("id-ID")} dari Rp{" "}
+                        {goal.targetAmount.toLocaleString("id-ID")}
                       </Text>
                     </Section>
                   );
@@ -160,7 +196,8 @@ export default function AutoSaveReport({
                     Target Tercapai!
                   </Heading>
                   <Text className="text-[#163300] text-[14px] font-bold mt-2 leading-snug">
-                    Selamat! Beberapa target tabungan Anda telah mencapai garis finish. Kerja bagus!
+                    Selamat! Beberapa target tabungan Anda telah mencapai garis
+                    finish. Kerja bagus!
                   </Text>
                 </Section>
               </Section>
@@ -173,11 +210,20 @@ export default function AutoSaveReport({
                   ⚠️ PERLU PERHATIAN
                 </Text>
                 {failedGoals.map((goal, i) => (
-                  <Section key={i} className="bg-[#fef2f2] border-[1.5px] border-[#fecaca] rounded-[24px] p-6 mb-4">
-                    <Text className="text-[18px] font-black text-[#0e0f0c] m-0">{goal.title}</Text>
-                    <Text className="text-[14px] font-bold text-[#d03238] m-0 mt-1">Gagal ditabung otomatis</Text>
+                  <Section
+                    key={i}
+                    className="bg-[#fef2f2] border-[1.5px] border-[#fecaca] rounded-[24px] p-6 mb-4"
+                  >
+                    <Text className="text-[18px] font-black text-[#0e0f0c] m-0">
+                      {goal.title}
+                    </Text>
+                    <Text className="text-[14px] font-bold text-[#d03238] m-0 mt-1">
+                      Gagal ditabung otomatis
+                    </Text>
                     <Section className="bg-white/80 rounded-xl p-3 mt-3">
-                      <Text className="text-[13px] font-medium text-[#454745] m-0 italic">&quot;Alasan: {goal.reason}&quot;</Text>
+                      <Text className="text-[13px] font-medium text-[#454745] m-0 italic">
+                        &quot;Alasan: {goal.reason}&quot;
+                      </Text>
                     </Section>
                   </Section>
                 ))}
@@ -202,10 +248,12 @@ export default function AutoSaveReport({
                   💡 Tips Finansial
                 </Text>
                 <Text className="text-[#0e0f0c] text-[16px] font-bold leading-snug m-0">
-                  &quot;Menabung itu bukan menyisakan yang tersisa, tapi menyisihkan yang utama.&quot;
+                  &quot;Menabung itu bukan menyisakan yang tersisa, tapi
+                  menyisihkan yang utama.&quot;
                 </Text>
                 <Text className="text-[#454745] text-[14px] mt-2 font-medium">
-                  Terus gunakan Nabung Otomatis untuk membangun kebiasaan finansial yang tak terhentikan.
+                  Terus gunakan Nabung Otomatis untuk membangun kebiasaan
+                  finansial yang tak terhentikan.
                 </Text>
               </Section>
             </Section>

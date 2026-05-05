@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Bell, AlertTriangle, CheckCircle2, Info, X, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import Link from "next/link";
 
 interface Notification {
@@ -16,6 +16,7 @@ interface Notification {
 }
 
 export function NotificationBell() {
+  const { formatCurrency } = useFormatCurrency();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);

@@ -2,7 +2,7 @@
 
 import { PieChart, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +31,7 @@ export function BudgetCard({
   onEdit,
   onDelete,
 }: BudgetCardProps) {
+  const { formatCurrency } = useFormatCurrency();
   const pct =
     budget.amount > 0
       ? Math.min(Math.round((spent / budget.amount) * 100), 100)

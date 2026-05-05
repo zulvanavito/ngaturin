@@ -13,6 +13,7 @@ import { Settings2, TrendingDown, TrendingUp, Loader2, AlertTriangle, ArrowRight
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
 import { CategoryIcon } from "@/components/categories/category-icon";
+import { CurrencyInput } from "@/components/ui/currency-input";
 
 export interface Transaction {
   id: string;
@@ -46,7 +47,7 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
   const { wallets } = useWallets();
 
   const [description, setDescription] = useState(editingTransaction?.description || "");
-  const [amount, setAmount] = useState(editingTransaction?.amount?.toString() || "");
+  const [amount, setAmount] = useState<number>(editingTransaction?.amount || 0);
   const [category, setCategory] = useState(editingTransaction?.category || "");
   const [walletId, setWalletId] = useState(editingTransaction?.wallet_id || "_none");
   const initialType = (editingTransaction?.type === "transfer" ? "expense" : editingTransaction?.type) ?? defaultType ?? "expense";
@@ -91,7 +92,7 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
 
       if (!isEditing) {
         setDescription("");
-        setAmount("");
+        setAmount(0);
         setCategory("");
         setWalletId("_none");
         setType("expense");
@@ -166,15 +167,11 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="amount" className="text-xs font-black uppercase tracking-widest ml-1">Jumlah (Rp)</Label>
-            <Input
+            <Label htmlFor="amount" className="text-xs font-black uppercase tracking-widest ml-1">Jumlah</Label>
+            <CurrencyInput
               id="amount"
-              type="number"
-              placeholder="50000"
-              min="0.01"
-              step="any"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={setAmount}
               required
               className="h-12 rounded-2xl border-border/40 focus:ring-primary/20"
             />

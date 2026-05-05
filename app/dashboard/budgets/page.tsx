@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Plus, ChevronLeft, PieChart, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import Link from "next/link";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
@@ -13,6 +14,7 @@ import { BudgetCardSkeleton } from "@/components/layout/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 export default function BudgetsPage() {
+  const { formatCurrency } = useFormatCurrency();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -159,7 +161,7 @@ export default function BudgetsPage() {
           <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-primary/60 mb-2">Total Limit Keseluruhan</p>
           <div className="flex items-baseline gap-1">
             <span className="text-lg sm:text-xl lg:text-2xl font-black text-foreground truncate block">
-              Rp {stats.totalLimit.toLocaleString("id-ID")}
+              {formatCurrency(stats.totalLimit)}
             </span>
           </div>
         </div>
@@ -167,7 +169,7 @@ export default function BudgetsPage() {
           <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-expense/60 mb-2">Total Terpakai Bulan Ini</p>
           <div className="flex items-baseline gap-1">
             <span className="text-lg sm:text-xl lg:text-2xl font-black text-foreground truncate block">
-              Rp {stats.totalSpent.toLocaleString("id-ID")}
+              {formatCurrency(stats.totalSpent)}
             </span>
           </div>
         </div>

@@ -70,7 +70,7 @@ export function ProfilePageClient({
   const renderContent = () => {
     switch (activeSection) {
       case "account":
-        return <ProfileForm user={user} />;
+        return <ProfileForm user={user} subscription={subscription} />;
       case "subscription":
         return (
           <ProfileSubscriptionTab

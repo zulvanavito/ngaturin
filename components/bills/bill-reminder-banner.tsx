@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bell, X } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 
 interface RecurringBill {
   id: string;
@@ -15,6 +15,7 @@ interface RecurringBill {
 
 
 export function BillReminderBanner() {
+  const { formatCurrency } = useFormatCurrency();
   const [urgentBills, setUrgentBills] = useState<RecurringBill[]>([]);
   const [dismissed, setDismissed] = useState(false);
 

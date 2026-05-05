@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { type Transaction } from "@/components/finance/transaction-form";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 export function DashboardRecentTx() {
+  const { formatCurrency } = useFormatCurrency();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 

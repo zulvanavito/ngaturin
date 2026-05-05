@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp, TrendingDown, Target, Zap, Waves } from "lucide-react";
-import { formatCurrency } from "@/components/finance/balance-card";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import type { InsightSummary } from "@/hooks/use-insights";
 
 interface InsightMetricCardsProps {
@@ -10,6 +10,7 @@ interface InsightMetricCardsProps {
 }
 
 export function InsightMetricCards({ summary, globalSummary }: InsightMetricCardsProps) {
+  const { formatCurrency } = useFormatCurrency();
   const metrics = [
     {
       title: "Saving Rate",

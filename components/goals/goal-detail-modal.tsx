@@ -1,7 +1,7 @@
 "use client";
 
 import { Target, Calendar, Type, Clock, AlignLeft, Info, Bot } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription 
 } from "@/components/ui/dialog";
@@ -15,6 +15,7 @@ interface GoalDetailModalProps {
 
 
 export function GoalDetailModal({ open, onClose, goal }: GoalDetailModalProps) {
+  const { formatCurrency } = useFormatCurrency();
   if (!goal) return null;
 
   const progress = Math.min(Math.round((goal.current_amount / goal.target_amount) * 100), 100);

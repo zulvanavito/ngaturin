@@ -11,6 +11,7 @@ import {
   ChevronUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import Link from "next/link";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
@@ -23,6 +24,7 @@ import { GoalCardSkeleton } from "@/components/layout/skeletons";
 import { useToast } from "@/lib/toast-context";
 
 export default function GoalsPage() {
+  const { formatCurrency } = useFormatCurrency();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -179,7 +181,7 @@ export default function GoalsPage() {
           </p>
           <div className="flex items-baseline gap-1">
             <span className="text-lg sm:text-xl lg:text-2xl font-black text-foreground truncate block">
-              Rp {stats.totalSaved.toLocaleString("id-ID")}
+              {formatCurrency(stats.totalSaved)}
             </span>
           </div>
         </div>
@@ -189,7 +191,7 @@ export default function GoalsPage() {
           </p>
           <div className="flex items-baseline gap-1">
             <span className="text-lg sm:text-xl lg:text-2xl font-black text-foreground truncate block">
-              Rp {stats.totalTarget.toLocaleString("id-ID")}
+              {formatCurrency(stats.totalTarget)}
             </span>
           </div>
         </div>

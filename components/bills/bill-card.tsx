@@ -2,7 +2,7 @@
 
 import { MoreVertical, Pencil, Trash2, CheckCircle2, Clock, AlertTriangle, CreditCard, RefreshCw, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -42,6 +42,7 @@ function getDueInfo(dueDay: number, isPaid: boolean): { label: string; color: st
 }
 
 export function BillCard({ bill, isPaidThisMonth, onEdit, onDelete, onPay, onToggleActive }: BillCardProps) {
+  const { formatCurrency } = useFormatCurrency();
   const dueInfo = getDueInfo(bill.due_day, isPaidThisMonth);
   const cycleLabel = bill.billing_cycle === "yearly" ? "Tahunan" : "Bulanan";
 

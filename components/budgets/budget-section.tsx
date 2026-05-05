@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Target, X, Loader2, Pencil, Trash2, AlertTriangle, Circle, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 
 interface Budget {
   id: string;
@@ -48,6 +48,7 @@ function BudgetCard({
   onEdit: (b: Budget) => void;
   onDelete: (b: Budget) => void;
 }) {
+  const { formatCurrency } = useFormatCurrency();
   const pct = budget.amount > 0 ? Math.min(Math.round((spent / budget.amount) * 100), 100) : 0;
   const barColor =
     pct >= 90 ? "bg-destructive" :
@@ -103,6 +104,7 @@ function BudgetCard({
 
 //  Main Component 
 export function BudgetSection({ transactions }: BudgetSectionProps) {
+  const { formatCurrency } = useFormatCurrency();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

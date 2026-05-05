@@ -14,14 +14,19 @@ import { Camera, Save, KeyRound, Loader2, Eye, EyeOff, CheckCircle2, Circle, Ale
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { CategoryIcon } from "@/components/categories/category-icon";
 import { useToast } from "@/lib/toast-context";
+import { useUserPreferences, ACCENT_COLORS } from "@/components/providers/user-preferences-provider";
+import { Subscription } from "./profile-subscription-tab";
 
 interface ProfileFormProps {
   user: User;
+  subscription: Subscription | null;
 }
 
-export function ProfileForm({ user }: ProfileFormProps) {
+export function ProfileForm({ user, subscription }: ProfileFormProps) {
+  const { showDecimals, accentColor, updatePreferences } = useUserPreferences();
   const [fullName, setFullName] = useState(user.user_metadata?.full_name || "");
   const [avatarUrl, setAvatarUrl] = useState(user.user_metadata?.avatar_url || "");
   const [password, setPassword] = useState("");
@@ -265,7 +270,18 @@ export function ProfileForm({ user }: ProfileFormProps) {
                   </label>
                 </div>
                 <div className="flex-1 space-y-2 text-center sm:text-left">
-                  <h4 className="font-black text-xl">Foto Profil</h4>
+                  <div className="flex flex-wrap items-center gap-3 justify-center sm:justify-start">
+                    <h4 className="font-black text-xl">Foto Profil</h4>
+                    {subscription ? (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-wider shadow-sm">
+                        <CheckCircle2 className="w-3 h-3" /> PRO Member
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-muted/20 text-muted-foreground text-[10px] font-black uppercase tracking-wider">
+                        Free Account
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground font-medium">Bantu kami mengenal Anda lebih baik.</p>
                   <Button type="button" variant="outline" size="sm" className="mt-2 rounded-full font-bold px-6 border-border/40 dark:border-border/10 hover:bg-muted/50 dark:hover:bg-muted/10 transition-all relative">
                     {isUploading ? 'Mengunggah...' : 'Unggah Foto Baru'}
@@ -297,6 +313,57 @@ export function ProfileForm({ user }: ProfileFormProps) {
                 {isUpdatingProfile ? 'Menyimpan...' : 'Simpan Perubahan'}
               </Button>
             </form>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Preferensi Tampilan Section */}
+      <section>
+        <h2 className="text-3xl font-black tracking-tight mb-6 flex items-center gap-3">
+          Preferensi <span className="text-primary">Tampilan.</span>
+        </h2>
+        <Card className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2.5rem] overflow-hidden">
+          <CardContent className="p-8 md:p-10 space-y-10">
+            {/* Decimal Toggle */}
+            <div className="flex items-center justify-between gap-4 p-6 rounded-[2rem] bg-muted/5 border border-border/10">
+              <div className="space-y-1">
+                <h4 className="font-black text-lg">Tampilkan Desimal</h4>
+                <p className="text-sm text-muted-foreground font-medium">Tampilkan dua angka di belakang koma (Rp 0,00).</p>
+              </div>
+              <Switch 
+                checked={showDecimals} 
+                onCheckedChange={(checked) => updatePreferences({ showDecimals: checked })} 
+              />
+            </div>
+
+            {/* Color Accent Picker */}
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <h4 className="font-black text-lg ml-1">Aksen Warna Premium</h4>
+                <p className="text-sm text-muted-foreground font-medium ml-1">Personalisasi aplikasi dengan warna favorit Anda.</p>
+              </div>
+              <div className="flex flex-wrap gap-4 ml-1">
+                {ACCENT_COLORS.map((color) => (
+                  <button
+                    key={color.id}
+                    onClick={() => updatePreferences({ accentColor: color.id })}
+                    className={cn(
+                      "group relative w-12 h-12 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center",
+                      accentColor === color.id ? "ring-4 ring-offset-4 ring-primary" : "ring-1 ring-border/20"
+                    )}
+                    style={{ backgroundColor: color.hex }}
+                    title={color.name}
+                  >
+                    {accentColor === color.id && (
+                      <CheckCircle2 className={cn(
+                        "w-6 h-6",
+                        color.id === "soft-charcoal" ? "text-white" : "text-brand-dark"
+                      )} />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </section>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Zap, Coins } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 
 interface DashboardSummaryCardProps {
   remainingBudget: number;
@@ -16,6 +16,7 @@ export function DashboardSummaryCard({
   totalExpense,
   userName = "Pengguna",
 }: DashboardSummaryCardProps) {
+  const { formatCurrency } = useFormatCurrency();
   
   return (
     <div className="w-full space-y-6">

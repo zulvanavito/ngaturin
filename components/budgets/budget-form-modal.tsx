@@ -15,6 +15,7 @@ import {
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter 
 } from "@/components/ui/dialog";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Budget } from "./budget-card";
 
 interface BudgetFormModalProps {
@@ -26,7 +27,7 @@ interface BudgetFormModalProps {
 
 export function BudgetFormModal({ open, onClose, onSuccess, budget }: BudgetFormModalProps) {
   const [category, setCategory] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [categoriesList, setCategoriesList] = useState<{id: string, name: string}[]>([]);
@@ -41,10 +42,10 @@ export function BudgetFormModal({ open, onClose, onSuccess, budget }: BudgetForm
   useEffect(() => {
     if (budget) {
       setCategory(budget.category);
-      setAmount(String(budget.amount));
+      setAmount(budget.amount);
     } else {
       setCategory("");
-      setAmount("");
+      setAmount(0);
     }
     setError("");
   }, [budget, open]);
@@ -69,7 +70,7 @@ export function BudgetFormModal({ open, onClose, onSuccess, budget }: BudgetForm
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           category,
-          amount: Number(amount),
+          amount: amount,
           month: currentMonth
         }),
       });
@@ -133,13 +134,12 @@ export function BudgetFormModal({ open, onClose, onSuccess, budget }: BudgetForm
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-black uppercase tracking-widest ml-1">Limit Bulanan (Rp)</Label>
-              <Input 
-                type="number"
-                placeholder="Misal: 500000" 
+              <Label className="text-xs font-black uppercase tracking-widest ml-1">Limit Bulanan</Label>
+              <CurrencyInput
                 value={amount}
-                onChange={e => setAmount(e.target.value)}
-                className="h-14 text-xl font-bold rounded-2xl border-border/40 focus:ring-primary/20"
+                onChange={setAmount}
+                required
+                className="h-14 text-xl font-bold"
               />
             </div>
           </div>

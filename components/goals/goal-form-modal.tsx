@@ -15,6 +15,7 @@ import {
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter 
 } from "@/components/ui/dialog";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Goal } from "./goal-card";
 
 interface GoalFormModalProps {
@@ -37,13 +38,13 @@ const COLORS = [
 export function GoalFormModal({ open, onClose, onSuccess, goal }: GoalFormModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [targetAmount, setTargetAmount] = useState("");
-  const [currentAmount, setCurrentAmount] = useState("");
+  const [targetAmount, setTargetAmount] = useState<number>(0);
+  const [currentAmount, setCurrentAmount] = useState<number>(0);
   const [deadline, setDeadline] = useState("");
   const [category, setCategory] = useState("");
   const [color, setColor] = useState(COLORS[0]);
   const [isAutoSave, setIsAutoSave] = useState(false);
-  const [autoSaveAmount, setAutoSaveAmount] = useState("");
+  const [autoSaveAmount, setAutoSaveAmount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [categoriesList, setCategoriesList] = useState<{id: string, name: string}[]>([]);
@@ -59,23 +60,23 @@ export function GoalFormModal({ open, onClose, onSuccess, goal }: GoalFormModalP
     if (goal) {
       setTitle(goal.title);
       setDescription(goal.description || "");
-      setTargetAmount(String(goal.target_amount));
-      setCurrentAmount(String(goal.current_amount));
+      setTargetAmount(goal.target_amount);
+      setCurrentAmount(goal.current_amount);
       setDeadline(goal.deadline ? goal.deadline.split('T')[0] : "");
       setCategory(goal.category || "");
       setColor(goal.color);
       setIsAutoSave(goal.is_auto_save || false);
-      setAutoSaveAmount(goal.auto_save_amount ? String(goal.auto_save_amount) : "");
+      setAutoSaveAmount(goal.auto_save_amount || 0);
     } else {
       setTitle("");
       setDescription("");
-      setTargetAmount("");
-      setCurrentAmount("0");
+      setTargetAmount(0);
+      setCurrentAmount(0);
       setDeadline("");
       setCategory("");
       setColor(COLORS[0]);
       setIsAutoSave(false);
-      setAutoSaveAmount("");
+      setAutoSaveAmount(0);
     }
   }, [goal, open]);
 
@@ -99,13 +100,13 @@ export function GoalFormModal({ open, onClose, onSuccess, goal }: GoalFormModalP
         body: JSON.stringify({
           title,
           description,
-          target_amount: Number(targetAmount),
-          current_amount: Number(currentAmount),
+          target_amount: targetAmount,
+          current_amount: currentAmount,
           deadline: deadline || null,
           category: category || null,
           color,
           is_auto_save: isAutoSave,
-          auto_save_amount: isAutoSave ? Number(autoSaveAmount) : 0,
+          auto_save_amount: isAutoSave ? autoSaveAmount : 0,
         }),
       });
 
@@ -152,23 +153,19 @@ export function GoalFormModal({ open, onClose, onSuccess, goal }: GoalFormModalP
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs font-black uppercase tracking-widest ml-1">Target Dana (Rp)</Label>
-                <Input 
-                  type="number"
-                  placeholder="10000000" 
+                <Label className="text-xs font-black uppercase tracking-widest ml-1">Target Dana</Label>
+                <CurrencyInput
                   value={targetAmount}
-                  onChange={e => setTargetAmount(e.target.value)}
-                  className="h-12 rounded-2xl border-border/40"
+                  onChange={setTargetAmount}
+                  required
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-black uppercase tracking-widest ml-1">Saldo Awal (Rp)</Label>
-                <Input 
-                  type="number"
-                  placeholder="0" 
+                <Label className="text-xs font-black uppercase tracking-widest ml-1">Saldo Awal</Label>
+                <CurrencyInput
                   value={currentAmount}
-                  onChange={e => setCurrentAmount(e.target.value)}
-                  className="h-12 rounded-2xl border-border/40"
+                  onChange={setCurrentAmount}
+                  required
                 />
               </div>
             </div>
@@ -261,13 +258,10 @@ export function GoalFormModal({ open, onClose, onSuccess, goal }: GoalFormModalP
 
               {isAutoSave && (
                 <div className="space-y-2 pt-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <Label className="text-xs font-black uppercase tracking-widest ml-1">Nominal Nabung per Bulan (Rp)</Label>
-                  <Input 
-                    type="number"
-                    placeholder="500000" 
+                  <Label className="text-xs font-black uppercase tracking-widest ml-1">Nominal Nabung per Bulan</Label>
+                  <CurrencyInput
                     value={autoSaveAmount}
-                    onChange={e => setAutoSaveAmount(e.target.value)}
-                    className="h-12 rounded-2xl border-border/40"
+                    onChange={setAutoSaveAmount}
                   />
                   <p className="text-[10px] text-muted-foreground ml-1 font-medium">
                     Dana akan otomatis dipindahkan dari dompet utama Anda setiap tanggal gajian.

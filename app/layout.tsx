@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { ClientProviders } from "@/components/shared/client-providers";
 import { DeferredAnalytics } from "@/components/shared/deferred-analytics";
 import NextTopLoader from "nextjs-toploader";
+import { UserPreferencesProvider } from "@/components/providers/user-preferences-provider";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -37,9 +38,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <NextTopLoader color="#9fe870" height={3} showSpinner={false} shadow="0 0 10px #9fe870,0 0 5px #9fe870" />
-          <ClientProviders>
-            {children}
-          </ClientProviders>
+          <UserPreferencesProvider>
+            <ClientProviders>
+              {children}
+            </ClientProviders>
+          </UserPreferencesProvider>
           <DeferredAnalytics />
         </ThemeProvider>
       </body>

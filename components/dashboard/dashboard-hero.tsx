@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import { Info, Wallet, TrendingUp, HandCoins, ChevronRight, CalendarDays } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
@@ -36,6 +36,7 @@ interface Transaction {
 }
 
 export function DashboardHero() {
+  const { formatCurrency } = useFormatCurrency();
   const [wallets, setWallets] = useState<WalletData[]>([]);
   const [debts, setDebts] = useState<Debt[]>([]);
   const [investments, setInvestments] = useState<Investment[]>([]);

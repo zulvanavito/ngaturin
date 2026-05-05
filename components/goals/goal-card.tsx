@@ -2,7 +2,7 @@
 
 import { Target, Calendar, MoreVertical, Plus, Pencil, Trash2, Info, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   DropdownMenu, 
   DropdownMenuContent, 
@@ -35,6 +35,7 @@ interface GoalCardProps {
 
 
 export function GoalCard({ goal, onDeposit, onEdit, onDelete, onDetail }: GoalCardProps) {
+  const { formatCurrency } = useFormatCurrency();
   const progress = Math.min(Math.round((goal.current_amount / goal.target_amount) * 100), 100);
   const remaining = Math.max(goal.target_amount - goal.current_amount, 0);
   

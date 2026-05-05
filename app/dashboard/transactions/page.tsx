@@ -13,7 +13,7 @@ import { BulkTransactionForm } from "@/components/finance/bulk-transaction-form"
 import { TransactionRowSkeleton } from "@/components/layout/skeletons";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   Download, 
   FileSpreadsheet, 
@@ -55,6 +55,7 @@ export default function TransactionsPage() {
   const [customDateTo, setCustomDateTo] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("newest");
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const { formatCurrency } = useFormatCurrency();
   const { showToast } = useToast();
 
   // Pagination & Selection

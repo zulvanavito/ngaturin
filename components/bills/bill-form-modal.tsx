@@ -12,6 +12,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { type RecurringBill } from "@/components/bills/bill-card";
 import { useCategories } from "@/hooks/use-categories";
 import { CategoryIcon } from "@/components/categories/category-icon";
@@ -26,7 +27,7 @@ interface BillFormModalProps {
 export function BillFormModal({ open, onClose, onSuccess, bill }: BillFormModalProps) {
   const { expenseCategories } = useCategories();
   const [name, setName] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number>(0);
   const [category, setCategory] = useState("");
   const [dueDay, setDueDay] = useState("1");
   const [billingCycle, setBillingCycle] = useState("monthly");
@@ -38,7 +39,7 @@ export function BillFormModal({ open, onClose, onSuccess, bill }: BillFormModalP
   useEffect(() => {
     if (bill) {
       setName(bill.name);
-      setAmount(String(bill.amount));
+      setAmount(bill.amount);
       setCategory(bill.category || "");
       setDueDay(String(bill.due_day));
       setBillingCycle(bill.billing_cycle || "monthly");
@@ -46,7 +47,7 @@ export function BillFormModal({ open, onClose, onSuccess, bill }: BillFormModalP
       setIsAutopay(bill.is_autopay ?? false);
     } else {
       setName("");
-      setAmount("");
+      setAmount(0);
       setCategory("");
       setDueDay("1");
       setBillingCycle("monthly");
@@ -72,7 +73,7 @@ export function BillFormModal({ open, onClose, onSuccess, bill }: BillFormModalP
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim(),
-          amount: Number(amount),
+          amount: amount,
           category: category || null,
           due_day: Number(dueDay),
           is_active: bill?.is_active ?? true,
@@ -126,15 +127,11 @@ export function BillFormModal({ open, onClose, onSuccess, bill }: BillFormModalP
           {/* Amount & Due Day */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-xs font-black uppercase tracking-widest ml-1">Nominal (Rp)</Label>
-              <Input
+              <Label className="text-xs font-black uppercase tracking-widest ml-1">Nominal</Label>
+              <CurrencyInput
                 value={amount}
-                onChange={e => setAmount(e.target.value)}
-                type="number"
-                min="1"
-                placeholder="150000"
+                onChange={setAmount}
                 required
-                className="h-12 rounded-2xl border-border/40 font-semibold tabular-nums"
               />
             </div>
             <div className="space-y-2">

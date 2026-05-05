@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { ArrowUpRight, ArrowDownLeft, ArrowLeftRight} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -19,6 +19,7 @@ interface WalletHistoryModalProps {
 
 
 export function WalletHistoryModal({ open, onClose, wallet }: WalletHistoryModalProps) {
+  const { formatCurrency } = useFormatCurrency();
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [loading, setLoading] = useState(false);
 

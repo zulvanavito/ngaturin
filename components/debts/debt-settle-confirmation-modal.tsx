@@ -5,7 +5,7 @@ import { CheckCircle2, AlertTriangle, Loader2} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -25,6 +25,7 @@ interface DebtSettleConfirmationModalProps {
 
 
 export function DebtSettleConfirmationModal({ open, onClose, onSuccess, debt }: DebtSettleConfirmationModalProps) {
+  const { formatCurrency } = useFormatCurrency();
   const { wallets } = useWallets(false);
   const [syncToWallet, setSyncToWallet] = useState(true);
   const [walletId, setWalletId] = useState("");

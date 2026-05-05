@@ -2,7 +2,7 @@
 
 import { MoreVertical, Pencil, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +61,7 @@ export function WalletCard({
   onDelete,
   onViewHistory,
 }: WalletCardProps) {
+  const { formatCurrency } = useFormatCurrency();
   return (
     <div className="relative">
       <div className="group relative bg-white dark:bg-card rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-ring transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden">

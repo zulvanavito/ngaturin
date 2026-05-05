@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   Select,
   SelectContent,
@@ -27,6 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import {
   PieChart,
   Pie,
@@ -130,6 +131,7 @@ const TYPE_CONFIG = {
 
 
 export default function InvestmentsPage() {
+  const { formatCurrency } = useFormatCurrency();
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -159,8 +161,8 @@ export default function InvestmentsPage() {
   const [formType, setFormType] = useState<Investment["type"]>("reksadana");
   const [formSymbol, setFormSymbol] = useState("");
   const [formAmount, setFormAmount] = useState("");
-  const [formTotalInvested, setFormTotalInvested] = useState("");
-  const [formCurrentValue, setFormCurrentValue] = useState("");
+  const [formTotalInvested, setFormTotalInvested] = useState<number>(0);
+  const [formCurrentValue, setFormCurrentValue] = useState<number>(0);
 
   const fetchInvestments = useCallback(async () => {
     try {
@@ -379,8 +381,8 @@ export default function InvestmentsPage() {
     setFormType("reksadana");
     setFormSymbol("");
     setFormAmount("");
-    setFormTotalInvested("");
-    setFormCurrentValue("");
+    setFormTotalInvested(0);
+    setFormCurrentValue(0);
     setIsFormOpen(true);
   };
 
@@ -390,8 +392,8 @@ export default function InvestmentsPage() {
     setFormType(item.type);
     setFormSymbol(item.symbol || "");
     setFormAmount(item.amount ? String(item.amount) : "");
-    setFormTotalInvested(String(item.total_invested));
-    setFormCurrentValue(String(item.current_value));
+    setFormTotalInvested(item.total_invested);
+    setFormCurrentValue(item.current_value);
     setIsFormOpen(true);
   };
 
@@ -408,8 +410,8 @@ export default function InvestmentsPage() {
         type: formType,
         symbol: formSymbol || null,
         amount: Number(formAmount || 0),
-        total_invested: Number(formTotalInvested),
-        current_value: Number(formCurrentValue),
+        total_invested: formTotalInvested,
+        current_value: formCurrentValue,
       };
       const res = await fetch(url, {
         method,
@@ -1292,31 +1294,23 @@ export default function InvestmentsPage() {
 
             <div className="space-y-2">
               <Label className="text-xs font-black uppercase tracking-widest ml-1">
-                Total Modal Diinvestasikan (Rp)
+                Total Modal Diinvestasikan
               </Label>
-              <Input
+              <CurrencyInput
                 value={formTotalInvested}
-                onChange={(e) => setFormTotalInvested(e.target.value)}
-                type="number"
-                min="0"
+                onChange={setFormTotalInvested}
                 required
-                placeholder="Total uang yang Anda setor"
-                className="h-12 rounded-2xl border-border/40 font-bold tabular-nums"
               />
             </div>
 
             <div className="space-y-2">
               <Label className="text-xs font-black uppercase tracking-widest ml-1">
-                Nilai Pasar Saat Ini (Rp)
+                Nilai Pasar Saat Ini
               </Label>
-              <Input
+              <CurrencyInput
                 value={formCurrentValue}
-                onChange={(e) => setFormCurrentValue(e.target.value)}
-                type="number"
-                min="0"
+                onChange={setFormCurrentValue}
                 required
-                placeholder="Harga/Nilai total saat ini"
-                className="h-12 rounded-2xl border-border/40 font-bold tabular-nums"
               />
               <p className="text-[10px] text-muted-foreground/80 mt-2 ml-1 leading-relaxed">
                 <Lightbulb className="w-3 h-3 inline mr-1 -mt-0.5 text-primary" />{" "}

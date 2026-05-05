@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter 
 } from "@/components/ui/dialog";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Goal } from "./goal-card";
 
 interface GoalDepositModalProps {
@@ -18,13 +19,13 @@ interface GoalDepositModalProps {
 }
 
 export function GoalDepositModal({ open, onClose, onSuccess, goal }: GoalDepositModalProps) {
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!goal || !amount || Number(amount) <= 0) {
+    if (!goal || !amount || amount <= 0) {
       setError("Masukkan jumlah nominal yang valid.");
       return;
     }
@@ -33,7 +34,7 @@ export function GoalDepositModal({ open, onClose, onSuccess, goal }: GoalDeposit
     setError("");
 
     try {
-      const newAmount = Number(goal.current_amount) + Number(amount);
+      const newAmount = Number(goal.current_amount) + amount;
       const res = await fetch(`/api/goals/${goal.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -42,7 +43,7 @@ export function GoalDepositModal({ open, onClose, onSuccess, goal }: GoalDeposit
 
       if (!res.ok) throw new Error("Gagal menambah dana");
 
-      setAmount("");
+      setAmount(0);
       onSuccess();
       onClose();
     } catch (err: unknown) {
@@ -73,15 +74,13 @@ export function GoalDepositModal({ open, onClose, onSuccess, goal }: GoalDeposit
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          <div className="space-y-2">
-            <Label className="text-xs font-black uppercase tracking-widest ml-1">Nominal Simpanan (Rp)</Label>
-            <Input 
-              type="number"
-              autoFocus
-              placeholder="Misal: 500000" 
+          <div className="space-y-2 text-center">
+            <Label className="text-xs font-black uppercase tracking-widest ml-1">Nominal Simpanan</Label>
+            <CurrencyInput
               value={amount}
-              onChange={e => setAmount(e.target.value)}
-              className="h-14 text-xl font-bold rounded-2xl border-border/40 focus:ring-primary/20 text-center"
+              onChange={setAmount}
+              autoFocus
+              className="h-14 text-xl font-bold text-center"
             />
             <p className="text-[11px] text-muted-foreground text-center pt-1 font-medium">
               Saldo saat ini: <span className="font-bold text-foreground">Rp {goal.current_amount.toLocaleString("id-ID")}</span> / 
@@ -106,7 +105,7 @@ export function GoalDepositModal({ open, onClose, onSuccess, goal }: GoalDeposit
             </Button>
             <Button 
               type="submit" 
-              disabled={isLoading || !amount || Number(amount) <= 0}
+              disabled={isLoading || !amount || amount <= 0}
               className="rounded-2xl h-12 px-8 font-black bg-primary text-primary-foreground hover:brightness-110 shadow-lg active:scale-95 transition-all w-full sm:w-auto"
             >
               {isLoading ? "Memproses..." : "Konfirmasi Simpanan"}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   Plus,
   ChevronLeft,
@@ -36,8 +36,8 @@ interface Transaction {
   date: string;
 }
 
-
 export default function BillsPage() {
+  const { formatCurrency } = useFormatCurrency();
   const [bills, setBills] = useState<RecurringBill[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,12 +56,14 @@ export default function BillsPage() {
     setLoading(true);
     try {
       const year = viewDate.getFullYear();
-      const month = String(viewDate.getMonth() + 1).padStart(2, '0');
+      const month = String(viewDate.getMonth() + 1).padStart(2, "0");
       const monthStr = `${year}-${month}`;
-      
+
       const [billsRes, txRes] = await Promise.all([
         fetch("/api/recurring-bills", { cache: "no-store" }),
-        fetch(`/api/transactions?type=expense&month=${monthStr}`, { cache: "no-store" }),
+        fetch(`/api/transactions?type=expense&month=${monthStr}`, {
+          cache: "no-store",
+        }),
       ]);
       if (billsRes.ok) {
         const data = await billsRes.json();
@@ -222,15 +224,15 @@ export default function BillsPage() {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-               <BillCardSkeleton />
-               <BillCardSkeleton />
-               <BillCardSkeleton />
-               <BillCardSkeleton />
-             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <BillCardSkeleton />
+              <BillCardSkeleton />
+              <BillCardSkeleton />
+              <BillCardSkeleton />
+            </div>
           </div>
           <div className="space-y-4">
-             <div className="w-full h-80 bg-muted animate-pulse rounded-[2.5rem]"></div>
+            <div className="w-full h-80 bg-muted animate-pulse rounded-[2.5rem]"></div>
           </div>
         </div>
       </div>
@@ -388,7 +390,7 @@ export default function BillsPage() {
             <div className="space-y-4">
               <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
                 <span className="text-income">✓</span> Lunas
-                <span className="text-xs font-bold text-muted-foreground ml-auto bg-income/10 text-income px-3 py-1 rounded-full">
+                <span className="text-xs font-bold ml-auto bg-income/10 text-income px-3 py-1 rounded-full">
                   {paidBills.length} Tagihan
                 </span>
               </h2>
@@ -546,8 +548,8 @@ export default function BillsPage() {
                 Hapus Tagihan
               </DialogTitle>
               <DialogDescription className="text-center md:text-left">
-                Tagihan <strong>{deletingBill?.name}</strong> akan dihapus secara
-                permanen.
+                Tagihan <strong>{deletingBill?.name}</strong> akan dihapus
+                secara permanen.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex flex-col sm:flex-row gap-2">
@@ -567,7 +569,8 @@ export default function BillsPage() {
               >
                 {isDeleting ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menghapus...
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
+                    Menghapus...
                   </>
                 ) : (
                   "Hapus Permanen"

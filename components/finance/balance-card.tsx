@@ -7,10 +7,11 @@ interface BalanceCardProps {
   totalExpense: number;
 }
 
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 export { formatCurrency } from "@/lib/utils/format";
 
 export function BalanceCard({ totalIncome, totalExpense }: BalanceCardProps) {
+  const { formatCurrency } = useFormatCurrency();
   const balance = totalIncome - totalExpense;
   const savingsRate = totalIncome > 0 ? Math.round(((totalIncome - totalExpense) / totalIncome) * 100) : 0;
 

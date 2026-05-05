@@ -12,6 +12,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { CategoryIcon } from "@/components/categories/category-icon";
 import { type Debt } from "@/components/debts/debt-card";
 import { useWallets } from "@/hooks/use-wallets";
@@ -27,7 +28,7 @@ export function DebtFormModal({ open, onClose, onSuccess, debt }: DebtFormModalP
   const { wallets } = useWallets(false);
   const [type, setType] = useState<"hutang" | "piutang">("hutang");
   const [personName, setPersonName] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number>(0);
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [syncToWallet, setSyncToWallet] = useState(false);
@@ -41,7 +42,7 @@ export function DebtFormModal({ open, onClose, onSuccess, debt }: DebtFormModalP
     if (debt) {
       setType(debt.type);
       setPersonName(debt.person_name);
-      setAmount(String(debt.amount));
+      setAmount(debt.amount);
       setDescription(debt.description || "");
       setDueDate(debt.due_date ? debt.due_date.split("T")[0] : "");
       setSyncToWallet(false);
@@ -49,7 +50,7 @@ export function DebtFormModal({ open, onClose, onSuccess, debt }: DebtFormModalP
     } else {
       setType("hutang");
       setPersonName("");
-      setAmount("");
+      setAmount(0);
       setDescription("");
       setDueDate("");
       setSyncToWallet(false);
@@ -79,7 +80,7 @@ export function DebtFormModal({ open, onClose, onSuccess, debt }: DebtFormModalP
         body: JSON.stringify({
           type,
           person_name: personName.trim(),
-          amount: Number(amount),
+          amount: amount,
           description: description.trim() || null,
           due_date: dueDate || null,
           is_settled: debt?.is_settled ?? false,
@@ -104,7 +105,7 @@ export function DebtFormModal({ open, onClose, onSuccess, debt }: DebtFormModalP
             description: isHutang
               ? `Pinjam uang dari ${personName.trim()}`
               : `Pinjamkan uang ke ${personName.trim()}`,
-            amount: Number(amount),
+            amount: amount,
             category: isHutang ? "Hutang" : "Piutang",
             type: isHutang ? "income" : "expense",
             wallet_id: walletId,
@@ -196,15 +197,11 @@ export function DebtFormModal({ open, onClose, onSuccess, debt }: DebtFormModalP
           {/* Amount & Date */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-xs font-black uppercase tracking-widest ml-1">Jumlah (Rp)</Label>
-              <Input
+              <Label className="text-xs font-black uppercase tracking-widest ml-1">Jumlah</Label>
+              <CurrencyInput
                 value={amount}
-                onChange={e => setAmount(e.target.value)}
-                type="number"
-                min="1"
-                placeholder="500000"
+                onChange={setAmount}
                 required
-                className="h-12 rounded-2xl border-border/40 font-semibold tabular-nums"
               />
             </div>
             <div className="space-y-2">

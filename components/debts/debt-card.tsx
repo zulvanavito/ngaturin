@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   MoreVertical,
   Pencil,
@@ -102,6 +102,7 @@ export function DebtCard({
   onPayment,
   onToggleSettle,
 }: DebtCardProps) {
+  const { formatCurrency } = useFormatCurrency();
   const isHutang = debt.type === "hutang";
 
   const paidAmount = debt.paid_amount || 0;

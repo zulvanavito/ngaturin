@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import type { Transaction } from "@/components/finance/transaction-form";
 import { createClient } from "@/lib/supabase/client";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 
 interface CategoryProgress {
   name: string;
@@ -17,6 +17,7 @@ interface DashboardProgressCardProps {
 }
 
 export function DashboardProgressCard({ transactions }: DashboardProgressCardProps) {
+  const { formatCurrency } = useFormatCurrency();
   const [budgets, setBudgets] = useState<any[]>([]);
   const supabase = createClient();
   

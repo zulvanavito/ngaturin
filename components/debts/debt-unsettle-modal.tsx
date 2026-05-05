@@ -5,7 +5,7 @@ import { Undo2, Loader2, AlertCircle, Trash2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -32,6 +32,7 @@ interface DebtUnsettleModalProps {
 type PaidAmountAction = "keep" | "reset" | "subtract";
 
 export function DebtUnsettleModal({ open, onClose, onSuccess, debt }: DebtUnsettleModalProps) {
+  const { formatCurrency } = useFormatCurrency();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedTxIds, setSelectedTxIds] = useState<Set<string>>(new Set());
   const [paidAction, setPaidAction] = useState<PaidAmountAction>("reset");

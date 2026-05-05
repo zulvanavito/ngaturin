@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShieldCheck, Info } from "lucide-react";
 
@@ -18,6 +18,7 @@ interface Transaction {
 }
 
 export function EmergencyRunway() {
+  const { formatCurrency } = useFormatCurrency();
   const [runwayMonths, setRunwayMonths] = useState(0);
   const [totalLiquid, setTotalLiquid] = useState(0);
   const [avgExpense, setAvgExpense] = useState(0);

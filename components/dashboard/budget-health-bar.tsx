@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Info } from "lucide-react";
 
@@ -33,6 +33,7 @@ function classifyCategory(category: string): "needs" | "wants" | "savings" {
 }
 
 export function BudgetHealthBar() {
+  const { formatCurrency } = useFormatCurrency();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [monthlyIncome, setMonthlyIncome] = useState(0);
   const [loading, setLoading] = useState(true);

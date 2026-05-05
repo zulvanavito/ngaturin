@@ -5,7 +5,7 @@ import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { CategoryIcon } from "@/components/categories/category-icon";
 import { type WalletData } from "@/components/wallets/wallet-card";
+import { CurrencyInput } from "@/components/ui/currency-input";
 
 interface WalletTransferModalProps {
   open: boolean;
@@ -24,9 +25,10 @@ interface WalletTransferModalProps {
 
 
 export function WalletTransferModal({ open, onClose, onSuccess, wallets }: WalletTransferModalProps) {
+  const { formatCurrency } = useFormatCurrency();
   const [fromId, setFromId] = useState("");
   const [toId, setToId] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number>(0);
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -38,7 +40,7 @@ export function WalletTransferModal({ open, onClose, onSuccess, wallets }: Walle
     e.preventDefault();
     if (!fromId || !toId || !amount) return;
 
-    const numAmount = Number(amount.replace(/\D/g, ""));
+    const numAmount = amount;
     if (numAmount <= 0) { setError("Jumlah harus lebih dari 0."); return; }
 
     if (fromWallet && fromWallet.balance < numAmount) {
@@ -67,7 +69,7 @@ export function WalletTransferModal({ open, onClose, onSuccess, wallets }: Walle
 
       onSuccess();
       onClose();
-      setFromId(""); setToId(""); setAmount(""); setDescription("");
+      setFromId(""); setToId(""); setAmount(0); setDescription("");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Gagal melakukan transfer.");
     } finally {
@@ -152,13 +154,10 @@ export function WalletTransferModal({ open, onClose, onSuccess, wallets }: Walle
           {/* Amount & Description */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-xs font-black uppercase tracking-widest ml-1">Jumlah (Rp)</Label>
-              <Input
+              <Label className="text-xs font-black uppercase tracking-widest ml-1">Jumlah</Label>
+              <CurrencyInput
                 value={amount}
-                onChange={e => setAmount(e.target.value)}
-                placeholder="100000"
-                type="number"
-                min="1"
+                onChange={setAmount}
                 required
                 className="h-12 rounded-2xl border-border/40 font-semibold tabular-nums"
               />

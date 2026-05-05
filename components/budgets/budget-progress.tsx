@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 
 interface BudgetProgressProps {
   category: string;
@@ -10,6 +10,7 @@ interface BudgetProgressProps {
 
 
 export function BudgetProgress({ category, spent, budget }: BudgetProgressProps) {
+  const { formatCurrency } = useFormatCurrency();
   const percentage = Math.min((spent / budget) * 100, 100);
   
   // Hitung persentase murni untuk warna tanpa di-cap ke 100%

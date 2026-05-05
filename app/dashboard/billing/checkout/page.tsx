@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/lib/toast-context";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import { ArrowLeft, CreditCard, Wallet, QrCode } from "lucide-react";
 
 const PAYMENT_METHODS = [
@@ -72,6 +73,7 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { showToast } = useToast();
+  const { formatCurrency } = useFormatCurrency();
   
   const planId = searchParams.get("planId") as "plus" | "pro";
   const interval = searchParams.get("interval") as "monthly" | "yearly";
@@ -235,12 +237,12 @@ function CheckoutContent() {
                   <p className="font-bold">Paket Ngaturin {planId.toUpperCase()}</p>
                   <p className="text-sm text-muted-foreground font-medium">Tagihan {interval === 'monthly' ? '1 Bulan' : '1 Tahun'}</p>
                 </div>
-                <p className="font-black">Rp {price.toLocaleString('id-ID')}</p>
+                <p className="font-black">{formatCurrency(price)}</p>
               </div>
               
               <div className="flex justify-between items-center text-lg">
                 <p className="font-bold">Total Pembayaran</p>
-                <p className="font-black text-primary">Rp {price.toLocaleString('id-ID')}</p>
+                <p className="font-black text-primary">{formatCurrency(price)}</p>
               </div>
             </div>
 

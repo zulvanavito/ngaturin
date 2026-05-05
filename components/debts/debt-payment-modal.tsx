@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { formatCurrency } from "@/lib/utils/format";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { CategoryIcon } from "@/components/categories/category-icon";
 import { type Debt } from "@/components/debts/debt-card";
 import { useWallets } from "@/hooks/use-wallets";
@@ -26,8 +27,9 @@ interface DebtPaymentModalProps {
 
 
 export function DebtPaymentModal({ open, onClose, onSuccess, debt }: DebtPaymentModalProps) {
+  const { formatCurrency } = useFormatCurrency();
   const { wallets } = useWallets(false);
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number>(0);
   const [walletId, setWalletId] = useState("");
   const [syncToWallet, setSyncToWallet] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +39,7 @@ export function DebtPaymentModal({ open, onClose, onSuccess, debt }: DebtPayment
 
   useEffect(() => {
     if (open && debt) {
-      setAmount(String(remaining));
+      setAmount(remaining);
       setWalletId("");
       setSyncToWallet(true);
       setError("");
@@ -50,7 +52,7 @@ export function DebtPaymentModal({ open, onClose, onSuccess, debt }: DebtPayment
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const numAmount = Number(amount);
+    const numAmount = amount;
     if (numAmount <= 0) { setError("Jumlah harus lebih dari 0."); return; }
     if (numAmount > remaining) { setError(`Melebihi sisa. Maksimal: ${formatCurrency(remaining)}`); return; }
     if (syncToWallet && !walletId) { setError("Pilih dompet untuk sinkronisasi."); return; }
@@ -141,20 +143,17 @@ export function DebtPaymentModal({ open, onClose, onSuccess, debt }: DebtPayment
         <form onSubmit={handleSubmit} className="space-y-5 pt-2">
           {/* Amount */}
           <div className="space-y-2">
-            <Label className="text-xs font-black uppercase tracking-widest ml-1">Jumlah Pembayaran (Rp)</Label>
-            <Input
+            <Label className="text-xs font-black uppercase tracking-widest ml-1">Jumlah Pembayaran</Label>
+            <CurrencyInput
               value={amount}
-              onChange={e => setAmount(e.target.value)}
-              type="number"
-              min="1"
-              max={remaining}
+              onChange={setAmount}
               required
-              className="h-12 rounded-2xl border-border/40 font-semibold tabular-nums text-lg"
+              className="text-lg"
             />
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => setAmount(String(remaining))}
+                onClick={() => setAmount(remaining)}
                 className="text-[10px] font-bold text-primary hover:underline"
               >
                 Bayar Penuh
@@ -162,7 +161,7 @@ export function DebtPaymentModal({ open, onClose, onSuccess, debt }: DebtPayment
               <span className="text-muted-foreground/30">|</span>
               <button
                 type="button"
-                onClick={() => setAmount(String(Math.round(remaining / 2)))}
+                onClick={() => setAmount(Math.round(remaining / 2))}
                 className="text-[10px] font-bold text-primary hover:underline"
               >
                 Separuh

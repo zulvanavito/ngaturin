@@ -13,7 +13,7 @@ import {
   ChevronDown,
   AlertTriangle,
 } from "lucide-react";
-import { formatCurrency } from "@/components/finance/balance-card";
+import { useFormatCurrency } from "@/hooks/use-format-currency";
 import type { Transaction } from "@/components/finance/transaction-form";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/lib/toast-context";
@@ -49,6 +49,7 @@ export function TransactionList({
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const { showToast } = useToast();
+  const { formatCurrency } = useFormatCurrency();
   const { wallets } = useWallets();
   const { categories } = useCategories();
 
@@ -136,14 +137,14 @@ export function TransactionList({
               {formatDateGroup(dateKey)}
             </h3>
             <span className="text-[11px] font-bold text-muted-foreground/40 italic">
-              — Total: Rp{" "}
-              {txs
-                .reduce(
+              — Total:{" "}
+              {formatCurrency(
+                txs.reduce(
                   (sum, t) =>
                     sum + (t.type === "expense" ? Number(t.amount) : 0),
                   0,
                 )
-                .toLocaleString("id-ID")}
+              )}
             </span>
           </div>
 
@@ -238,7 +239,7 @@ export function TransactionList({
                       className={`font-black text-sm sm:text-xl tracking-tighter ${tx.type === "income" ? "text-emerald-500" : "text-rose-500"}`}
                     >
                       {tx.type === "income" ? "+" : "-"}
-                      {formatCurrency(tx.amount)}
+                      {formatCurrency(Number(tx.amount))}
                     </p>
                   </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Target, Calendar, Type, Clock, AlignLeft, Info } from "lucide-react";
+import { Target, Calendar, Type, Clock, AlignLeft, Info, Bot } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription 
@@ -115,6 +115,16 @@ export function GoalDetailModal({ open, onClose, goal }: GoalDetailModalProps) {
                 </p>
               </div>
             </div>
+
+            {goal.is_auto_save && (
+              <div className="flex items-center gap-3 border-t border-border/10 pt-3">
+                <Bot className="w-4 h-4 text-primary shrink-0" />
+                <div className="flex-1 shrink-0 min-w-0">
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground/70 tracking-wider">Auto-Save per Bulan</p>
+                  <p className="text-sm font-bold text-primary truncate">{formatCurrency(goal.auto_save_amount)}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {goal.description && (

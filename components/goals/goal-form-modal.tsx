@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Target, Calendar, Info } from "lucide-react";
+import { Target, Calendar, Info, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,6 +42,8 @@ export function GoalFormModal({ open, onClose, onSuccess, goal }: GoalFormModalP
   const [deadline, setDeadline] = useState("");
   const [category, setCategory] = useState("");
   const [color, setColor] = useState(COLORS[0]);
+  const [isAutoSave, setIsAutoSave] = useState(false);
+  const [autoSaveAmount, setAutoSaveAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [categoriesList, setCategoriesList] = useState<{id: string, name: string}[]>([]);
@@ -62,6 +64,8 @@ export function GoalFormModal({ open, onClose, onSuccess, goal }: GoalFormModalP
       setDeadline(goal.deadline ? goal.deadline.split('T')[0] : "");
       setCategory(goal.category || "");
       setColor(goal.color);
+      setIsAutoSave(goal.is_auto_save || false);
+      setAutoSaveAmount(goal.auto_save_amount ? String(goal.auto_save_amount) : "");
     } else {
       setTitle("");
       setDescription("");
@@ -70,6 +74,8 @@ export function GoalFormModal({ open, onClose, onSuccess, goal }: GoalFormModalP
       setDeadline("");
       setCategory("");
       setColor(COLORS[0]);
+      setIsAutoSave(false);
+      setAutoSaveAmount("");
     }
   }, [goal, open]);
 
@@ -98,6 +104,8 @@ export function GoalFormModal({ open, onClose, onSuccess, goal }: GoalFormModalP
           deadline: deadline || null,
           category: category || null,
           color,
+          is_auto_save: isAutoSave,
+          auto_save_amount: isAutoSave ? Number(autoSaveAmount) : 0,
         }),
       });
 
@@ -227,6 +235,45 @@ export function GoalFormModal({ open, onClose, onSuccess, goal }: GoalFormModalP
                   />
                 ))}
               </div>
+            </div>
+
+            {/* Auto-Save Section */}
+            <div className="space-y-3 p-4 rounded-2xl border border-border/20 bg-muted/10">
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200 ${isAutoSave ? 'bg-primary border-primary' : 'border-border/40 group-hover:border-primary/50'}`}>
+                  {isAutoSave && (
+                    <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={isAutoSave}
+                  onChange={(e) => setIsAutoSave(e.target.checked)}
+                />
+                <div className="flex items-center gap-2">
+                  <Bot className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-bold text-foreground">Aktifkan Nabung Otomatis</span>
+                </div>
+              </label>
+
+              {isAutoSave && (
+                <div className="space-y-2 pt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <Label className="text-xs font-black uppercase tracking-widest ml-1">Nominal Nabung per Bulan (Rp)</Label>
+                  <Input 
+                    type="number"
+                    placeholder="500000" 
+                    value={autoSaveAmount}
+                    onChange={e => setAutoSaveAmount(e.target.value)}
+                    className="h-12 rounded-2xl border-border/40"
+                  />
+                  <p className="text-[10px] text-muted-foreground ml-1 font-medium">
+                    Dana akan otomatis dipindahkan dari dompet utama Anda setiap tanggal gajian.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

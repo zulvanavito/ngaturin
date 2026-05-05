@@ -25,6 +25,8 @@ export async function PUT(
   if (body.category !== undefined) updateData.category = body.category?.trim();
   if (body.color !== undefined) updateData.color = body.color;
   if (body.is_completed !== undefined) updateData.is_completed = body.is_completed;
+  if (body.is_auto_save !== undefined) updateData.is_auto_save = body.is_auto_save;
+  if (body.auto_save_amount !== undefined) updateData.auto_save_amount = body.is_auto_save ? Number(body.auto_save_amount) : 0;
 
   // Auto-check completion if amounts updated
   if (updateData.current_amount !== undefined || updateData.target_amount !== undefined) {

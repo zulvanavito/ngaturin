@@ -1,6 +1,6 @@
 "use client";
 
-import { Target, Calendar, MoreVertical, Plus, Pencil, Trash2, Info } from "lucide-react";
+import { Target, Calendar, MoreVertical, Plus, Pencil, Trash2, Info, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils/format";
 import {
@@ -20,6 +20,8 @@ export interface Goal {
   category: string | null;
   color: string;
   is_completed: boolean;
+  is_auto_save: boolean;
+  auto_save_amount: number;
   created_at: string;
 }
 
@@ -149,6 +151,12 @@ export function GoalCard({ goal, onDeposit, onEdit, onDelete, onDetail }: GoalCa
             ) : (
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/40 text-muted-foreground text-[11px] font-bold">
                 No Deadline
+              </div>
+            )}
+            {goal.is_auto_save && (
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold">
+                <Bot className="w-3.5 h-3.5" />
+                Auto-Save
               </div>
             )}
           </div>

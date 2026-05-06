@@ -9,6 +9,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 export interface Goal {
   id: string;
@@ -63,11 +64,18 @@ export function GoalCard({ goal, onDeposit, onEdit, onDelete, onDetail }: GoalCa
             <h3 className="font-bold text-lg sm:text-xl text-foreground tracking-tight leading-tight truncate">
               {goal.title}
             </h3>
-            {goal.category && (
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1 block">
-                {goal.category}
-              </span>
-            )}
+            <div className="flex items-center gap-2 mt-1">
+              {goal.category && (
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">
+                  {goal.category}
+                </span>
+              )}
+              {goal.is_completed && (
+                <Badge variant="success" className="text-[9px] px-2 py-0 border-none uppercase">
+                  Selesai
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
         
@@ -138,9 +146,7 @@ export function GoalCard({ goal, onDeposit, onEdit, onDelete, onDetail }: GoalCa
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-border/10">
           <div className="flex items-center gap-2">
             {goal.deadline ? (
-              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold ${
-                daysLeft !== null && daysLeft <= 7 ? "bg-expense/10 text-expense" : "bg-primary/10 text-primary"
-              }`}>
+              <Badge variant={daysLeft !== null && daysLeft < 0 ? "danger" : daysLeft !== null && daysLeft <= 7 ? "warning" : "accent"} className="gap-1.5 py-1 px-3 border-none text-[10px]">
                 <Calendar className="w-3.5 h-3.5" />
                 {daysLeft !== null && daysLeft < 0 
                   ? "Terlambat" 
@@ -148,17 +154,17 @@ export function GoalCard({ goal, onDeposit, onEdit, onDelete, onDetail }: GoalCa
                     ? "Hari ini!" 
                     : `${daysLeft} hari lagi`
                 }
-              </div>
+              </Badge>
             ) : (
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/40 text-muted-foreground text-[11px] font-bold">
+              <Badge variant="secondary" className="gap-1.5 py-1 px-3 border-none text-[10px] opacity-60">
                 No Deadline
-              </div>
+              </Badge>
             )}
             {goal.is_auto_save && (
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold">
+              <Badge variant="success" className="gap-1.5 py-1 px-3 border-none text-[10px]">
                 <Bot className="w-3.5 h-3.5" />
                 Auto-Save
-              </div>
+              </Badge>
             )}
           </div>
           

@@ -30,6 +30,7 @@ export async function POST() {
       "para_tasks",
       "para_projects",
       "para_areas",
+      "user_profiles",
     ];
     for (const table of tables) {
       await supabase.from(table).delete().eq("user_id", user.id);

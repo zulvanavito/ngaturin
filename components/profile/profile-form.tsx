@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Camera, Save, KeyRound, Loader2, Eye, EyeOff, CheckCircle2, Circle, AlertTriangle, Trash2, RefreshCw, ShieldCheck, CalendarDays, Wallet, Bot } from "lucide-react";
+import { Camera, Save, KeyRound, Loader2, Eye, EyeOff, CheckCircle2, AlertTriangle, Trash2, RefreshCw, ShieldCheck, CalendarDays, Wallet, Bot, HelpCircle } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -29,6 +31,9 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
   const { showDecimals, accentColor, updatePreferences } = useUserPreferences();
   const [fullName, setFullName] = useState(user.user_metadata?.full_name || "");
   const [avatarUrl, setAvatarUrl] = useState(user.user_metadata?.avatar_url || "");
+  const [newEmail, setNewEmail] = useState(user.email || "");
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -42,7 +47,7 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null);
 
   // Auto-save settings state
   const [paydayDay, setPaydayDay] = useState<string>("");
@@ -50,6 +55,7 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
   const [walletsList, setWalletsList] = useState<{id: string, name: string, icon: string, color: string}[]>([]);
   const [isSavingAutoSave, setIsSavingAutoSave] = useState(false);
   const [isLoadingAutoSave, setIsLoadingAutoSave] = useState(true);
+  const [lastEmailChangeAt, setLastEmailChangeAt] = useState<string | null>(null);
   
   const supabase = createClient();
   const { showToast } = useToast();
@@ -68,6 +74,7 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
         
         if (profileData.payday_day) setPaydayDay(String(profileData.payday_day));
         if (profileData.primary_wallet_id) setPrimaryWalletId(profileData.primary_wallet_id);
+        if (profileData.last_email_change_at) setLastEmailChangeAt(profileData.last_email_change_at);
         if (Array.isArray(walletsData)) setWalletsList(walletsData);
       } catch (err) {
         console.error("Failed to fetch auto-save data:", err);
@@ -94,8 +101,9 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
         throw new Error(d.error || "Gagal menyimpan");
       }
       showToast("success", "Pengaturan auto-save berhasil disimpan!");
-    } catch (err: any) {
-      showToast("error", err.message || "Gagal menyimpan pengaturan auto-save");
+    } catch (err: unknown) {
+      const error = err as Error;
+      showToast("error", error.message || "Gagal menyimpan pengaturan auto-save");
     } finally {
       setIsSavingAutoSave(false);
     }
@@ -114,9 +122,10 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
       if (error) throw error;
       setMessage({ type: 'success', text: 'Profil berhasil diperbarui!' });
       showToast('success', 'Profil berhasil diperbarui!');
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Gagal memperbarui profil' });
-      showToast('error', err.message || 'Gagal memperbarui profil');
+    } catch (err: unknown) {
+      const error = err as Error;
+      setMessage({ type: 'error', text: error.message || 'Gagal memperbarui profil' });
+      showToast('error', error.message || 'Gagal memperbarui profil');
     } finally {
       setIsUpdatingProfile(false);
     }
@@ -128,6 +137,58 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
   const hasNumber = /[0-9]/.test(password);
   const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
   const isPasswordValid = hasMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
+
+  // Calculate email change restriction
+  const canChangeEmail = !lastEmailChangeAt || (
+    new Date().getTime() - new Date(lastEmailChangeAt).getTime() > 30 * 24 * 60 * 60 * 1000
+  );
+
+  const nextEmailChangeDate = lastEmailChangeAt ? new Date(new Date(lastEmailChangeAt).getTime() + 30 * 24 * 60 * 60 * 1000) : null;
+
+  const handleUpdateEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canChangeEmail) {
+      showToast("error", "Anda hanya dapat mengganti email sekali dalam 30 hari.");
+      setIsEditingEmail(false);
+      return;
+    }
+    if (newEmail === user.email) {
+      setIsEditingEmail(false);
+      return;
+    }
+
+    setIsUpdatingEmail(true);
+    setMessage(null);
+
+    try {
+      const { error } = await supabase.auth.updateUser(
+        { email: newEmail },
+        { emailRedirectTo: `${window.location.origin}/auth/confirm-email` }
+      );
+      if (error) throw error;
+      
+      // Update timestamp segera agar limitasi 30 hari langsung berlaku
+      try {
+        await fetch("/api/user/profile/update-email-timestamp", { method: "POST" });
+        setLastEmailChangeAt(new Date().toISOString());
+      } catch (e) {
+        console.error("Gagal update timestamp ganti email:", e);
+      }
+
+      setMessage({ 
+        type: 'info', 
+        text: 'Permintaan ganti email terkirim! Silakan cek kotak masuk email BARU untuk melakukan konfirmasi.' 
+      });
+      showToast('info', 'Silakan cek email untuk konfirmasi.');
+      setIsEditingEmail(false);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setMessage({ type: 'error', text: error.message || 'Gagal memperbarui email' });
+      showToast('error', error.message || 'Gagal memperbarui email');
+    } finally {
+      setIsUpdatingEmail(false);
+    }
+  };
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,9 +213,10 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
       showToast('success', 'Kata sandi berhasil diperbarui!');
       setPassword("");
       setConfirmPassword("");
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Gagal memperbarui kata sandi' });
-      showToast('error', err.message || 'Gagal memperbarui kata sandi');
+    } catch (err: unknown) {
+      const error = err as Error;
+      setMessage({ type: 'error', text: error.message || 'Gagal memperbarui kata sandi' });
+      showToast('error', error.message || 'Gagal memperbarui kata sandi');
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -192,9 +254,10 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
       setAvatarUrl(publicUrl);
       setMessage({ type: 'success', text: 'Foto profil berhasil diunggah!' });
       showToast('success', 'Foto profil berhasil diunggah!');
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Gagal mengunggah foto profil.' });
-      showToast('error', err.message || 'Gagal mengunggah foto profil.');
+    } catch (err: unknown) {
+      const error = err as Error;
+      setMessage({ type: 'error', text: error.message || 'Gagal mengunggah foto profil.' });
+      showToast('error', error.message || 'Gagal mengunggah foto profil.');
     } finally {
       setIsUploading(false);
     }
@@ -211,8 +274,9 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
       setIsResetDialogOpen(false);
       setResetConfirmText("");
       setTimeout(() => window.location.reload(), 1500);
-    } catch (err: any) {
-      showToast("error", err.message);
+    } catch (err: unknown) {
+      const error = err as Error;
+      showToast("error", error.message || "Gagal mereset data");
     } finally {
       setIsResetting(false);
     }
@@ -227,8 +291,9 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
       if (!res.ok) throw new Error(data.error || "Gagal menghapus akun");
       setIsDeleteDialogOpen(false);
       router.push("/auth/account-deleted"); // Redirect ke halaman informasi hapus akun berhasil
-    } catch (err: any) {
-      showToast("error", err.message);
+    } catch (err: unknown) {
+      const error = err as Error;
+      showToast("error", error.message || "Gagal menghapus akun");
       setIsDeleting(false);
     }
   };
@@ -236,10 +301,14 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
   return (
     <div className="space-y-10">
       {message && (
-        <div className={`p-5 rounded-[1.5rem] border text-sm font-bold flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${
-          message.type === 'success' ? 'bg-primary/10 border-primary/20 text-primary-foreground' : 'bg-red-500/10 border-red-500/20 text-red-600'
+        <div className={`p-5 rounded-[2rem] border text-sm font-bold flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${
+          message.type === 'success' 
+            ? 'bg-primary/10 border-primary/20 text-primary' 
+            : message.type === 'info'
+              ? 'bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400'
+              : 'bg-red-500/10 border-red-500/20 text-red-600'
         }`}>
-          {message.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+          {message.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : message.type === 'info' ? <ShieldCheck className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
           {message.text}
         </div>
       )}
@@ -256,7 +325,13 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
                 <div className="relative group">
                   <div className="w-32 h-32 rounded-full overflow-hidden bg-muted border-4 border-border/30 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
                     {avatarUrl ? (
-                      <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      <Image 
+                        src={avatarUrl} 
+                        alt="Avatar" 
+                        width={128} 
+                        height={128} 
+                        className="w-full h-full object-cover" 
+                      />
                     ) : (
                       <span className="text-4xl font-black text-muted-foreground uppercase">
                         {fullName ? fullName.charAt(0) : user.email?.charAt(0)}
@@ -292,9 +367,85 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
 
               <div className="grid gap-6">
                 <div className="grid gap-2.5">
-                  <Label htmlFor="email" className="font-bold text-sm ml-1">Alamat Email</Label>
-                  <Input id="email" type="email" value={user.email} disabled className="h-14 rounded-2xl bg-muted/30 border-border/30 font-semibold px-5" />
-                  <p className="text-[10px] text-muted-foreground ml-1">Email tidak dapat diubah untuk saat ini.</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="email" className="font-bold text-sm ml-1">Alamat Email</Label>
+                      <div className="group relative">
+                        <HelpCircle className="w-3.5 h-3.5 text-muted-foreground cursor-help transition-colors group-hover:text-primary" />
+                        <div className="absolute bottom-full left-0 mb-3 w-64 p-4 bg-card border border-border/20 rounded-[1.5rem] shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50 animate-in fade-in zoom-in-95">
+                          <p className="text-xs font-black text-foreground mb-1" style={{ fontFeatureSettings: '"calt"' }}>Aturan Pergantian Email</p>
+                          <p className="text-[10px] font-semibold text-muted-foreground leading-relaxed" style={{ fontFeatureSettings: '"calt"' }}>
+                            Demi keamanan akun, pergantian email hanya dapat dilakukan satu kali setiap 30 hari. Link verifikasi akan berlaku selama 1 jam.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    {user.new_email && (
+                      <Badge variant="warning" className="text-[9px] px-2 py-0 border-none uppercase">
+                        Menunggu Verifikasi
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      value={isEditingEmail ? newEmail : user.email} 
+                      disabled={!isEditingEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      className={cn(
+                        "h-14 rounded-2xl border-border/30 font-semibold px-5 flex-1",
+                        !isEditingEmail && "bg-muted/30"
+                      )} 
+                    />
+                    {!isEditingEmail ? (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="h-14 px-5 rounded-2xl font-bold border-border/30 disabled:opacity-50"
+                        disabled={!canChangeEmail}
+                        onClick={() => {
+                          setNewEmail(user.email || "");
+                          setIsEditingEmail(true);
+                        }}
+                      >
+                        Ubah
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2">
+                         <Button 
+                          type="button" 
+                          variant="ghost" 
+                          className="h-14 px-5 rounded-2xl font-bold"
+                          onClick={() => setIsEditingEmail(false)}
+                          disabled={isUpdatingEmail}
+                        >
+                          Batal
+                        </Button>
+                        <Button 
+                          type="button" 
+                          className="h-14 px-5 rounded-2xl font-bold bg-primary text-primary-foreground disabled:opacity-50"
+                          onClick={handleUpdateEmail}
+                          disabled={isUpdatingEmail || newEmail === user.email || !canChangeEmail}
+                        >
+                          {isUpdatingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : "Simpan"}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  {user.new_email ? (
+                    <p className="text-[10px] text-blue-600 dark:text-blue-400 font-bold ml-1 animate-pulse">
+                      Konfirmasi perubahan ke {user.new_email} sedang diproses. Silakan cek inbox Anda.
+                    </p>
+                  ) : !canChangeEmail ? (
+                    <p className="text-[10px] text-red-500 font-bold ml-1">
+                      Anda baru saja mengganti email. Kesempatan berikutnya pada {nextEmailChangeDate?.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}. Jika anda tidak merasa mengganti silahkan hubungi tim kami.
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-muted-foreground ml-1">
+                      Mengubah email akan memerlukan konfirmasi ulang melalui kotak masuk Anda.
+                    </p>
+                  )}
                 </div>
                 <div className="grid gap-2.5">
                   <Label htmlFor="fullName" className="font-bold text-sm ml-1 text-foreground">Nama Lengkap</Label>
@@ -530,10 +681,15 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
                       { check: hasSpecial, label: "Karakter khusus (@,!,#)" },
                     ].map((item, idx) => (
                       <li key={idx} className={cn(
-                        "flex items-center gap-3 text-xs font-bold transition-colors duration-300",
-                        item.check ? "text-primary" : "text-muted-foreground"
+                        "flex items-center gap-3 text-xs font-bold transition-all duration-300",
+                        item.check ? "text-primary scale-105" : "text-muted-foreground/50 scale-100"
                       )}>
-                        {item.check ? <CheckCircle2 className="w-4 h-4" /> : <Circle className="w-4 h-4 opacity-40" />}
+                        <div className={cn(
+                          "w-4 h-4 rounded-full flex items-center justify-center transition-colors",
+                          item.check ? "bg-primary text-primary-foreground shadow-sm shadow-primary/30" : "bg-muted text-muted-foreground"
+                        )}>
+                          {item.check ? <CheckCircle2 className="w-3 h-3" /> : <div className="w-1.5 h-1.5 rounded-full bg-current opacity-40" />}
+                        </div>
                         {item.label}
                       </li>
                     ))}

@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 export interface Budget {
   id: string;
@@ -72,9 +73,17 @@ export function BudgetCard({
             <h3 className="font-bold text-lg sm:text-xl text-foreground tracking-tight leading-tight truncate">
               {budget.category}
             </h3>
-            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-muted-foreground mt-1 block">
-              Anggaran Bulanan
-            </span>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-muted-foreground block">
+                Anggaran Bulanan
+              </span>
+              <Badge 
+                variant={isDanger ? "danger" : isWarning ? "warning" : "success"}
+                className="text-[9px] px-2 py-0 border-none uppercase"
+              >
+                {isDanger ? "Over Limit" : isWarning ? "Waspada" : "Aman"}
+              </Badge>
+            </div>
           </div>
         </div>
 

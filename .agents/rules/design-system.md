@@ -112,6 +112,19 @@ What distinguishes Wise is its green-on-white-on-black material palette. Lime Gr
 - Clean header with Wise wordmark
 - Pill CTAs right-aligned
 
+### Tooltips
+
+- **Background**: `bg-card`
+- **Border**: `1px solid rgba(14, 15, 12, 0.12)` or `border-border/20`
+- **Radius**: `1.5rem` (24px) — Bold, large rounded corners
+- **Shadow**: `shadow-xl` — Deep elevation
+- **Padding**: `p-4` — Generous internal spacing
+- **Animation**: `animate-in fade-in zoom-in-95 duration-150`
+- **Typography**:
+  - Title: `text-xs font-black text-foreground mb-1`
+  - Body: `text-[10px] font-semibold text-muted-foreground leading-relaxed`
+  - Mandatory: Enable `"calt"` on all tooltip text
+
 ## 5. Layout Principles
 
 ### Spacing System

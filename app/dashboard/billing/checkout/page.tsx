@@ -3,7 +3,6 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/lib/toast-context";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 import { ArrowLeft, CreditCard, Wallet, QrCode } from "lucide-react";

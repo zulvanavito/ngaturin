@@ -19,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 export interface Debt {
   id: string;
@@ -43,7 +44,7 @@ interface DebtCardProps {
 
 function getDeadlineInfo(
   dueDate: string | null,
-): { label: string; color: string; isOverdue: boolean } | null {
+): { label: string; variant: "success" | "warning" | "danger" | "accent"; isOverdue: boolean } | null {
   if (!dueDate) return null;
 
   const now = new Date();
@@ -58,39 +59,39 @@ function getDeadlineInfo(
     const absDays = Math.abs(diffDays);
     return {
       label: absDays === 1 ? "Terlambat 1 hari" : `Terlambat ${absDays} hari`,
-      color: "text-red-500",
+      variant: "danger",
       isOverdue: true,
     };
   }
   if (diffDays === 0)
     return {
       label: "Jatuh tempo hari ini!",
-      color: "text-amber-500",
+      variant: "warning",
       isOverdue: false,
     };
   if (diffDays === 1)
     return {
       label: "Jatuh tempo besok",
-      color: "text-amber-500",
+      variant: "warning",
       isOverdue: false,
     };
   if (diffDays <= 7)
     return {
       label: `${diffDays} hari lagi`,
-      color: "text-amber-500",
+      variant: "warning",
       isOverdue: false,
     };
   if (diffDays <= 30)
     return {
       label: `${diffDays} hari lagi`,
-      color: "text-muted-foreground",
+      variant: "accent",
       isOverdue: false,
     };
 
   const months = Math.floor(diffDays / 30);
   return {
     label: `${months} bulan lagi`,
-    color: "text-muted-foreground",
+    variant: "accent",
     isOverdue: false,
   };
 }
@@ -157,16 +158,22 @@ export function DebtCard({
               <h3 className="font-bold text-base sm:text-lg text-foreground tracking-tight leading-tight truncate">
                 {debt.person_name}
               </h3>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span
-                  className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${isHutang ? "bg-expense/10 text-expense" : "bg-piutang/10 text-piutang"}`}
+              <div className="flex items-center gap-2 mt-1">
+                <Badge 
+                  variant="accent" 
+                  className={`text-[9px] px-2 py-0 border-none uppercase ${isHutang ? "bg-expense/10 text-expense" : "bg-piutang/10 text-piutang"}`}
                 >
                   {isHutang ? "Hutang" : "Piutang"}
-                </span>
+                </Badge>
                 {debt.is_settled && (
-                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-success/10 text-success">
+                  <Badge variant="success" className="text-[9px] px-2 py-0 border-none uppercase">
                     Lunas ✓
-                  </span>
+                  </Badge>
+                )}
+                {deadlineInfo && (
+                  <Badge variant={deadlineInfo.variant} className="text-[9px] px-2 py-0 border-none uppercase">
+                    {deadlineInfo.label}
+                  </Badge>
                 )}
               </div>
             </div>
@@ -267,17 +274,17 @@ export function DebtCard({
           )}
         </div>
 
-        {/* Deadline info */}
+        {/* Deadline info footer */}
         {deadlineInfo && (
-          <div
-            className={`flex items-center gap-1.5 mt-3 text-xs font-bold ${deadlineInfo.color}`}
-          >
-            {deadlineInfo.isOverdue ? (
-              <AlertTriangle className="w-3.5 h-3.5" />
-            ) : (
-              <Clock className="w-3.5 h-3.5" />
-            )}
-            {deadlineInfo.label}
+          <div className="flex items-center gap-1.5 mt-4">
+            <Badge variant={deadlineInfo.variant} className="gap-1.5 py-1 px-3 border-none text-[10px]">
+              {deadlineInfo.isOverdue ? (
+                <AlertTriangle className="w-3.5 h-3.5" />
+              ) : (
+                <Clock className="w-3.5 h-3.5" />
+              )}
+              {deadlineInfo.label}
+            </Badge>
           </div>
         )}
 

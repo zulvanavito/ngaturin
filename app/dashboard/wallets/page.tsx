@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, ChevronLeft, Loader2, ArrowLeftRight, Wallet as WalletIcon, ChevronDown, ChevronUp } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Plus, ChevronLeft, ArrowLeftRight, Wallet as WalletIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useFormatCurrency } from "@/hooks/use-format-currency";

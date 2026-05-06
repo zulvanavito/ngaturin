@@ -175,21 +175,20 @@ export function TransactionTable({ transactions, onRefresh }: TransactionTablePr
                   <p className="text-[10px] text-muted-foreground mt-0.5 truncate max-w-[200px]">ID: {String(tx.id).slice(0, 8)}...</p>
                 </TableCell>
                 <TableCell className="px-5">
-                  <Badge variant="secondary" className="rounded-full font-bold text-[10px] px-2.5 py-0.5 bg-muted/50 border-none">
+                  <Badge variant="accent" className="rounded-full font-bold text-[10px] px-2.5 py-0.5 border-none">
                     {tx.category}
                   </Badge>
                 </TableCell>
                 <TableCell className="px-5">
-                  <div className="flex items-center gap-1.5">
-                    {tx.type === "income" ? (
-                      <TrendingUp className="w-3 h-3 text-emerald-500" />
-                    ) : (
-                      <TrendingDown className="w-3 h-3 text-rose-500" />
-                    )}
-                    <span className={`text-[10px] font-black uppercase tracking-wider ${tx.type === "income" ? "text-emerald-500" : "text-rose-500"}`}>
-                      {tx.type === "income" ? "Masuk" : "Keluar"}
-                    </span>
-                  </div>
+                  {tx.type === "income" ? (
+                    <Badge variant="success" className="rounded-full gap-1.5 px-2.5 py-0.5 border-none uppercase text-[9px]">
+                      <TrendingUp className="w-3 h-3" /> Masuk
+                    </Badge>
+                  ) : (
+                    <Badge variant="danger" className="rounded-full gap-1.5 px-2.5 py-0.5 border-none uppercase text-[9px]">
+                      <TrendingDown className="w-3 h-3" /> Keluar
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell className="px-5 text-xs font-bold text-muted-foreground">
                   {formatDate(tx.date)}

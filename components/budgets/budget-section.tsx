@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Target, X, Loader2, Pencil, Trash2, AlertTriangle, Circle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Target, Loader2, Pencil, Trash2, AlertTriangle, Circle, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 

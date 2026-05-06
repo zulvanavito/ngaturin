@@ -1,6 +1,6 @@
 "use client";
 
-import { Target, Calendar, Type, Clock, AlignLeft, Info, Bot } from "lucide-react";
+import { Target, Calendar, Type, Clock, AlignLeft, Bot } from "lucide-react";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription 

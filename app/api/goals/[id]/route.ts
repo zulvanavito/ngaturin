@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { handleGamifiedAction } from "@/lib/gamification-service";
 
 export async function PUT(
   request: Request,
@@ -46,6 +47,15 @@ export async function PUT(
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Trigger gamification
+  try {
+    const xpReward = data.is_completed ? 50 : 10;
+    await handleGamifiedAction(user.id, xpReward);
+  } catch (err) {
+    console.error("Failed to update gamification stats:", err);
+  }
+
   return NextResponse.json(data);
 }
 

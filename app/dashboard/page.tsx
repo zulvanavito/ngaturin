@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
+import { GamificationWidget } from "@/components/dashboard/gamification-widget";
 import { EmergencyRunway } from "@/components/dashboard/emergency-runway";
 import { SmartAlerts } from "@/components/dashboard/smart-alerts";
 import { BudgetHealthBar } from "@/components/dashboard/budget-health-bar";
@@ -42,6 +43,10 @@ export default function DashboardPage() {
         </div>
       }>
         <DashboardHero />
+      </Suspense>
+
+      <Suspense fallback={<div className="space-y-4"><Skeleton className="h-24 rounded-[2rem]" /></div>}>
+        <GamificationWidget />
       </Suspense>
 
       {/* 3. Emergency Runway */}

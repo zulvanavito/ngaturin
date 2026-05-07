@@ -11,7 +11,7 @@ import type { DateRangePreset, SortOption } from "@/components/finance/transacti
 import { TransactionForm, type Transaction } from "@/components/finance/transaction-form";
 import { BulkTransactionForm } from "@/components/finance/bulk-transaction-form";
 import { TransactionRowSkeleton } from "@/components/layout/skeletons";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
@@ -409,6 +409,9 @@ export default function TransactionsPage() {
       >
         <DialogContent className="sm:max-w-lg rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
           <DialogTitle className="sr-only">Tambah/Edit Transaksi</DialogTitle>
+          <DialogDescription className="sr-only">
+            Lengkapi detail transaksi Anda di bawah ini untuk mencatat pengeluaran atau pemasukan baru.
+          </DialogDescription>
           {(showAddForm || !!editingTransaction) && (
             <TransactionForm 
               editingTransaction={editingTransaction || undefined}
@@ -435,6 +438,9 @@ export default function TransactionsPage() {
       >
         <DialogContent className="sm:max-w-4xl rounded-[2rem] sm:rounded-[2.5rem] border-border/40 p-6 sm:p-8 max-h-[85vh] overflow-hidden flex flex-col">
           <DialogTitle className="sr-only">Input Transaksi Massal</DialogTitle>
+          <DialogDescription className="sr-only">
+            Gunakan form ini untuk memasukkan banyak data transaksi secara bersamaan dengan cepat.
+          </DialogDescription>
           {showBulkAddForm && (
             <BulkTransactionForm
               onSuccess={() => {

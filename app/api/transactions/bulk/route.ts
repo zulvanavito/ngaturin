@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { handleGamifiedAction } from "@/lib/gamification-service";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -59,6 +60,13 @@ export async function POST(request: Request) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Trigger gamification
+  try {
+    await handleGamifiedAction(user.id, 10 * payload.length);
+  } catch (err) {
+    console.error("Failed to update gamification stats:", err);
   }
 
   return NextResponse.json(data, { status: 201 });

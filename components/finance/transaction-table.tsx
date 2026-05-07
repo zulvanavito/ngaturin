@@ -262,6 +262,10 @@ export function TransactionTable({ transactions, onRefresh }: TransactionTablePr
 
       <Dialog open={!!editingTransaction} onOpenChange={() => setEditingTransaction(null)}>
         <DialogContent className="max-w-xl p-0 overflow-hidden rounded-[2rem] border-none">
+          <DialogTitle className="sr-only">Edit Transaksi</DialogTitle>
+          <DialogDescription className="sr-only">
+            Formulir untuk memperbarui detail transaksi yang sudah ada.
+          </DialogDescription>
           {editingTransaction && (
             <TransactionForm 
               editingTransaction={editingTransaction} 

@@ -19,6 +19,7 @@ import {
   Target,
   PieChart,
   History,
+  Award,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -43,6 +44,7 @@ const mainLinks = [
   { name: "Tagihan", href: "/dashboard/bills", icon: Bell },
   { name: "Utang/Piutang", href: "/dashboard/debts", icon: HandCoins },
   { name: "Investasi", href: "/dashboard/investments", icon: TrendingUp },
+  { name: "Pencapaian", href: "/dashboard/rewards", icon: Award },
 ];
 
 

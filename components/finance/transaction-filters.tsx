@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -118,6 +119,9 @@ export function TransactionFilters({
               <DialogTitle className="text-2xl font-black tracking-tight">
                 Atur Filter
               </DialogTitle>
+              <DialogDescription className="sr-only">
+                Saring data transaksi berdasarkan tipe, kategori, dompet, dan rentang waktu.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-6 pt-4">
               <div className="space-y-3">

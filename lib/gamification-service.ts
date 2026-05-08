@@ -19,8 +19,8 @@ export async function addXp(userId: string, amount: number) {
     return;
   }
 
-  let currentXp = profile?.xp || 0;
-  let currentLevel = profile?.level || 1;
+  const currentXp = profile?.xp || 0;
+  const currentLevel = profile?.level || 1;
 
   let newXp = currentXp + amount;
   let newLevel = currentLevel;
@@ -157,15 +157,27 @@ export async function checkAndAwardBadges(userId: string) {
     }
 
     if (qualified) {
-      const { error: awardError } = await supabase
-        .from('user_badges')
-        .insert({ user_id: userId, badge_id: badge.id });
-
-      if (!awardError) {
-        newlyEarnedBadges.push(badge);
-        await addXp(userId, badge.xp_reward);
-      }
+      newlyEarnedBadges.push(badge);
     }
+  }
+
+  // 3. Award badges in bulk
+  if (newlyEarnedBadges.length > 0) {
+    const { error: bulkAwardError } = await supabase
+      .from('user_badges')
+      .insert(newlyEarnedBadges.map(badge => ({
+        user_id: userId,
+        badge_id: badge.id
+      })));
+
+    if (bulkAwardError) {
+      console.error('Error awarding badges in bulk:', bulkAwardError);
+      return [];
+    }
+
+    // 4. Consolidated XP
+    const totalXpReward = newlyEarnedBadges.reduce((sum, badge) => sum + badge.xp_reward, 0);
+    await addXp(userId, totalXpReward);
   }
 
   return newlyEarnedBadges;

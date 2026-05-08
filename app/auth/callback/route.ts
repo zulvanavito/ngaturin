@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const nextRaw = searchParams.get("next");
-  const next = nextRaw ? getSafeRedirectUrl(nextRaw) : "/auth/confirm-email";
+  const next = nextRaw ? getSafeRedirectUrl(nextRaw) : "/dashboard";
 
   // 1. Handle error parameters returned by Supabase
   const errorMsg = searchParams.get("error_description") || searchParams.get("error");

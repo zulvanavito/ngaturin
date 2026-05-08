@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { handleGamifiedAction } from "@/lib/gamification-service";
 
 export async function POST(
   request: Request,
@@ -70,5 +71,13 @@ export async function POST(
   ]);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Trigger Gamification
+  try {
+    await handleGamifiedAction(user.id, 10);
+  } catch (gamiError) {
+    console.error("Gamification error:", gamiError);
+  }
+
   return NextResponse.json({ message: "Transfer berhasil" }, { status: 201 });
 }

@@ -3,48 +3,23 @@ import { createClient } from "@/lib/supabase/server";
 const XP_PER_LEVEL = 100;
 
 /**
- * Adds XP to a user's profile and handles level-ups.
+ * Adds XP to a user's profile and handles level-ups using atomic SQL function.
  */
 export async function addXp(userId: string, amount: number) {
   const supabase = await createClient();
 
-  const { data: profile, error: fetchError } = await supabase
-    .from('gamification_profiles')
-    .select('*')
-    .eq('user_id', userId)
-    .single();
+  const { error } = await supabase.rpc('increment_gamification_xp', {
+    p_user_id: userId,
+    p_xp_amount: amount
+  });
 
-  if (fetchError && fetchError.code !== 'PGRST116') {
-    console.error('Error fetching gamification profile:', fetchError);
-    return;
+  if (error) {
+    console.error('Error calling increment_gamification_xp RPC:', error);
   }
 
-  let currentXp = profile?.xp || 0;
-  let currentLevel = profile?.level || 1;
-
-  let newXp = currentXp + amount;
-  let newLevel = currentLevel;
-
-  // Level up logic
-  while (newXp >= XP_PER_LEVEL) {
-    newXp -= XP_PER_LEVEL;
-    newLevel++;
-  }
-
-  const { error: upsertError } = await supabase
-    .from('gamification_profiles')
-    .upsert({
-      user_id: userId,
-      xp: newXp,
-      level: newLevel,
-      updated_at: new Date().toISOString()
-    }, { onConflict: 'user_id' });
-
-  if (upsertError) {
-    console.error('Error updating XP:', upsertError);
-  }
-
-  return { xp: newXp, level: newLevel, leveledUp: newLevel > currentLevel };
+  // We return null/undefined because the RPC is VOID.
+  // If the caller needs the new state, it should fetch it.
+  return null;
 }
 
 /**
@@ -58,9 +33,9 @@ export async function updateStreak(userId: string) {
     .from('gamification_profiles')
     .select('*')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
-  if (fetchError && fetchError.code !== 'PGRST116') {
+  if (fetchError) {
     console.error('Error fetching gamification profile:', fetchError);
     return;
   }
@@ -122,7 +97,7 @@ export async function checkAndAwardBadges(userId: string) {
     { data: allBadges },
     { data: userBadges }
   ] = await Promise.all([
-    supabase.from('gamification_profiles').select('*').eq('user_id', userId).single(),
+    supabase.from('gamification_profiles').select('*').eq('user_id', userId).maybeSingle(),
     supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('user_id', userId),
     supabase.from('goals').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_completed', true),
     supabase.from('debts').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_settled', true),
@@ -157,15 +132,27 @@ export async function checkAndAwardBadges(userId: string) {
     }
 
     if (qualified) {
-      const { error: awardError } = await supabase
-        .from('user_badges')
-        .insert({ user_id: userId, badge_id: badge.id });
-
-      if (!awardError) {
-        newlyEarnedBadges.push(badge);
-        await addXp(userId, badge.xp_reward);
-      }
+      newlyEarnedBadges.push(badge);
     }
+  }
+
+  // 3. Award badges in bulk
+  if (newlyEarnedBadges.length > 0) {
+    const { error: bulkAwardError } = await supabase
+      .from('user_badges')
+      .insert(newlyEarnedBadges.map(badge => ({
+        user_id: userId,
+        badge_id: badge.id
+      })));
+
+    if (bulkAwardError) {
+      console.error('Error awarding badges in bulk:', bulkAwardError);
+      return [];
+    }
+
+    // 4. Consolidated XP
+    const totalXpReward = newlyEarnedBadges.reduce((sum, badge) => sum + badge.xp_reward, 0);
+    await addXp(userId, totalXpReward);
   }
 
   return newlyEarnedBadges;
@@ -178,10 +165,10 @@ export async function handleGamifiedAction(userId: string, actionXp: number = 10
   console.log(`[Gamification] Processing action for user ${userId}, XP: ${actionXp}`);
   try {
     await updateStreak(userId);
-    const xpResult = await addXp(userId, actionXp);
+    await addXp(userId, actionXp);
     const newBadges = await checkAndAwardBadges(userId);
     
-    console.log(`[Gamification] Success! New XP: ${xpResult?.xp}, Level: ${xpResult?.level}, New Badges: ${newBadges.length}`);
+    console.log(`[Gamification] Success! New Badges Earned: ${newBadges.length}`);
     return { newBadges };
   } catch (err) {
     console.error("[Gamification] Critical error in service:", err);

@@ -6,7 +6,13 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const nextRaw = searchParams.get("next");
-  const next = getSafeRedirectUrl(nextRaw);
+  const next = nextRaw ? getSafeRedirectUrl(nextRaw) : "/auth/confirm-email";
+
+  // 1. Handle error parameters returned by Supabase
+  const errorMsg = searchParams.get("error_description") || searchParams.get("error");
+  if (errorMsg) {
+    return NextResponse.redirect(`${origin}/auth/error?error=${encodeURIComponent(errorMsg)}`);
+  }
 
   if (code) {
     const supabase = await createClient();
@@ -22,8 +28,21 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}${next}`);
       }
     }
+    return NextResponse.redirect(`${origin}/auth/error?error=${encodeURIComponent(error.message)}`);
   }
 
-  
-  return NextResponse.redirect(`${origin}/auth/error?error=Could not authenticate`);
+  // Check if it's a token_hash flow instead
+  const tokenHash = searchParams.get("token_hash");
+  if (tokenHash) {
+    return NextResponse.redirect(`${origin}/auth/confirm?${searchParams.toString()}`);
+  }
+
+  // If no code or token_hash, check if user is already logged in
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    return NextResponse.redirect(`${origin}${next}`);
+  }
+
+  return NextResponse.redirect(`${origin}/auth/error?error=Could not authenticate: No authentication code provided`);
 }

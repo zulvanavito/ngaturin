@@ -12,9 +12,9 @@ export async function addXp(userId: string, amount: number) {
     .from('gamification_profiles')
     .select('*')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
-  if (fetchError && fetchError.code !== 'PGRST116') {
+  if (fetchError) {
     console.error('Error fetching gamification profile:', fetchError);
     return;
   }
@@ -58,9 +58,9 @@ export async function updateStreak(userId: string) {
     .from('gamification_profiles')
     .select('*')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
-  if (fetchError && fetchError.code !== 'PGRST116') {
+  if (fetchError) {
     console.error('Error fetching gamification profile:', fetchError);
     return;
   }
@@ -122,7 +122,7 @@ export async function checkAndAwardBadges(userId: string) {
     { data: allBadges },
     { data: userBadges }
   ] = await Promise.all([
-    supabase.from('gamification_profiles').select('*').eq('user_id', userId).single(),
+    supabase.from('gamification_profiles').select('*').eq('user_id', userId).maybeSingle(),
     supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('user_id', userId),
     supabase.from('goals').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_completed', true),
     supabase.from('debts').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_settled', true),

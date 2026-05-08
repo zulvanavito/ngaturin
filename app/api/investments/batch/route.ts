@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { handleGamifiedAction } from "@/lib/gamification-service";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -32,6 +33,13 @@ export async function POST(req: Request) {
       .select();
 
     if (error) throw error;
+
+    // Trigger Gamification
+    try {
+      await handleGamifiedAction(user.id, 10 * payload.length);
+    } catch (gamiError) {
+      console.error("Gamification error:", gamiError);
+    }
 
     return NextResponse.json({ message: "Import success", data });
   } catch (error: any) {

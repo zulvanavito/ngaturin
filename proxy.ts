@@ -45,6 +45,11 @@ export async function proxy(request: NextRequest) {
 
   // If user is logged in and tries to access auth pages, redirect to dashboard
   if (user && pathname.startsWith("/auth")) {
+    // Pengecualian untuk halaman konfirmasi dan error agar tetap bisa diakses
+    if (pathname === "/auth/confirm-email" || pathname === "/auth/error") {
+      return supabaseResponse;
+    }
+    
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);

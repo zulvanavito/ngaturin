@@ -34,7 +34,7 @@ export function VerifyEmailContent() {
       type: "signup",
       email: email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/confirm?next=/auth/confirm-email`,
       },
     });
 

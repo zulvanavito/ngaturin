@@ -26,7 +26,7 @@ export default function ConfirmSignup() {
               <Row align="center" className="w-fit mx-auto">
                 <Column align="right" className="pr-2">
                   <Img
-                    src="http://localhost:3000/logo.png"
+                    src="http://ngaturin.web.id/logo.png"
                     alt="Ngaturin Logo"
                     width="35"
                     height="35"
@@ -43,7 +43,7 @@ export default function ConfirmSignup() {
 
             <Section className="px-8 pb-4 text-center">
               <Img
-                src="http://localhost:3000/illustration/email/Hello-pana.png"
+                src="http://ngaturin.web.id/illustration/email/Hello-pana.png"
                 alt="Welcome to Ngaturin"
                 width="200"
                 height="200"
@@ -66,7 +66,7 @@ export default function ConfirmSignup() {
               </Text>
 
               <Button
-                href="{{ .ConfirmationURL }}"
+                href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=signup"
                 className="bg-[#9fe870] text-[#163300] font-bold px-10 py-4 rounded-full text-[16px] inline-block"
               >
                 Verifikasi email saya

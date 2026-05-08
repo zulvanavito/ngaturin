@@ -3,48 +3,23 @@ import { createClient } from "@/lib/supabase/server";
 const XP_PER_LEVEL = 100;
 
 /**
- * Adds XP to a user's profile and handles level-ups.
+ * Adds XP to a user's profile and handles level-ups using atomic SQL function.
  */
 export async function addXp(userId: string, amount: number) {
   const supabase = await createClient();
 
-  const { data: profile, error: fetchError } = await supabase
-    .from('gamification_profiles')
-    .select('*')
-    .eq('user_id', userId)
-    .maybeSingle();
+  const { error } = await supabase.rpc('increment_gamification_xp', {
+    p_user_id: userId,
+    p_xp_amount: amount
+  });
 
-  if (fetchError) {
-    console.error('Error fetching gamification profile:', fetchError);
-    return;
+  if (error) {
+    console.error('Error calling increment_gamification_xp RPC:', error);
   }
 
-  const currentXp = profile?.xp || 0;
-  const currentLevel = profile?.level || 1;
-
-  let newXp = currentXp + amount;
-  let newLevel = currentLevel;
-
-  // Level up logic
-  while (newXp >= XP_PER_LEVEL) {
-    newXp -= XP_PER_LEVEL;
-    newLevel++;
-  }
-
-  const { error: upsertError } = await supabase
-    .from('gamification_profiles')
-    .upsert({
-      user_id: userId,
-      xp: newXp,
-      level: newLevel,
-      updated_at: new Date().toISOString()
-    }, { onConflict: 'user_id' });
-
-  if (upsertError) {
-    console.error('Error updating XP:', upsertError);
-  }
-
-  return { xp: newXp, level: newLevel, leveledUp: newLevel > currentLevel };
+  // We return null/undefined because the RPC is VOID.
+  // If the caller needs the new state, it should fetch it.
+  return null;
 }
 
 /**
@@ -190,10 +165,10 @@ export async function handleGamifiedAction(userId: string, actionXp: number = 10
   console.log(`[Gamification] Processing action for user ${userId}, XP: ${actionXp}`);
   try {
     await updateStreak(userId);
-    const xpResult = await addXp(userId, actionXp);
+    await addXp(userId, actionXp);
     const newBadges = await checkAndAwardBadges(userId);
     
-    console.log(`[Gamification] Success! New XP: ${xpResult?.xp}, Level: ${xpResult?.level}, New Badges: ${newBadges.length}`);
+    console.log(`[Gamification] Success! New Badges Earned: ${newBadges.length}`);
     return { newBadges };
   } catch (err) {
     console.error("[Gamification] Critical error in service:", err);

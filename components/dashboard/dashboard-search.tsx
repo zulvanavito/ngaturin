@@ -77,7 +77,8 @@ export function DashboardSearch() {
   };
 
   return (
-    <div ref={containerRef} className="relative flex-1 max-w-lg">
+    <div ref={containerRef} className="relative flex-1 max-w-xl group" id="tour-search-bar">
+
       <div className="relative group">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
         <input

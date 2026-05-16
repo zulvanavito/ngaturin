@@ -234,6 +234,157 @@
   border-color: #9fe870 !important;
 }
 
-.react-datepicker__triangle {
+/* ── driver.js Wise theme overrides ── */
+.wise-tour-theme {
+  border-radius: 2.5rem !important;
+  padding: 2rem !important;
+  font-family: inherit !important;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.3) !important;
+  border: 2px solid rgba(159, 232, 112, 0.4) !important;
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  max-width: 420px !important;
+}
+
+.wise-tour-theme .driver-popover-title {
+  font-weight: 900 !important;
+  font-size: 1.6rem !important;
+  color: hsl(var(--foreground)) !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.04em !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.wise-tour-theme .driver-popover-description {
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.9 !important;
+  margin-top: 0.75rem !important;
+  line-height: 1.6 !important;
+}
+
+.wise-tour-theme .driver-popover-progress-text {
+  font-weight: 900 !important;
+  font-size: 16px !important; /* Larger progress text */
+  text-transform: uppercase !important;
+  letter-spacing: 0.2em !important;
+  color: #9fe870 !important;
+  margin-bottom: 1.5rem !important;
+  display: block !important;
+  text-align: left !important;
+}
+
+.wise-tour-theme .driver-popover-footer {
+  margin-top: 2rem !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+.wise-tour-theme .driver-popover-next-btn,
+.wise-tour-theme .driver-popover-prev-btn {
+  border-radius: 9999px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  padding: 1rem 1.8rem !important; /* Larger buttons */
+  font-size: 13px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-shadow: none !important;
+  min-width: 120px !important;
+}
+
+.wise-tour-theme .driver-popover-next-btn {
+  background-color: #9fe870 !important;
+  color: #163300 !important;
+  border: none !important;
+}
+
+.wise-tour-theme .driver-popover-next-btn:hover {
+  background-color: #cdffad !important;
+  transform: scale(1.05) !important;
+}
+
+.wise-tour-theme .driver-popover-prev-btn {
+  background-color: hsl(var(--secondary)) !important;
+  color: hsl(var(--secondary-foreground)) !important;
+  border: none !important;
+}
+
+.wise-tour-theme .driver-popover-close-btn {
   display: none !important;
+}
+
+.wise-tour-theme .driver-popover-arrow {
+  display: none !important;
+}
+
+/* 🚨 EXTREME HIGHLIGHT VISIBILITY 🚨 */
+.driver-stage-no-animation,
+.driver-stage-with-animation {
+  border-radius: 1.5rem !important;
+  /* Thick Neon Border */
+  outline: 10px solid #9fe870 !important;
+  outline-offset: 2px !important;
+  
+  /* Massive Glow + Heavy Overlay */
+  box-shadow: 
+    inset 0 0 40px rgba(159, 232, 112, 0.6),
+    0 0 100px rgba(159, 232, 112, 0.8),
+    0 0 0 10000px rgba(0, 0, 0, 0.94) !important;
+  
+  /* Tint the cutout area so it's not pure black */
+  background-color: rgba(159, 232, 112, 0.25) !important;
+  backdrop-filter: blur(8px) saturate(1.5) !important;
+  z-index: 99998 !important;
+}
+
+.dark .driver-stage-no-animation,
+.dark .driver-stage-with-animation {
+  outline: 12px solid #9fe870 !important;
+  background-color: rgba(159, 232, 112, 0.35) !important;
+  box-shadow: 
+    inset 0 0 60px rgba(159, 232, 112, 0.7),
+    0 0 120px rgba(159, 232, 112, 1.0),
+    0 0 0 10000px rgba(0, 0, 0, 0.98) !important;
+}
+
+/* Ensure the active element itself pops through the tint */
+.driver-active-element {
+  filter: brightness(1.3) contrast(1.2) !important;
+  z-index: 99999 !important;
+  position: relative !important;
+  pointer-events: auto !important;
+}
+
+
+/* Mobile Optimizations for Tour */
+@media (max-width: 640px) {
+  .wise-tour-theme {
+    padding: 1.5rem !important;
+    max-width: 90vw !important;
+    border-radius: 2rem !important;
+  }
+
+  .wise-tour-theme .driver-popover-title {
+    font-size: 1.25rem !important;
+  }
+
+  .wise-tour-theme .driver-popover-description {
+    font-size: 0.85rem !important;
+  }
+
+  .wise-tour-theme .driver-popover-footer {
+    flex-direction: row !important; /* Keep buttons side by side */
+    gap: 0.5rem !important;
+  }
+
+  .wise-tour-theme .driver-popover-next-btn,
+  .wise-tour-theme .driver-popover-prev-btn {
+    padding: 0.6rem 1rem !important;
+    min-width: 80px !important;
+    font-size: 10px !important;
+  }
 }

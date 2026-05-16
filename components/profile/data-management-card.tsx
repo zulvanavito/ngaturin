@@ -10,21 +10,78 @@ import {
   Package,
   AlertTriangle,
   CheckCircle2,
-  XCircle
+  XCircle,
+  HelpCircle,
+  Sparkles
 } from "lucide-react";
 import type { Transaction } from "@/components/finance/transaction-form";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/lib/toast-context";
 
 interface DataManagementCardProps {
   transactions: Transaction[];
 }
 
 export function DataManagementCard({ transactions }: DataManagementCardProps) {
+  const router = useRouter();
+  const { showToast } = useToast();
   const [backupLoading, setBackupLoading] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
+  const [resetTourLoading, setResetTourLoading] = useState(false);
   const [importResult, setImportResult] = useState<string | null>(null);
+
+  const handleResetTour = async () => {
+    setResetTourLoading(true);
+    try {
+      const res = await fetch("/api/user/tour/reset", { method: "POST" });
+      if (!res.ok) throw new Error("Gagal mereset panduan");
+      
+      showToast("success", "Panduan aplikasi akan muncul kembali. Mengalihkan...");
+      
+      // Clear driver.js state if exists
+      localStorage.removeItem("driverjs-state");
+      
+      // Force a full page reload to the dashboard to ensure the tour component remounts
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1000);
+    } catch {
+      showToast("error", "Gagal mengaktifkan kembali panduan.");
+    } finally {
+      setResetTourLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-10">
+      {/* Help & Guide Section */}
+      <section>
+        <h2 className="text-3xl font-black tracking-tight mb-6 flex items-center gap-3">
+          Bantuan & <span className="text-primary">Panduan.</span>
+        </h2>
+        <div className="border border-border/40 dark:border-border/10 bg-white dark:bg-card shadow-sm rounded-[2.5rem] p-8 md:p-10">
+           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-[#9fe870]/10 flex items-center justify-center shrink-0">
+                  <HelpCircle className="w-6 h-6 text-[#9fe870]" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black">Panduan Interaktif</h3>
+                  <p className="text-sm text-muted-foreground font-medium">Lihat kembali langkah-langkah dasar penggunaan Ngaturin.</p>
+                </div>
+              </div>
+              <Button
+                onClick={handleResetTour}
+                disabled={resetTourLoading}
+                className="wise-button-pill h-14 px-8 bg-primary text-primary-foreground font-black text-sm shadow-lg shadow-primary/20 gap-2 w-full md:w-auto"
+              >
+                {resetTourLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 fill-current" />}
+                {resetTourLoading ? "Menyiapkan..." : "Lihat Panduan Aplikasi"}
+              </Button>
+           </div>
+        </div>
+      </section>
+
       <section>
         <h2 className="text-3xl font-black tracking-tight mb-6 flex items-center gap-3">
           Backup & <span className="text-primary">Ekspor.</span>

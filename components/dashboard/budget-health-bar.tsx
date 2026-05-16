@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Info } from "lucide-react";
 
 interface Transaction {
@@ -11,6 +10,11 @@ interface Transaction {
   amount: number;
   date: string;
   category: string;
+}
+
+interface BudgetHealthBarProps {
+  initialMonthlyIncome: number;
+  initialExpenses: Transaction[];
 }
 
 // Default classification — users could customize this in settings later
@@ -32,39 +36,16 @@ function classifyCategory(category: string): "needs" | "wants" | "savings" {
   return "wants";
 }
 
-export function BudgetHealthBar() {
+export function BudgetHealthBar({
+  initialMonthlyIncome,
+  initialExpenses,
+}: BudgetHealthBarProps) {
   const { formatCurrency } = useFormatCurrency();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [monthlyIncome, setMonthlyIncome] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [showTip, setShowTip] = useState(false);
-
-  const fetchData = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/transactions?_t=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) return;
-      const data: Transaction[] = await res.json();
-      const currentMonth = new Date().toISOString().substring(0, 7);
-      const monthly = (Array.isArray(data) ? data : []).filter(
-        (t) => t.date.startsWith(currentMonth) && t.type !== "transfer"
-      );
-
-      setMonthlyIncome(
-        monthly.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0)
-      );
-      setTransactions(monthly.filter((t) => t.type === "expense"));
-    } catch {
-      /* silent */
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
 
   const { needs, wants, savings, total } = useMemo(() => {
     let needs = 0, wants = 0, savings = 0;
-    transactions.forEach((t) => {
+    initialExpenses.forEach((t) => {
       const amount = Number(t.amount);
       const type = classifyCategory(t.category);
       if (type === "needs") needs += amount;
@@ -72,13 +53,9 @@ export function BudgetHealthBar() {
       else wants += amount;
     });
     return { needs, wants, savings, total: needs + wants + savings };
-  }, [transactions]);
+  }, [initialExpenses]);
 
-  if (loading) {
-    return <Skeleton className="h-52 rounded-[2rem]" />;
-  }
-
-  const base = monthlyIncome > 0 ? monthlyIncome : total > 0 ? total : 1;
+  const base = initialMonthlyIncome > 0 ? initialMonthlyIncome : total > 0 ? total : 1;
   const needsPct = Math.round((needs / base) * 100);
   const wantsPct = Math.round((wants / base) * 100);
   const savingsPct = Math.round((savings / base) * 100);

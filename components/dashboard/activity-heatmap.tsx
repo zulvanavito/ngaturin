@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Transaction {
@@ -11,28 +10,15 @@ interface Transaction {
   date: string;
 }
 
-export function MonthlyCalendarActivity() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
+interface MonthlyCalendarActivityProps {
+  initialTransactions: Transaction[];
+}
+
+export function MonthlyCalendarActivity({ initialTransactions }: MonthlyCalendarActivityProps) {
   const [viewDate, setViewDate] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
-
-  const fetchData = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/transactions?_t=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) return;
-      const data: Transaction[] = await res.json();
-      setTransactions(Array.isArray(data) ? data : []);
-    } catch {
-      /* silent */
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
 
   const prevMonth = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
   const nextMonth = () => {
@@ -50,7 +36,7 @@ export function MonthlyCalendarActivity() {
 
     // Aggregate by date
     const dayMap = new Map<number, { income: number; expense: number }>();
-    transactions
+    initialTransactions
       .filter((t) => t.date.startsWith(monthStr) && t.type !== "transfer")
       .forEach((t) => {
         const day = parseInt(t.date.split("-")[2], 10);
@@ -96,7 +82,7 @@ export function MonthlyCalendarActivity() {
     }
 
     return weeks;
-  }, [transactions, viewDate]);
+  }, [initialTransactions, viewDate]);
 
   const formatCompact = (value: number): string => {
     if (value === 0) return "";
@@ -110,10 +96,6 @@ export function MonthlyCalendarActivity() {
     const now = new Date();
     return viewDate.getFullYear() === now.getFullYear() && viewDate.getMonth() === now.getMonth();
   })();
-
-  if (loading) {
-    return <Skeleton className="h-80 rounded-[2rem]" />;
-  }
 
   return (
     <section className="bg-white dark:bg-card rounded-[2rem] border border-border/10 p-6">

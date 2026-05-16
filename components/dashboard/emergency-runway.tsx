@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useMemo, useState } from "react";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ShieldCheck, Info } from "lucide-react";
 
 interface WalletData {
@@ -17,64 +16,42 @@ interface Transaction {
   date: string;
 }
 
-export function EmergencyRunway() {
+interface EmergencyRunwayProps {
+  initialWallets: WalletData[];
+  initialTransactions: Transaction[];
+}
+
+export function EmergencyRunway({
+  initialWallets,
+  initialTransactions,
+}: EmergencyRunwayProps) {
   const { formatCurrency } = useFormatCurrency();
-  const [runwayMonths, setRunwayMonths] = useState(0);
-  const [totalLiquid, setTotalLiquid] = useState(0);
-  const [avgExpense, setAvgExpense] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [showTip, setShowTip] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const [walletsRes, txRes] = await Promise.all([
-        fetch("/api/wallets"),
-        fetch(`/api/transactions?_t=${Date.now()}`, { cache: "no-store" }),
-      ]);
+  const { runwayMonths, totalLiquid, avgExpense } = useMemo(() => {
+    const liquid = initialWallets.reduce((s, w) => s + Number(w.balance), 0);
 
-      const [walletsData, txData] = await Promise.all([
-        walletsRes.ok ? walletsRes.json() : [],
-        txRes.ok ? txRes.json() : [],
-      ]);
+    // Calculate average monthly expenses over last 3 months
+    const now = new Date();
+    const monthlyExpenses: number[] = [];
 
-      const wallets: WalletData[] = Array.isArray(walletsData) ? walletsData : [];
-      const transactions: Transaction[] = Array.isArray(txData) ? txData : [];
-
-      const liquid = wallets.reduce((s, w) => s + Number(w.balance), 0);
-      setTotalLiquid(liquid);
-
-      // Calculate average monthly expenses over last 3 months
-      const now = new Date();
-      const monthlyExpenses: number[] = [];
-
-      for (let i = 0; i < 3; i++) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-        const monthExpense = transactions
-          .filter((t) => t.type === "expense" && t.date.startsWith(monthStr))
-          .reduce((s, t) => s + Number(t.amount), 0);
-        if (monthExpense > 0) monthlyExpenses.push(monthExpense);
-      }
-
-      const avg = monthlyExpenses.length > 0
-        ? monthlyExpenses.reduce((s, v) => s + v, 0) / monthlyExpenses.length
-        : 0;
-      setAvgExpense(avg);
-
-      const runway = avg > 0 ? liquid / avg : 0;
-      setRunwayMonths(runway);
-    } catch {
-      /* silent */
-    } finally {
-      setLoading(false);
+    for (let i = 0; i < 3; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const monthExpense = initialTransactions
+        .filter((t) => t.type === "expense" && t.date.startsWith(monthStr))
+        .reduce((s, t) => s + Number(t.amount), 0);
+      if (monthExpense > 0) monthlyExpenses.push(monthExpense);
     }
-  }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+    const avg = monthlyExpenses.length > 0
+      ? monthlyExpenses.reduce((s, v) => s + v, 0) / monthlyExpenses.length
+      : 0;
 
-  if (loading) {
-    return <Skeleton className="h-28 rounded-[2rem]" />;
-  }
+    const runway = avg > 0 ? liquid / avg : 0;
+
+    return { runwayMonths: runway, totalLiquid: liquid, avgExpense: avg };
+  }, [initialWallets, initialTransactions]);
 
   const runwayDisplay = runwayMonths > 0 ? runwayMonths.toFixed(1) : "0";
   const isHealthy = runwayMonths >= 3;

@@ -1,9 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { Crown, Sparkles, ChevronRight } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 
 interface Subscription {
@@ -13,6 +10,10 @@ interface Subscription {
   interval: string;
   amount: number;
   expires_at: string | null;
+}
+
+interface SubscriptionCardProps {
+  initialSubscription: Subscription | null;
 }
 
 const tierConfig: Record<string, {
@@ -53,52 +54,13 @@ const tierConfig: Record<string, {
   },
 };
 
-export function SubscriptionCard() {
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState("User");
-
-  const fetchSubscription = useCallback(async () => {
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      if (user.user_metadata?.full_name) {
-        setUserName(user.user_metadata.full_name);
-      } else if (user.email) {
-        setUserName(user.email.split("@")[0]);
-      }
-
-      const { data } = await supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("status", "settlement")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
-
-      setSubscription(data);
-    } catch {
-      /* silent - user is on free tier */
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchSubscription(); }, [fetchSubscription]);
-
-  if (loading) {
-    return <Skeleton className="h-48 rounded-[2rem]" />;
-  }
-
-  const planId = subscription?.plan_id || "free";
+export function SubscriptionCard({ initialSubscription }: SubscriptionCardProps) {
+  const planId = initialSubscription?.plan_id || "free";
   const config = tierConfig[planId] || tierConfig.free;
   const Icon = config.icon;
 
-  const expiresAt = subscription?.expires_at 
-    ? new Date(subscription.expires_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+  const expiresAt = initialSubscription?.expires_at 
+    ? new Date(initialSubscription.expires_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
     : null;
 
   return (
@@ -119,7 +81,7 @@ export function SubscriptionCard() {
               Paket Langganan
             </span>
             <span className={`text-[10px] font-black px-2.5 py-1 rounded-full ${config.labelBg} uppercase tracking-widest`} style={{ fontFeatureSettings: '"calt"' }}>
-              {planId === "free" ? "FREE" : subscription?.interval === "yearly" ? "TAHUNAN" : "BULANAN"}
+              {planId === "free" ? "FREE" : initialSubscription?.interval === "yearly" ? "TAHUNAN" : "BULANAN"}
             </span>
           </div>
 

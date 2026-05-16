@@ -21,7 +21,7 @@ export const getUserProfile = cache(async () => {
     .from("user_profiles")
     .select("*")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("DAL: Error fetching user profile:", error);

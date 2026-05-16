@@ -20,6 +20,8 @@ import type { Transaction } from "@/components/finance/transaction-form";
 
 interface ProfilePageClientProps {
   user: User;
+  userProfile: any;
+  wallets: any[];
   transactions: Transaction[];
   subscription: Subscription | null;
   subscriptionHistory: Subscription[];
@@ -34,6 +36,8 @@ const PROFILE_SECTIONS = [
 
 export function ProfilePageClient({
   user,
+  userProfile,
+  wallets,
   transactions,
   subscription,
   subscriptionHistory,
@@ -70,7 +74,14 @@ export function ProfilePageClient({
   const renderContent = () => {
     switch (activeSection) {
       case "account":
-        return <ProfileForm user={user} subscription={subscription} />;
+        return (
+          <ProfileForm 
+            user={user} 
+            initialProfile={userProfile} 
+            initialWallets={wallets} 
+            subscription={subscription} 
+          />
+        );
       case "subscription":
         return (
           <ProfileSubscriptionTab

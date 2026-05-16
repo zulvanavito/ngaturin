@@ -1,8 +1,11 @@
-"use client";
-
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Construction, ArrowLeft } from "lucide-react";
+
+export const metadata = {
+  title: "Blog | Ngaturin",
+  description: "Wawasan finansial dan produktivitas dari tim Ngaturin.",
+};
 
 export default function BlogUnderConstruction() {
   return (

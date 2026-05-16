@@ -92,6 +92,7 @@ export function Sidebar() {
             <Link
               key={link.name}
               href={link.href}
+              id={link.name === "Transaksi" ? "tour-transactions" : undefined}
               className={`flex items-center gap-3 px-4 py-2.5 rounded-[1rem] transition-all duration-200 text-sm ${
                 isActive
                   ? "bg-brand-mint text-brand-dark font-semibold shadow-ring"
@@ -116,6 +117,7 @@ export function Sidebar() {
             <Link
               key={link.name}
               href={link.href}
+              id={link.name === "Transaksi" ? "tour-transactions" : undefined}
               className={`flex items-center gap-3 px-4 py-2.5 rounded-[1rem] transition-all duration-200 text-sm ${
                 isActive
                   ? "bg-brand-mint text-brand-dark font-semibold shadow-ring"
@@ -176,7 +178,7 @@ export function MobileHeader() {
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="shrink-0">
+          <Button variant="ghost" size="icon" className="shrink-0" id="tour-mobile-menu">
             <Menu className="w-5 h-5" />
           </Button>
         </SheetTrigger>

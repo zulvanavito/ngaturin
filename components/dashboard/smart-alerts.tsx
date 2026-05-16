@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useMemo, useState } from "react";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 import { AlertTriangle, CheckCircle2, Bell, ChevronRight, X } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 
 interface RecurringBill {
@@ -36,124 +35,102 @@ interface Alert {
   href?: string;
 }
 
-export function SmartAlerts() {
+interface SmartAlertsProps {
+  initialBills: RecurringBill[];
+  initialBudgets: Budget[];
+  initialTransactions: Transaction[];
+}
+
+export function SmartAlerts({
+  initialBills,
+  initialBudgets,
+  initialTransactions,
+}: SmartAlertsProps) {
   const { formatCurrency } = useFormatCurrency();
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(true);
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
 
-  const generateAlerts = useCallback(async () => {
-    try {
-      const [billsRes, budgetsRes, txRes] = await Promise.all([
-        fetch("/api/recurring-bills"),
-        fetch("/api/budgets"),
-        fetch(`/api/transactions?_t=${Date.now()}`, { cache: "no-store" }),
-      ]);
+  const alerts = useMemo(() => {
+    const newAlerts: Alert[] = [];
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.toISOString().substring(0, 7);
 
-      const [bills, budgets, transactions]: [RecurringBill[], Budget[], Transaction[]] = await Promise.all([
-        billsRes.ok ? billsRes.json() : [],
-        budgetsRes.ok ? budgetsRes.json() : [],
-        txRes.ok ? txRes.json() : [],
-      ]);
-
-      const newAlerts: Alert[] = [];
-      const today = new Date();
-      const currentDay = today.getDate();
-      const currentMonth = today.toISOString().substring(0, 7);
-
-      // Rule 1: Check bills due within 3 days
-      if (Array.isArray(bills)) {
-        bills.forEach((bill) => {
-          const daysUntilDue = bill.due_day - currentDay;
-          if (daysUntilDue >= 0 && daysUntilDue <= 3) {
-            newAlerts.push({
-              id: `bill-${bill.id}`,
-              type: daysUntilDue === 0 ? "danger" : "warning",
-              title: daysUntilDue === 0
-                ? `${bill.name} jatuh tempo hari ini!`
-                : `${bill.name} jatuh tempo ${daysUntilDue} hari lagi`,
-              description: `Tagihan sebesar ${formatCurrency(bill.amount)} harus segera dibayar.`,
-              href: "/dashboard/bills",
-            });
-          }
+    // Rule 1: Check bills due within 3 days
+    initialBills.forEach((bill) => {
+      const daysUntilDue = bill.due_day - currentDay;
+      if (daysUntilDue >= 0 && daysUntilDue <= 3) {
+        newAlerts.push({
+          id: `bill-${bill.id}`,
+          type: daysUntilDue === 0 ? "danger" : "warning",
+          title: daysUntilDue === 0
+            ? `${bill.name} jatuh tempo hari ini!`
+            : `${bill.name} jatuh tempo ${daysUntilDue} hari lagi`,
+          description: `Tagihan sebesar ${formatCurrency(bill.amount)} harus segera dibayar.`,
+          href: "/dashboard/bills",
         });
       }
+    });
 
-      // Rule 2: Check budgets at >80% usage
-      if (Array.isArray(budgets) && Array.isArray(transactions)) {
-        const monthlyExpenses = transactions.filter(
-          (t) => t.type === "expense" && t.date.startsWith(currentMonth)
-        );
+    // Rule 2: Check budgets at >80% usage
+    const monthlyExpenses = initialTransactions.filter(
+      (t) => t.type === "expense" && t.date.startsWith(currentMonth)
+    );
 
-        budgets.forEach((budget) => {
-          const spent = monthlyExpenses
-            .filter((t) => t.category === budget.category)
-            .reduce((s, t) => s + Number(t.amount), 0);
-          const pct = budget.amount > 0 ? Math.round((spent / budget.amount) * 100) : 0;
+    initialBudgets.forEach((budget) => {
+      const spent = monthlyExpenses
+        .filter((t) => t.category === budget.category)
+        .reduce((s, t) => s + Number(t.amount), 0);
+      const pct = budget.amount > 0 ? Math.round((spent / budget.amount) * 100) : 0;
 
-          if (pct >= 90) {
-            newAlerts.push({
-              id: `budget-critical-${budget.id}`,
-              type: "danger",
-              title: `Budget ${budget.category} hampir habis!`,
-              description: `Sudah terpakai ${pct}% (${formatCurrency(spent)} dari ${formatCurrency(budget.amount)}).`,
-              href: "/dashboard/budgets",
-            });
-          } else if (pct >= 80) {
-            newAlerts.push({
-              id: `budget-warning-${budget.id}`,
-              type: "warning",
-              title: `Budget ${budget.category} tersisa sedikit`,
-              description: `Sudah terpakai ${pct}% (${formatCurrency(spent)} dari ${formatCurrency(budget.amount)}).`,
-              href: "/dashboard/budgets",
-            });
-          }
+      if (pct >= 90) {
+        newAlerts.push({
+          id: `budget-critical-${budget.id}`,
+          type: "danger",
+          title: `Budget ${budget.category} hampir habis!`,
+          description: `Sudah terpakai ${pct}% (${formatCurrency(spent)} dari ${formatCurrency(budget.amount)}).`,
+          href: "/dashboard/budgets",
+        });
+      } else if (pct >= 80) {
+        newAlerts.push({
+          id: `budget-warning-${budget.id}`,
+          type: "warning",
+          title: `Budget ${budget.category} tersisa sedikit`,
+          description: `Sudah terpakai ${pct}% (${formatCurrency(spent)} dari ${formatCurrency(budget.amount)}).`,
+          href: "/dashboard/budgets",
         });
       }
+    });
 
-      // Rule 3: Positive insight - if monthly savings > 20%
-      if (Array.isArray(transactions)) {
-        const monthlyTx = transactions.filter((t) => t.date.startsWith(currentMonth));
-        const income = monthlyTx
-          .filter((t) => t.type === "income")
-          .reduce((s, t) => s + Number(t.amount), 0);
-        const expense = monthlyTx
-          .filter((t) => t.type === "expense")
-          .reduce((s, t) => s + Number(t.amount), 0);
+    // Rule 3: Positive insight - if monthly savings > 20%
+    const monthlyTx = initialTransactions.filter((t) => t.date.startsWith(currentMonth));
+    const income = monthlyTx
+      .filter((t) => t.type === "income")
+      .reduce((s, t) => s + Number(t.amount), 0);
+    const expense = monthlyTx
+      .filter((t) => t.type === "expense")
+      .reduce((s, t) => s + Number(t.amount), 0);
 
-        if (income > 0 && (income - expense) / income >= 0.2) {
-          newAlerts.push({
-            id: "savings-good",
-            type: "success",
-            title: "Keuanganmu sehat bulan ini! 🎉",
-            description: `Kamu berhasil menyisihkan ${Math.round(((income - expense) / income) * 100)}% dari pemasukan.`,
-          });
-        }
-      }
-
-      setAlerts(newAlerts);
-    } catch {
-      /* silent */
-    } finally {
-      setLoading(false);
+    if (income > 0 && (income - expense) / income >= 0.2) {
+      newAlerts.push({
+        id: "savings-good",
+        type: "success",
+        title: "Keuanganmu sehat bulan ini! 🎉",
+        description: `Kamu berhasil menyisihkan ${Math.round(((income - expense) / income) * 100)}% dari pemasukan.`,
+      });
     }
-  }, []);
 
-  useEffect(() => { generateAlerts(); }, [generateAlerts]);
+    return newAlerts;
+  }, [initialBills, initialBudgets, initialTransactions, formatCurrency]);
 
   const dismiss = (id: string) => {
-    setDismissedIds((prev) => new Set(prev).add(id));
+    setDismissedIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
   };
 
   const visibleAlerts = alerts.filter((a) => !dismissedIds.has(a.id));
-
-  if (loading) {
-    return (
-      <div className="space-y-3">
-        <Skeleton className="h-16 rounded-2xl" />
-      </div>
-    );
-  }
 
   if (visibleAlerts.length === 0) return null;
 

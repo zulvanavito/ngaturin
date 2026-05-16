@@ -1,6 +1,3 @@
-"use client";
-
-import { Suspense } from "react";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { GamificationWidget } from "@/components/dashboard/gamification-widget";
 import { EmergencyRunway } from "@/components/dashboard/emergency-runway";
@@ -13,104 +10,106 @@ import { TopExpenses } from "@/components/dashboard/top-expenses";
 import { DashboardSearch } from "@/components/dashboard/dashboard-search";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
 import { GoalsSnapshot } from "@/components/goals/goals-snapshot";
-import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { 
+  getUser, 
+  getWallets, 
+  getTransactions, 
+  getDebts, 
+  getInvestments, 
+  getGamification, 
+  getSubscription, 
+  getRecurringBills, 
+  getBudgets 
+} from "@/lib/dal";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-function GoalsSkeleton() {
-  return <Skeleton className="h-40 rounded-[2rem]" />;
-}
+export default async function DashboardPage() {
+  // Parallel fetching at the top level
+  const [
+    user,
+    wallets,
+    allTransactions,
+    debts,
+    investments,
+    gamification,
+    subscription,
+    bills,
+    budgets,
+  ] = await Promise.all([
+    getUser(),
+    getWallets(),
+    getTransactions(), // All transactions for various widgets
+    getDebts(),
+    getInvestments(),
+    getGamification(),
+    getSubscription(),
+    getRecurringBills(),
+    getBudgets(),
+  ]);
 
-export default function DashboardPage() {
+  const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Pengguna";
+
+  // Calculate monthly income/expense once here to pass down
+  const currentMonth = new Date().toISOString().substring(0, 7);
+  const monthlyTx = allTransactions.filter((t) => t.date.startsWith(currentMonth) && t.type !== "transfer");
+  const monthlyIncome = monthlyTx.filter(t => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
+  const monthlyExpense = monthlyTx.filter(t => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-20 px-4 pt-10">
       {/* 1. Top Bar: Search & Notifications */}
       <header className="flex items-center justify-between gap-4">
         <DashboardSearch />
-        <NotificationBell />
+        <NotificationBell 
+          initialBills={bills} 
+          initialBudgets={budgets} 
+          initialTransactions={allTransactions} 
+        />
       </header>
 
       {/* 2. Hero: Net Worth + Daily Budget + Greeting + Breakdown */}
-      <Suspense fallback={
-        <div className="space-y-4">
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-16 w-72" />
-          <Skeleton className="h-5 w-56" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Skeleton className="h-20 rounded-2xl" />
-            <Skeleton className="h-20 rounded-2xl" />
-            <Skeleton className="h-20 rounded-2xl" />
-          </div>
-        </div>
-      }>
-        <DashboardHero />
-      </Suspense>
+      <DashboardHero 
+        userName={userName}
+        wallets={wallets}
+        debts={debts}
+        investments={investments}
+        monthlyIncome={monthlyIncome}
+        monthlyExpense={monthlyExpense}
+      />
 
-      <Suspense fallback={<div className="space-y-4"><Skeleton className="h-24 rounded-[2rem]" /></div>}>
-        <GamificationWidget />
-      </Suspense>
+      <GamificationWidget initialData={gamification} />
 
       {/* 3. Emergency Runway */}
-      <Suspense fallback={<Skeleton className="h-28 rounded-[2rem]" />}>
-        <EmergencyRunway />
-      </Suspense>
+      <EmergencyRunway 
+        initialWallets={wallets} 
+        initialTransactions={allTransactions} 
+      />
 
       {/* 4. Smart Alerts */}
-      <Suspense fallback={<Skeleton className="h-16 rounded-2xl" />}>
-        <SmartAlerts />
-      </Suspense>
+      <SmartAlerts 
+        initialBills={bills} 
+        initialBudgets={budgets} 
+        initialTransactions={allTransactions} 
+      />
 
       {/* 5. Two-column: 50/30/20 Progress + Subscription Card */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Suspense fallback={<Skeleton className="h-52 rounded-[2rem]" />}>
-          <BudgetHealthBar />
-        </Suspense>
-        <Suspense fallback={<Skeleton className="h-52 rounded-[2rem]" />}>
-          <SubscriptionCard />
-        </Suspense>
+        <BudgetHealthBar 
+          initialMonthlyIncome={monthlyIncome} 
+          initialExpenses={monthlyTx.filter(t => t.type === "expense")} 
+        />
+        <SubscriptionCard initialSubscription={subscription} />
       </div>
 
       {/* 6. Monthly Calendar Activity */}
-      <Suspense fallback={<Skeleton className="h-80 rounded-[2rem]" />}>
-        <MonthlyCalendarActivity />
-      </Suspense>
+      <MonthlyCalendarActivity initialTransactions={allTransactions} />
 
       {/* 7. Two-column: Top Expenses + Recent Transactions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Suspense fallback={
-          <div className="bg-white dark:bg-card rounded-[2rem] border border-border/10 p-6 space-y-4">
-            <Skeleton className="h-5 w-36" />
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Skeleton className="w-2 h-2 rounded-full" />
-                <div className="flex-1 space-y-1">
-                  <Skeleton className="h-3.5 w-24" />
-                  <Skeleton className="h-1.5 w-full rounded-full" />
-                </div>
-                <Skeleton className="h-4 w-20" />
-              </div>
-            ))}
-          </div>
-        }>
-          <TopExpenses />
-        </Suspense>
-
-        <Suspense fallback={
-          <div className="bg-white dark:bg-card rounded-[2rem] border border-border/10 p-6 space-y-4">
-            <Skeleton className="h-5 w-36" />
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Skeleton className="w-2 h-2 rounded-full" />
-                <div className="flex-1 space-y-1.5">
-                  <Skeleton className="h-3.5 w-24" />
-                  <Skeleton className="h-3 w-16" />
-                </div>
-                <Skeleton className="h-4 w-20" />
-              </div>
-            ))}
-          </div>
-        }>
-          <DashboardRecentTx />
-        </Suspense>
+        <TopExpenses initialTransactions={allTransactions} />
+        <DashboardRecentTx initialTransactions={allTransactions} />
       </div>
 
       {/* 8. Goals Snapshot */}
@@ -126,7 +125,7 @@ export default function DashboardPage() {
             + Tambah
           </Link>
         </div>
-        <Suspense fallback={<GoalsSkeleton />}>
+        <Suspense fallback={<Skeleton className="h-40 rounded-[2rem]" />}>
           <GoalsSnapshot />
         </Suspense>
       </section>

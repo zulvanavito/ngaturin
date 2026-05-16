@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface Transaction {
   id: string;
@@ -19,29 +18,16 @@ interface CategorySpend {
   percentage: number;
 }
 
-export function TopExpenses() {
+interface TopExpensesProps {
+  initialTransactions: Transaction[];
+}
+
+export function TopExpenses({ initialTransactions }: TopExpensesProps) {
   const { formatCurrency } = useFormatCurrency();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchData = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/transactions?_t=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) return;
-      const data: Transaction[] = await res.json();
-      setTransactions(Array.isArray(data) ? data : []);
-    } catch {
-      /* silent */
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
 
   const topCategories: CategorySpend[] = useMemo(() => {
     const currentMonth = new Date().toISOString().substring(0, 7);
-    const monthlyExpenses = transactions.filter(
+    const monthlyExpenses = initialTransactions.filter(
       (t) => t.type === "expense" && t.date.startsWith(currentMonth)
     );
 
@@ -64,25 +50,7 @@ export function TopExpenses() {
       }))
       .sort((a, b) => b.total - a.total)
       .slice(0, 4);
-  }, [transactions]);
-
-  if (loading) {
-    return (
-      <div className="bg-white dark:bg-card rounded-[2rem] border border-border/10 p-6 space-y-4">
-        <Skeleton className="h-5 w-36" />
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="flex items-center gap-3">
-            <Skeleton className="w-8 h-8 rounded-xl" />
-            <div className="flex-1 space-y-1">
-              <Skeleton className="h-3.5 w-24" />
-              <Skeleton className="h-2 w-full rounded-full" />
-            </div>
-            <Skeleton className="h-4 w-20" />
-          </div>
-        ))}
-      </div>
-    );
-  }
+  }, [initialTransactions]);
 
   if (topCategories.length === 0) {
     return (

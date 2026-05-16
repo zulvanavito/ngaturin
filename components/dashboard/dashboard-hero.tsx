@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 import { Info, Wallet, TrendingUp, HandCoins, ChevronRight, CalendarDays } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { useState } from "react";
 
 interface WalletData {
   id: string;
@@ -28,65 +26,25 @@ interface Investment {
   total_invested: number;
 }
 
-interface Transaction {
-  id: string;
-  type: string;
-  amount: number;
-  date: string;
+interface DashboardHeroProps {
+  userName: string;
+  wallets: WalletData[];
+  debts: Debt[];
+  investments: Investment[];
+  monthlyIncome: number;
+  monthlyExpense: number;
 }
 
-export function DashboardHero() {
+export function DashboardHero({
+  userName,
+  wallets,
+  debts,
+  investments,
+  monthlyIncome,
+  monthlyExpense,
+}: DashboardHeroProps) {
   const { formatCurrency } = useFormatCurrency();
-  const [wallets, setWallets] = useState<WalletData[]>([]);
-  const [debts, setDebts] = useState<Debt[]>([]);
-  const [investments, setInvestments] = useState<Investment[]>([]);
-  const [monthlyIncome, setMonthlyIncome] = useState(0);
-  const [monthlyExpense, setMonthlyExpense] = useState(0);
-  const [userName, setUserName] = useState("Pengguna");
-  const [loading, setLoading] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
-
-  const fetchData = useCallback(async () => {
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user?.user_metadata?.full_name) {
-        setUserName(user.user_metadata.full_name);
-      } else if (user?.email) {
-        setUserName(user.email.split("@")[0]);
-      }
-
-      const [walletsRes, debtsRes, investmentsRes, txRes] = await Promise.all([
-        fetch("/api/wallets"),
-        fetch("/api/debts"),
-        fetch("/api/investments"),
-        fetch(`/api/transactions?_t=${Date.now()}`, { cache: "no-store" }),
-      ]);
-
-      const [walletsData, debtsData, investmentsData, txData] = await Promise.all([
-        walletsRes.ok ? walletsRes.json() : [],
-        debtsRes.ok ? debtsRes.json() : [],
-        investmentsRes.ok ? investmentsRes.json() : [],
-        txRes.ok ? txRes.json() : [],
-      ]);
-
-      setWallets(Array.isArray(walletsData) ? walletsData : []);
-      setDebts(Array.isArray(debtsData) ? debtsData : []);
-      setInvestments(Array.isArray(investmentsData) ? investmentsData : []);
-
-      // Calculate monthly income & expense for daily budget
-      const currentMonth = new Date().toISOString().substring(0, 7);
-      const monthlyTx: Transaction[] = Array.isArray(txData) ? txData.filter((t: Transaction) => t.date.startsWith(currentMonth)) : [];
-      setMonthlyIncome(monthlyTx.filter(t => t.type === "income").reduce((s, t) => s + Number(t.amount), 0));
-      setMonthlyExpense(monthlyTx.filter(t => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0));
-    } catch {
-      /* silent */
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
 
   const totalWalletBalance = wallets.reduce((s, w) => s + Number(w.balance), 0);
   const totalInvestmentValue = investments.reduce((s, i) => s + Number(i.current_value), 0);
@@ -112,21 +70,6 @@ export function DashboardHero() {
   // Greeting based on time
   const hour = today.getHours();
   const greeting = hour < 12 ? "Selamat Pagi" : hour < 17 ? "Selamat Siang" : "Selamat Malam";
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-16 w-72" />
-        <Skeleton className="h-5 w-56" />
-        <div className="grid grid-cols-3 gap-3">
-          <Skeleton className="h-20 rounded-2xl" />
-          <Skeleton className="h-20 rounded-2xl" />
-          <Skeleton className="h-20 rounded-2xl" />
-        </div>
-      </div>
-    );
-  }
 
   const breakdownItems = [
     {

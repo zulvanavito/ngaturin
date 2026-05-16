@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Flame, Trophy, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface GamificationData {
   xp: number;
@@ -11,32 +9,12 @@ interface GamificationData {
   current_streak: number;
 }
 
-export function GamificationWidget() {
-  const [data, setData] = useState<GamificationData | null>(null);
-  const [loading, setLoading] = useState(true);
+interface GamificationWidgetProps {
+  initialData: GamificationData | null;
+}
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/user/gamification");
-        if (res.ok) {
-          const json = await res.json();
-          setData(json);
-        }
-      } catch (err) {
-        console.error("Failed to fetch gamification data", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <Skeleton className="h-24 w-full rounded-[2rem]" />;
-  }
-
-  const xpProgress = data ? (data.xp / 100) * 100 : 0;
+export function GamificationWidget({ initialData }: GamificationWidgetProps) {
+  const xpProgress = initialData ? (initialData.xp / 100) * 100 : 0;
 
   return (
     <Link 
@@ -52,11 +30,11 @@ export function GamificationWidget() {
                 <Trophy className="w-4 h-4 text-[#9fe870]" />
               </div>
               <p className="text-xs font-black text-foreground uppercase tracking-widest" style={{ fontFeatureSettings: '"calt"' }}>
-                Level {data?.level || 1}
+                Level {initialData?.level || 1}
               </p>
             </div>
             <p className="text-[10px] font-black text-muted-foreground/60" style={{ fontFeatureSettings: '"calt"' }}>
-              {data?.xp || 0} / 100 XP
+              {initialData?.xp || 0} / 100 XP
             </p>
           </div>
           
@@ -76,11 +54,11 @@ export function GamificationWidget() {
               Streak
             </p>
             <p className="text-2xl font-black text-foreground" style={{ fontFeatureSettings: '"calt"' }}>
-              {data?.current_streak || 0}
+              {initialData?.current_streak || 0}
             </p>
           </div>
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${data?.current_streak ? 'bg-orange-500/10' : 'bg-muted/10'}`}>
-            <Flame className={`w-7 h-7 ${data?.current_streak ? 'text-orange-500 fill-orange-500/20' : 'text-muted-foreground/30'}`} />
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${initialData?.current_streak ? 'bg-orange-500/10' : 'bg-muted/10'}`}>
+            <Flame className={`w-7 h-7 ${initialData?.current_streak ? 'text-orange-500 fill-orange-500/20' : 'text-muted-foreground/30'}`} />
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary transition-colors" />
         </div>

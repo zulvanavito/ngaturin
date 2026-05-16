@@ -1,51 +1,18 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
 import { type Transaction } from "@/components/finance/transaction-form";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
-import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-export function DashboardRecentTx() {
+interface DashboardRecentTxProps {
+  initialTransactions: Transaction[];
+}
+
+export function DashboardRecentTx({ initialTransactions }: DashboardRecentTxProps) {
   const { formatCurrency } = useFormatCurrency();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  const fetchTransactions = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/transactions?_t=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) throw new Error("Failed");
-      const data = await res.json();
-      setTransactions(Array.isArray(data) ? data : []);
-    } catch {
-      /* silent */
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchTransactions(); }, [fetchTransactions]);
-
-  if (loading) {
-    return (
-      <div className="bg-white dark:bg-card rounded-[2rem] border border-border/10 p-6 space-y-4">
-        <Skeleton className="h-5 w-36" />
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="flex items-center gap-3">
-            <Skeleton className="w-9 h-9 rounded-xl" />
-            <div className="flex-1 space-y-1.5">
-              <Skeleton className="h-3.5 w-24" />
-              <Skeleton className="h-3 w-16" />
-            </div>
-            <Skeleton className="h-4 w-20" />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  const recent = transactions.slice(0, 5);
+  const recent = initialTransactions.slice(0, 5);
 
   return (
     <section className="bg-white dark:bg-card rounded-[2rem] border border-border/10 p-6">

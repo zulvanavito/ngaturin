@@ -12,6 +12,25 @@ export const getUser = cache(async () => {
   return user;
 });
 
+export const getUserProfile = cache(async () => {
+  const supabase = await createClient();
+  const user = await getUser();
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("user_profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    console.error("DAL: Error fetching user profile:", error);
+    return null;
+  }
+
+  return data;
+});
+
 export const getWallets = cache(async () => {
   const supabase = await createClient();
   const user = await getUser();
@@ -101,6 +120,25 @@ export const getTransactions = cache(async (filters: {
   return data || [];
 });
 
+export const getCategories = cache(async () => {
+  const supabase = await createClient();
+  const user = await getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("name", { ascending: true });
+
+  if (error) {
+    console.error("DAL: Error fetching categories:", error);
+    return [];
+  }
+
+  return data || [];
+});
+
 export const getDebts = cache(async () => {
   const supabase = await createClient();
   const user = await getUser();
@@ -162,6 +200,25 @@ export const getBudgets = cache(async (month?: string) => {
   return data || [];
 });
 
+export const getGoals = cache(async () => {
+  const supabase = await createClient();
+  const user = await getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("goals")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("DAL: Error fetching goals:", error);
+    return [];
+  }
+
+  return data || [];
+});
+
 export const getGamification = cache(async () => {
   const supabase = await createClient();
   const user = await getUser();
@@ -197,6 +254,77 @@ export const getInvestments = cache(async () => {
 
   if (error) {
     console.error("DAL: Error fetching investments:", error);
+    return [];
+  }
+
+  return data || [];
+});
+
+export const getInvestmentHistory = cache(async () => {
+  const supabase = await createClient();
+  const user = await getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("investment_history")
+    .select("date, value, invested")
+    .eq("user_id", user.id)
+    .order("date", { ascending: true });
+
+  if (error) {
+    console.error("DAL: Error fetching investment history:", error);
+    return [];
+  }
+
+  return data || [];
+});
+
+export const getBadges = cache(async () => {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("badges")
+    .select("*")
+    .order("xp_reward", { ascending: true });
+
+  if (error) {
+    console.error("DAL: Error fetching badges:", error);
+    return [];
+  }
+
+  return data || [];
+});
+
+export const getUserBadges = cache(async () => {
+  const supabase = await createClient();
+  const user = await getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("user_badges")
+    .select("badge_id, earned_at")
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("DAL: Error fetching user badges:", error);
+    return [];
+  }
+
+  return data || [];
+});
+
+export const getSubscriptionHistory = cache(async () => {
+  const supabase = await createClient();
+  const user = await getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("DAL: Error fetching subscription history:", error);
     return [];
   }
 

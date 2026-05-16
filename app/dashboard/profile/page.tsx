@@ -1,6 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ProfilePageClient } from "@/components/profile/profile-page-client";
+import { getUser, getTransactions, getSubscriptionHistory, getUserProfile, getWallets } from "@/lib/dal";
 
 export const metadata = {
   title: "Profil & Langganan | Ngaturin",
@@ -8,28 +8,19 @@ export const metadata = {
 };
 
 export default async function ProfilePage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUser();
 
   if (!user) {
     return redirect("/auth/login");
   }
 
-  // Fetch transactions for export
-  const { data: transactions } = await supabase
-    .from("transactions")
-    .select("*")
-    .order("date", { ascending: false });
-
-  // Get all subscriptions for history
-  const { data: subscriptionHistory } = await supabase
-    .from("subscriptions")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  // Fetch data in parallel using DAL
+  const [transactions, subscriptionHistory, userProfile, wallets] = await Promise.all([
+    getTransactions(),
+    getSubscriptionHistory(),
+    getUserProfile(),
+    getWallets()
+  ]);
 
   // Get current active subscription (latest)
   const subscription = subscriptionHistory?.[0] || null;
@@ -37,6 +28,8 @@ export default async function ProfilePage() {
   return (
     <ProfilePageClient
       user={JSON.parse(JSON.stringify(user))}
+      userProfile={userProfile}
+      wallets={wallets}
       transactions={transactions || []}
       subscription={subscription}
       subscriptionHistory={subscriptionHistory || []}

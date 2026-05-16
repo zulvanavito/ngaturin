@@ -8,7 +8,7 @@ import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { PricingCard } from "@/components/pricing/pricing-card";
 import { PricingLifetimeCard } from "@/components/pricing/pricing-lifetime-card";
 import { PricingToggle } from "@/components/pricing/pricing-toggle";
-import { pricingTiers } from "@/app/pricing/page";
+import { pricingTiers } from "@/app/pricing/pricing-client-view";
 import {
   ArrowRight,
   TrendingUp,

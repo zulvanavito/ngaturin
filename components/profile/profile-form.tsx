@@ -24,10 +24,12 @@ import { Subscription } from "./profile-subscription-tab";
 
 interface ProfileFormProps {
   user: User;
+  initialProfile: any;
+  initialWallets: {id: string, name: string, icon: string, color: string}[];
   subscription: Subscription | null;
 }
 
-export function ProfileForm({ user, subscription }: ProfileFormProps) {
+export function ProfileForm({ user, initialProfile, initialWallets, subscription }: ProfileFormProps) {
   const { showDecimals, accentColor, updatePreferences } = useUserPreferences();
   const [fullName, setFullName] = useState(user.user_metadata?.full_name || "");
   const [avatarUrl, setAvatarUrl] = useState(user.user_metadata?.avatar_url || "");
@@ -50,40 +52,14 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null);
 
   // Auto-save settings state
-  const [paydayDay, setPaydayDay] = useState<string>("");
-  const [primaryWalletId, setPrimaryWalletId] = useState<string>("");
-  const [walletsList, setWalletsList] = useState<{id: string, name: string, icon: string, color: string}[]>([]);
+  const [paydayDay, setPaydayDay] = useState<string>(initialProfile?.payday_day ? String(initialProfile.payday_day) : "");
+  const [primaryWalletId, setPrimaryWalletId] = useState<string>(initialProfile?.primary_wallet_id || "");
   const [isSavingAutoSave, setIsSavingAutoSave] = useState(false);
-  const [isLoadingAutoSave, setIsLoadingAutoSave] = useState(true);
-  const [lastEmailChangeAt, setLastEmailChangeAt] = useState<string | null>(null);
+  const [lastEmailChangeAt, setLastEmailChangeAt] = useState<string | null>(initialProfile?.last_email_change_at || null);
   
   const supabase = createClient();
   const { showToast } = useToast();
   const router = useRouter();
-
-  // Fetch auto-save profile and wallets on mount
-  useEffect(() => {
-    const fetchAutoSaveData = async () => {
-      try {
-        const [profileRes, walletsRes] = await Promise.all([
-          fetch("/api/user/profile"),
-          fetch("/api/wallets?balance=false"),
-        ]);
-        const profileData = await profileRes.json();
-        const walletsData = await walletsRes.json();
-        
-        if (profileData.payday_day) setPaydayDay(String(profileData.payday_day));
-        if (profileData.primary_wallet_id) setPrimaryWalletId(profileData.primary_wallet_id);
-        if (profileData.last_email_change_at) setLastEmailChangeAt(profileData.last_email_change_at);
-        if (Array.isArray(walletsData)) setWalletsList(walletsData);
-      } catch (err) {
-        console.error("Failed to fetch auto-save data:", err);
-      } finally {
-        setIsLoadingAutoSave(false);
-      }
-    };
-    fetchAutoSaveData();
-  }, []);
 
   const handleSaveAutoSaveSettings = async () => {
     setIsSavingAutoSave(true);
@@ -526,85 +502,79 @@ export function ProfileForm({ user, subscription }: ProfileFormProps) {
         </h2>
         <Card className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2.5rem] overflow-hidden">
           <CardContent className="p-8 md:p-10">
-            {isLoadingAutoSave ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            <div className="space-y-8">
+              <div className="flex items-start gap-4 p-5 rounded-[2rem] bg-primary/5 border border-primary/10">
+                <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Bot className="w-5 h-5 text-primary" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-foreground">Otomatis sisihkan dana setiap gajian</p>
+                  <p className="text-xs text-muted-foreground font-medium">Tentukan tanggal gajian dan dompet utama Anda. Setiap tanggal yang ditentukan, dana akan otomatis dipindahkan ke target tabungan yang mengaktifkan fitur auto-save.</p>
+                </div>
               </div>
-            ) : (
-              <div className="space-y-8">
-                <div className="flex items-start gap-4 p-5 rounded-[2rem] bg-primary/5 border border-primary/10">
-                  <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <Bot className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-bold text-foreground">Otomatis sisihkan dana setiap gajian</p>
-                    <p className="text-xs text-muted-foreground font-medium">Tentukan tanggal gajian dan dompet utama Anda. Setiap tanggal yang ditentukan, dana akan otomatis dipindahkan ke target tabungan yang mengaktifkan fitur auto-save.</p>
-                  </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid gap-2.5">
+                  <Label htmlFor="paydayDay" className="font-bold text-sm ml-1 flex items-center gap-2">
+                    <CalendarDays className="w-4 h-4 text-muted-foreground" /> Tanggal Gajian
+                  </Label>
+                  <Select value={paydayDay} onValueChange={setPaydayDay}>
+                    <SelectTrigger className="h-14 rounded-2xl border-border/40 dark:border-border/10 dark:bg-muted/5 font-semibold px-5">
+                      <SelectValue placeholder="Pilih tanggal..." />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border-border/40 max-h-64">
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
+                        <SelectItem key={day} value={String(day)} className="rounded-xl cursor-pointer">
+                          Tanggal {day}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[10px] text-muted-foreground ml-1">Sistem akan memproses auto-save pada pukul 00:00 WIB.</p>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="grid gap-2.5">
-                    <Label htmlFor="paydayDay" className="font-bold text-sm ml-1 flex items-center gap-2">
-                      <CalendarDays className="w-4 h-4 text-muted-foreground" /> Tanggal Gajian
-                    </Label>
-                    <Select value={paydayDay} onValueChange={setPaydayDay}>
+                <div className="grid gap-2.5">
+                  <Label htmlFor="primaryWallet" className="font-bold text-sm ml-1 flex items-center gap-2">
+                    <Wallet className="w-4 h-4 text-muted-foreground" /> Dompet Utama
+                  </Label>
+                  {initialWallets.length > 0 ? (
+                    <Select value={primaryWalletId} onValueChange={setPrimaryWalletId}>
                       <SelectTrigger className="h-14 rounded-2xl border-border/40 dark:border-border/10 dark:bg-muted/5 font-semibold px-5">
-                        <SelectValue placeholder="Pilih tanggal..." />
+                        <SelectValue placeholder="Pilih dompet utama..." />
                       </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-border/40 max-h-64">
-                        {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
-                          <SelectItem key={day} value={String(day)} className="rounded-xl cursor-pointer">
-                            Tanggal {day}
+                      <SelectContent className="rounded-2xl border-border/40">
+                        {initialWallets.map(w => (
+                          <SelectItem key={w.id} value={w.id} className="rounded-xl cursor-pointer">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${w.color}15`, color: w.color }}>
+                                <CategoryIcon iconName={w.icon} className="w-3.5 h-3.5" />
+                              </div>
+                              <span>{w.name}</span>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-[10px] text-muted-foreground ml-1">Sistem akan memproses auto-save pada pukul 00:00 WIB.</p>
-                  </div>
-
-                  <div className="grid gap-2.5">
-                    <Label htmlFor="primaryWallet" className="font-bold text-sm ml-1 flex items-center gap-2">
-                      <Wallet className="w-4 h-4 text-muted-foreground" /> Dompet Utama
-                    </Label>
-                    {walletsList.length > 0 ? (
-                      <Select value={primaryWalletId} onValueChange={setPrimaryWalletId}>
-                        <SelectTrigger className="h-14 rounded-2xl border-border/40 dark:border-border/10 dark:bg-muted/5 font-semibold px-5">
-                          <SelectValue placeholder="Pilih dompet utama..." />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-2xl border-border/40">
-                          {walletsList.map(w => (
-                            <SelectItem key={w.id} value={w.id} className="rounded-xl cursor-pointer">
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${w.color}15`, color: w.color }}>
-                                  <CategoryIcon iconName={w.icon} className="w-3.5 h-3.5" />
-                                </div>
-                                <span>{w.name}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <div className="h-14 rounded-2xl border border-dashed border-border/60 flex items-center justify-between px-5 bg-muted/20">
-                        <span className="text-xs text-muted-foreground">Belum ada dompet</span>
-                        <a href="/dashboard/wallets" className="text-xs font-bold text-primary hover:underline">Tambah →</a>
-                      </div>
-                    )}
-                    <p className="text-[10px] text-muted-foreground ml-1">Saldo akan diambil dari dompet ini saat auto-save berjalan.</p>
-                  </div>
+                  ) : (
+                    <div className="h-14 rounded-2xl border border-dashed border-border/60 flex items-center justify-between px-5 bg-muted/20">
+                      <span className="text-xs text-muted-foreground">Belum ada dompet</span>
+                      <a href="/dashboard/wallets" className="text-xs font-bold text-primary hover:underline">Tambah →</a>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-muted-foreground ml-1">Saldo akan diambil dari dompet ini saat auto-save berjalan.</p>
                 </div>
-
-                <Button
-                  type="button"
-                  onClick={handleSaveAutoSaveSettings}
-                  className="wise-button-pill w-full sm:w-auto bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98] h-14 px-10 text-base font-black shadow-lg shadow-primary/20"
-                  disabled={isSavingAutoSave}
-                >
-                  {isSavingAutoSave ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Bot className="w-5 h-5 mr-2" />}
-                  {isSavingAutoSave ? 'Menyimpan...' : 'Simpan Pengaturan'}
-                </Button>
               </div>
-            )}
+
+              <Button
+                type="button"
+                onClick={handleSaveAutoSaveSettings}
+                className="wise-button-pill w-full sm:w-auto bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98] h-14 px-10 text-base font-black shadow-lg shadow-primary/20"
+                disabled={isSavingAutoSave}
+              >
+                {isSavingAutoSave ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Bot className="w-5 h-5 mr-2" />}
+                {isSavingAutoSave ? 'Menyimpan...' : 'Simpan Pengaturan'}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </section>

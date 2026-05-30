@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ThemeSwitcher } from "@/components/layout/theme-switcher";
+import { LandingNavbar } from "@/components/layout/landing-navbar";
+import { LandingFooter } from "@/components/layout/landing-footer";
 import { ArrowLeft, Mail, Phone, MapPin, MessageSquare } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -13,19 +14,7 @@ export default function ContactPage() {
   return (
     <main className="min-h-screen flex flex-col bg-background">
       {/* Navbar */}
-      <nav className="w-full border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto flex justify-between items-center px-6 h-16">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-              <span className="text-primary-foreground font-bold text-sm leading-none">
-                N.
-              </span>
-            </div>
-            <span className="font-bold text-lg tracking-tight">Ngaturin</span>
-          </Link>
-          <ThemeSwitcher />
-        </div>
-      </nav>
+      <LandingNavbar />
 
       {/* Content */}
       <div className="flex-1 max-w-4xl mx-auto px-6 py-12 md:py-20 w-full">
@@ -108,15 +97,7 @@ export default function ContactPage() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 py-8 mt-auto">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2.5">
-            <span className="font-semibold text-foreground">Ngaturin</span>
-            <span className="text-border">·</span>
-            <span>© 2026. Hak Cipta Dilindungi.</span>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </main>
   );
 }

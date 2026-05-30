@@ -32,3 +32,24 @@ export async function createClient() {
     },
   );
 }
+
+/**
+ * Client for use in generateStaticParams or other contexts where cookies() 
+ * cannot be used (build time).
+ */
+export function createStaticClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return [];
+        },
+        setAll(cookiesToSet) {
+          // No-op for static client
+        },
+      },
+    },
+  );
+}

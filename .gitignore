@@ -44,3 +44,6 @@ next-env.d.ts
 # testsprite
 /testsprite_tests
 /.testsprite
+
+.gemini/
+gha-creds-*.json

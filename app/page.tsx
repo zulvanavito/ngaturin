@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
+import { LandingNavbar } from "@/components/layout/landing-navbar";
 import { PricingCard } from "@/components/pricing/pricing-card";
 import { PricingLifetimeCard } from "@/components/pricing/pricing-lifetime-card";
 import { PricingToggle } from "@/components/pricing/pricing-toggle";
@@ -316,63 +317,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex flex-col bg-background font-sans">
-      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none transition-all duration-300">
-        <nav className="w-full max-w-4xl border border-border/40 bg-background/80 dark:bg-background/60 backdrop-blur-3xl shadow-2xl shadow-black/5 dark:shadow-primary/5 rounded-full pointer-events-auto">
-          <div className="flex justify-between items-center px-4 md:px-6 h-14 md:h-16">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <Image
-                src="/logo.png"
-                alt="Ngaturin Logo"
-                width={28}
-                height={28}
-                className="object-contain"
-              />
-              <span className="font-extrabold text-lg tracking-tight text-foreground hidden sm:block">
-                Ngaturin
-              </span>
-            </Link>
-
-            <div className="hidden md:flex items-center gap-8">
-              <Link
-                href="#fitur"
-                className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Fitur
-              </Link>
-              <Link
-                href="#komparasi"
-                className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Bagaimana Ini Bekerja
-              </Link>
-              <Link
-                href="#harga"
-                className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Harga
-              </Link>
-              <Link
-                href="/blog"
-                className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-              >
-                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse shadow-sm" />
-                Blog
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-2 sm:gap-3">
-              <ThemeSwitcher />
-              <Button
-                asChild
-                size="sm"
-                className="bg-primary text-primary-foreground hover:brightness-110 shadow-xl shadow-primary/20 transition-transform hover:-translate-y-0.5 rounded-xl px-4 sm:px-6 font-extrabold"
-              >
-                <Link href="/auth/sign-up">Daftar Gratis</Link>
-              </Button>
-            </div>
-          </div>
-        </nav>
-      </div>
+      <LandingNavbar />
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden pt-24 pb-20 md:pt-32 md:pb-32">

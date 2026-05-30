@@ -1,5 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createStaticClient } from "@/lib/supabase/server";
 import { cache } from "react";
+import { BlogPost, BlogPostMetadata } from "@/types/blog";
 
 /**
  * Data Access Layer (DAL) for Server Components.
@@ -346,6 +347,51 @@ export const getSubscription = cache(async () => {
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
+
+  return data;
+});
+
+export const getBlogPosts = cache(async (): Promise<BlogPostMetadata[]> => {
+  const supabase = createStaticClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("id, slug, title, excerpt, category, tags, cover_image_url, published_at, status, is_featured, author_id, created_at, updated_at")
+    .eq("status", "published")
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    console.error("DAL: Error fetching blog posts:", error);
+    return [];
+  }
+
+  return (data || []).map(post => {
+    const wordCount = (post.excerpt || "").split(/\s+/).filter(Boolean).length;
+    return {
+      ...post,
+      // Heuristic: estimate total words by assuming excerpt is roughly 20% of the content
+      reading_time: Math.ceil((wordCount * 5) / 200) || 1
+    };
+  });
+});
+
+export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
+  const supabase = createStaticClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (error) {
+    console.error("DAL: Error fetching post by slug:", error);
+    return null;
+  }
+
+  if (data) {
+    const wordCount = (data.content || "").split(/\s+/).filter(Boolean).length;
+    data.reading_time = Math.ceil(wordCount / 200) || 1;
+  }
 
   return data;
 });

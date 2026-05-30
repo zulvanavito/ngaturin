@@ -1,40 +1,65 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Construction, ArrowLeft } from "lucide-react";
+import { getBlogPosts } from "@/lib/dal";
+import { BlogHero } from "@/components/blog/blog-hero";
+import { BlogSearch } from "@/components/blog/blog-search";
+import { BlogGrid } from "@/components/blog/blog-grid";
+import { BlogSidebar } from "@/components/blog/blog-sidebar";
+import { BlogBreakingNews } from "@/components/blog/blog-breaking-news";
+import { NewsletterForm } from "@/components/blog/newsletter-form";
 
 export const metadata = {
-  title: "Blog | Ngaturin",
-  description: "Wawasan finansial dan produktivitas dari tim Ngaturin.",
+  title: "Blog | Ngaturin - Wawasan Finansial & Produktivitas",
+  description: "Gagasan soal produktivitas, Metode PARA, dan strategi finansial kelas kakap dari tim Ngaturin.",
+  openGraph: {
+    title: "Blog | Ngaturin - Wawasan Finansial & Produktivitas",
+    description: "Gagasan soal produktivitas, Metode PARA, dan strategi finansial kelas kakap dari tim Ngaturin.",
+    url: "/blog",
+    siteName: "Ngaturin",
+    locale: "id_ID",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog | Ngaturin - Wawasan Finansial & Produktivitas",
+    description: "Gagasan soal produktivitas, Metode PARA, dan strategi finansial kelas kakap dari tim Ngaturin.",
+  },
 };
 
-export default function BlogUnderConstruction() {
+export default async function BlogPage() {
+  const posts = await getBlogPosts();
+  const heroPosts = posts.slice(0, 3);
+  const gridPosts = posts.slice(3);
+
   return (
-    <main className="min-h-screen flex items-center justify-center p-6 bg-background relative overflow-hidden font-sans">
-      {/* Ambient background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 dark:bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
-      
-      <div className="relative z-10 max-w-md w-full text-center p-10 rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-border/30 shadow-ring">
+    <main className="min-h-screen bg-[#ffffff] dark:bg-[#0e0f0c] transition-colors duration-300">
+      <div className="max-w-[1280px] mx-auto px-6 pt-32 pb-12">
+        <BlogHero posts={heroPosts} />
         
-        {/* Glow behind the icon box */}
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-secondary/30 rounded-full blur-[40px] pointer-events-none" />
-
-        <div className="w-24 h-24 mx-auto bg-primary/10 text-primary border border-primary/20 rounded-[2rem] flex items-center justify-center mb-8 shadow-inner shadow-primary/20 relative">
-          <Construction className="w-10 h-10" />
+        <BlogBreakingNews posts={posts.slice(0, 8)} />
+        
+        <div className="flex flex-col lg:flex-row gap-12 mt-16">
+          <div className="flex-1 min-w-0">
+            <BlogSearch />
+            <BlogGrid posts={gridPosts} />
+          </div>
+          
+          <BlogSidebar posts={posts} />
         </div>
-        
-        <h1 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4 leading-tight">
-          Halaman Sedang <br/> <span className="text-primary">Dirakit.</span>
-        </h1>
-        <p className="text-muted-foreground font-medium mb-10 leading-relaxed text-sm md:text-base">
-          Area Blog untuk menuangkan gagasan soal produktivitas, Metode PARA, dan wawasan kelas berat finansial sedang dipahat. Ditunggu, ya!
-        </p>
-
-        <Button asChild size="lg" className="w-full bg-primary hover:brightness-110 text-primary-foreground font-extrabold h-14 rounded-2xl shadow-xl shadow-primary/20 transition-transform hover:-translate-y-1 hover:shadow-primary/40 flex items-center justify-center gap-2">
-          <Link href="/">
-            <ArrowLeft className="w-5 h-5" /> Kembali Ke Beranda
-          </Link>
-        </Button>
       </div>
+      
+      {/* Newsletter CTA */}
+      <section className="py-24 px-6 bg-gradient-to-br from-[#9fe870] to-[#bbf099] relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl md:text-6xl font-black text-[#163300] leading-[0.9] mb-6 uppercase tracking-tight">
+            Jangan Lewatkan <br />
+            <span className="text-white">Artikel Terbaru</span>
+          </h2>
+          <p className="text-xl font-bold text-[#163300]/80 mb-12 max-w-2xl mx-auto">
+            Dapatkan wawasan finansial dan produktivitas eksklusif mingguan yang dirancang untuk mengubah cara kamu mengelola uang.
+          </p>
+          <NewsletterForm />
+        </div>
+      </section>
     </main>
   );
 }

@@ -6,6 +6,19 @@ import { BlogGrid } from "@/components/blog/blog-grid";
 export const metadata = {
   title: "Blog | Ngaturin - Wawasan Finansial & Produktivitas",
   description: "Gagasan soal produktivitas, Metode PARA, dan strategi finansial kelas kakap dari tim Ngaturin.",
+  openGraph: {
+    title: "Blog | Ngaturin - Wawasan Finansial & Produktivitas",
+    description: "Gagasan soal produktivitas, Metode PARA, dan strategi finansial kelas kakap dari tim Ngaturin.",
+    url: "/blog",
+    siteName: "Ngaturin",
+    locale: "id_ID",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog | Ngaturin - Wawasan Finansial & Produktivitas",
+    description: "Gagasan soal produktivitas, Metode PARA, dan strategi finansial kelas kakap dari tim Ngaturin.",
+  },
 };
 
 export default async function BlogPage() {

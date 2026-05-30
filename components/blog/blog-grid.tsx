@@ -53,7 +53,7 @@ export function BlogGrid({ posts }: BlogGridProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
-      {filteredPosts.map((post) => (
+      {filteredPosts.map((post, index) => (
         <Link
           key={post.id}
           href={`/blog/${post.slug}`}
@@ -66,6 +66,8 @@ export function BlogGrid({ posts }: BlogGridProps) {
                 alt={post.title}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
+                priority={index < 2}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             ) : (
               <div className="w-full h-full bg-[#9fe870]/10 flex items-center justify-center">

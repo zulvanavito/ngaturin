@@ -32,15 +32,33 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     };
   }
 
+  const title = `${post.title} | Ngaturin Blog`;
+  const description = post.excerpt;
+  const imageUrl = post.cover_image_url;
+
   return {
-    title: `${post.title} | Ngaturin Blog`,
-    description: post.excerpt,
+    title,
+    description,
+    alternates: {
+      canonical: `/blog/${slug}`,
+    },
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      images: post.cover_image_url ? [{ url: post.cover_image_url }] : [],
+      title,
+      description,
+      images: imageUrl ? [{ url: imageUrl, width: 1200, height: 630, alt: post.title }] : [],
       type: "article",
       publishedTime: post.published_at || undefined,
+      modifiedTime: post.updated_at || undefined,
+      section: post.category,
+      authors: ["Ngaturin Team"],
+      tags: post.tags || [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: imageUrl ? [imageUrl] : [],
+      creator: "@ngaturin",
     },
   };
 }

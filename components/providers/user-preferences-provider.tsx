@@ -30,10 +30,23 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
     async function loadPreferences() {
       try {
         const res = await fetch("/api/user/profile");
-        const data = await res.json();
-        if (data) {
-          if (data.show_decimals !== undefined) setShowDecimals(data.show_decimals);
-          if (data.accent_color) setAccentColor(data.accent_color);
+        if (!res.ok) {
+          // If not ok (e.g., 401 Unauthorized), don't try to parse as JSON if it might be HTML
+          // However, we'll try to check content-type first
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+             await res.json(); // we can consume it but ignore
+          }
+          return;
+        }
+
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          if (data) {
+            if (data.show_decimals !== undefined) setShowDecimals(data.show_decimals);
+            if (data.accent_color) setAccentColor(data.accent_color);
+          }
         }
       } catch (error) {
         console.error("Failed to load user preferences:", error);

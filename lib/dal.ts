@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createStaticClient } from "@/lib/supabase/server";
 import { cache } from "react";
 import { BlogPost, BlogPostMetadata } from "@/types/blog";
 
@@ -352,7 +352,7 @@ export const getSubscription = cache(async () => {
 });
 
 export const getBlogPosts = cache(async (): Promise<BlogPostMetadata[]> => {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("id, slug, title, excerpt, category, tags, cover_image_url, published_at, status, is_featured, author_id, created_at, updated_at")
@@ -375,7 +375,7 @@ export const getBlogPosts = cache(async (): Promise<BlogPostMetadata[]> => {
 });
 
 export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("*")

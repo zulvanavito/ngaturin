@@ -23,16 +23,18 @@ export const metadata = {
 
 export default async function BlogPage() {
   const posts = await getBlogPosts();
+  const featuredPost = posts.find((p) => p.is_featured) || posts[0];
+  const gridPosts = posts.filter((p) => p.id !== featuredPost?.id);
 
   return (
     <main className="min-h-screen bg-[#ffffff] dark:bg-[#0e0f0c] transition-colors duration-300">
-      <BlogHero />
+      <BlogHero post={featuredPost} />
       
       <div className="max-w-7xl mx-auto px-6">
         <BlogSearch />
         
-        <div className="mt-20">
-          <BlogGrid posts={posts} />
+        <div className="mt-16">
+          <BlogGrid posts={gridPosts} />
         </div>
       </div>
       

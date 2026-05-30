@@ -12,6 +12,7 @@ import { CategoryFormModal } from "@/components/categories/category-form-modal";
 import { CategoryIcon, SUGGESTED_CATEGORIES } from "@/components/categories/category-icon";
 import { useToast } from "@/lib/toast-context";
 import { useRouter } from "next/navigation";
+import { useCategories } from "@/hooks/use-categories";
 
 interface CategoriesClientViewProps {
   initialCategories: Category[];
@@ -19,6 +20,7 @@ interface CategoriesClientViewProps {
 
 export function CategoriesClientView({ initialCategories: categories }: CategoriesClientViewProps) {
   const router = useRouter();
+  const { refetch } = useCategories();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -51,6 +53,7 @@ export function CategoriesClientView({ initialCategories: categories }: Categori
         const d = await res.json();
         throw new Error(d.error);
       }
+      await refetch();
       handleRefresh();
       showToast("success", `Kategori "${catName}" berhasil dihapus.`);
     } catch (err: unknown) {
@@ -73,6 +76,7 @@ export function CategoriesClientView({ initialCategories: categories }: Categori
         });
         if (res.ok) added++;
       }
+      await refetch();
       handleRefresh();
       showToast("success", `${added} kategori berhasil ditambahkan!`);
     } catch {

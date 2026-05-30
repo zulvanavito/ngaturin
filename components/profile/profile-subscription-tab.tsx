@@ -77,6 +77,22 @@ export function ProfileSubscriptionTab({
 
   const activePlan = isPremium ? currentSubscription?.plan_id : "free";
 
+  const getPaymentMethodLabel = (type: string | null) => {
+    if (!type) return "Sistem";
+    
+    const methodMap: Record<string, string> = {
+      manual_grant: "Pemberian Admin",
+      bank_transfer: "Virtual Account",
+      echannel: "Virtual Account (Mandiri)",
+      qris: "QRIS",
+      credit_card: "Kartu Kredit",
+      gopay: "GoPay",
+      shopeepay: "ShopeePay"
+    };
+
+    return methodMap[type.toLowerCase()] || type;
+  };
+
   const handleUpgrade = useCallback(
     (planId: string) => {
       router.push(`/dashboard/billing/checkout?planId=${planId}&interval=${billingInterval}`);
@@ -138,7 +154,7 @@ export function ProfileSubscriptionTab({
               <div className="flex items-center gap-2 text-sm text-muted-foreground mt-3">
                 <Clock className="w-4 h-4" />
                 <span>
-                  Dibayar via <strong className="capitalize">{currentSubscription.payment_type}</strong>
+                  Dibayar via <strong className="font-bold text-foreground">{getPaymentMethodLabel(currentSubscription.payment_type)}</strong>
                   {" · "}
                   {currentSubscription.interval === "yearly" ? "Tahunan" : "Bulanan"}
                 </span>

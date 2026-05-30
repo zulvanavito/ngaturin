@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { CategoryIcon, ICON_OPTIONS } from "@/components/categories/category-icon";
 import { Category } from "@/components/categories/category-card";
+import { useCategories } from "@/hooks/use-categories";
 
 interface CategoryFormModalProps {
   open: boolean;
@@ -26,6 +27,7 @@ interface CategoryFormModalProps {
 }
 
 export function CategoryFormModal({ open, onClose, onSuccess, category }: CategoryFormModalProps) {
+  const { refetch } = useCategories();
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("Package");
   const [type, setType] = useState("expense");
@@ -79,6 +81,7 @@ export function CategoryFormModal({ open, onClose, onSuccess, category }: Catego
         throw new Error(data.error || "Gagal menyimpan kategori");
       }
 
+      await refetch();
       onSuccess();
       onClose();
     } catch (err: unknown) {

@@ -9,13 +9,14 @@ import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Settings2, TrendingDown, TrendingUp, Loader2, AlertTriangle, ArrowRight, Search, X } from "lucide-react";
+import { Settings2, TrendingDown, TrendingUp, Loader2, AlertTriangle, ArrowRight, Search, X, Tag } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
 import { CategoryIcon } from "@/components/categories/category-icon";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { useCategorySearch } from "@/hooks/use-category-search";
 import { useFuzzySearch } from "@/hooks/use-fuzzy-search";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 export interface Transaction {
   id: string;
@@ -150,6 +151,27 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
         <p className="text-muted-foreground font-medium mt-1">
           Catat detail transaksi keuangan Anda.
         </p>
+
+        {/* Missing Category Alert (Shadcn UI) */}
+        {!catLoading && allCategories.length === 0 && (
+          <Alert className="mt-4 bg-amber-500/10 border-amber-500/20 rounded-[1.5rem] animate-in fade-in slide-in-from-top-2 duration-300">
+            <Tag className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <AlertTitle className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
+              Kategori Wajib
+            </AlertTitle>
+            <AlertDescription className="mt-1">
+              <p className="text-[11px] text-muted-foreground font-medium leading-tight mb-2">
+                Buat minimal satu kategori (misal: Makan, Gaji) untuk mencatat transaksi.
+              </p>
+              <Link 
+                href="/dashboard/categories" 
+                className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 hover:underline"
+              >
+                Buat Sekarang <ArrowRight className="w-3 h-3" />
+              </Link>
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5 flex-1 flex flex-col">
@@ -281,14 +303,6 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
             {catLoading && (
               <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1 animate-pulse">
                 <Loader2 className="w-3 h-3 animate-spin" /> Memuat daftar kategori...
-              </p>
-            )}
-            {!catLoading && allCategories.length === 0 && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1">
-                <AlertTriangle className="w-3 h-3" /> Belum ada kategori.
-                <Link href="/dashboard/categories" className="font-semibold underline hover:text-amber-700 dark:hover:text-amber-300 flex items-center gap-1">
-                  Tambahkan sekarang <ArrowRight className="w-3 h-3" />
-                </Link>
               </p>
             )}
           </div>

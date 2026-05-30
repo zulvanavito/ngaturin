@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { cache } from "react";
+import { BlogPost, BlogPostMetadata } from "@/types/blog";
 
 /**
  * Data Access Layer (DAL) for Server Components.
@@ -347,5 +348,40 @@ export const getSubscription = cache(async () => {
     .limit(1)
     .maybeSingle();
 
+  return data;
+});
+
+export const getBlogPosts = cache(async (): Promise<BlogPostMetadata[]> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("id, slug, title, excerpt, category, tags, cover_image_url, published_at, status, is_featured, author_id, created_at, updated_at")
+    .eq("status", "published")
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    console.error("DAL: Error fetching blog posts:", error);
+    return [];
+  }
+
+  return (data || []).map(post => ({
+    ...post,
+    reading_time: Math.ceil((post.excerpt?.length || 0) / 200)
+  }));
+});
+
+export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (error) {
+    console.error("DAL: Error fetching post by slug:", error);
+    return null;
+  }
   return data;
 });

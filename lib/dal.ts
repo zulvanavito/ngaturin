@@ -395,3 +395,19 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | 
 
   return data;
 });
+
+export const getBlogComments = cache(async (slug: string) => {
+  const supabase = createStaticClient();
+  const { data, error } = await supabase
+    .from("blog_comments")
+    .select("*")
+    .eq("post_slug", slug)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("DAL: Error fetching blog comments:", error);
+    return [];
+  }
+
+  return data || [];
+});

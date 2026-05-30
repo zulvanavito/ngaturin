@@ -2,14 +2,17 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Calendar, Clock, Twitter, Facebook, Linkedin, Link as LinkIcon } from "lucide-react";
+import { ChevronLeft, Calendar, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
-import { getBlogPostBySlug, getBlogPosts } from "@/lib/dal";
+import { getBlogPostBySlug, getBlogPosts, getBlogComments } from "@/lib/dal";
 import { BlogContentRenderer } from "@/components/blog/blog-content-renderer";
 import { ReadingProgressBar } from "@/components/blog/reading-progress-bar";
 import { BlogGrid } from "@/components/blog/blog-grid";
+import { BlogAuthor } from "@/components/blog/blog-author";
+import { BlogComments } from "@/components/blog/blog-comments";
+import { BlogShareSidebar } from "@/components/blog/blog-share-sidebar";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -76,6 +79,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     .filter(p => p.category === post.category && p.id !== post.id)
     .slice(0, 3);
 
+  const comments = await getBlogComments(slug);
+
   return (
     <div className="min-h-screen bg-[#ffffff] dark:bg-[#0e0f0c] pb-20">
       <ReadingProgressBar />
@@ -132,20 +137,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <div className="flex flex-col lg:flex-row gap-12 relative">
             
             {/* Sticky Share Sidebar (Desktop Only) */}
-            <aside className="hidden lg:flex flex-col gap-4 w-[60px] shrink-0 sticky top-[120px] h-fit z-10">
-              <button className="w-12 h-12 rounded-full bg-[#f9faf9] dark:bg-[#1a1b18] border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-[#0e0f0c] dark:hover:text-white hover:border-[#9fe870] hover:bg-[#9fe870]/10 transition-all shadow-sm">
-                <LinkIcon className="w-5 h-5" />
-              </button>
-              <button className="w-12 h-12 rounded-full bg-[#f9faf9] dark:bg-[#1a1b18] border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-[#1DA1F2] hover:border-[#1DA1F2] hover:bg-[#1DA1F2]/10 transition-all shadow-sm">
-                <Twitter className="w-5 h-5" />
-              </button>
-              <button className="w-12 h-12 rounded-full bg-[#f9faf9] dark:bg-[#1a1b18] border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-[#1877F2] hover:border-[#1877F2] hover:bg-[#1877F2]/10 transition-all shadow-sm">
-                <Facebook className="w-5 h-5" />
-              </button>
-              <button className="w-12 h-12 rounded-full bg-[#f9faf9] dark:bg-[#1a1b18] border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-[#0A66C2] hover:border-[#0A66C2] hover:bg-[#0A66C2]/10 transition-all shadow-sm">
-                <Linkedin className="w-5 h-5" />
-              </button>
-            </aside>
+            <BlogShareSidebar title={post.title} slug={post.slug} />
 
             {/* Main Content */}
             <main className="flex-1 max-w-[768px] min-w-0">
@@ -166,6 +158,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   </div>
                 </div>
               )}
+
+              {/* Author Box */}
+              <BlogAuthor />
+
+              {/* Comments Section */}
+              <BlogComments postSlug={post.slug} initialComments={comments} />
+
             </main>
           </div>
         </article>

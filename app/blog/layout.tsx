@@ -1,4 +1,5 @@
 import { LandingNavbar } from "@/components/layout/landing-navbar";
+import { LandingFooter } from "@/components/layout/landing-footer";
 
 export default function BlogLayout({
   children,
@@ -9,6 +10,7 @@ export default function BlogLayout({
     <>
       <LandingNavbar />
       {children}
+      <LandingFooter />
     </>
   );
 }

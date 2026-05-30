@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useDeferredValue } from "react";
 import { useCategories } from "@/hooks/use-categories";
 import { useWallets } from "@/hooks/use-wallets";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,13 @@ import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Settings2, TrendingDown, TrendingUp, Loader2, AlertTriangle, ArrowRight } from "lucide-react";
+import { Settings2, TrendingDown, TrendingUp, Loader2, AlertTriangle, ArrowRight, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
 import { CategoryIcon } from "@/components/categories/category-icon";
 import { CurrencyInput } from "@/components/ui/currency-input";
+import { useCategorySearch } from "@/hooks/use-category-search";
+import { useFuzzySearch } from "@/hooks/use-fuzzy-search";
 
 export interface Transaction {
   id: string;
@@ -42,22 +44,48 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
   const isEditing = !!editingTransaction;
   const { showToast } = useToast();
 
-  // Dynamic categories from database
+  // Dynamic categories and wallets
   const { categories: allCategories, loading: catLoading } = useCategories();
-  const { wallets } = useWallets();
+  const { wallets: allWallets } = useWallets();
 
   const [description, setDescription] = useState(editingTransaction?.description || "");
   const [amount, setAmount] = useState<number>(editingTransaction?.amount || 0);
   const [category, setCategory] = useState(editingTransaction?.category || "");
-  const [walletId, setWalletId] = useState(editingTransaction?.wallet_id || "_none");
+  
+  // Default to first wallet if not editing
+  const initialWalletId = useMemo(() => {
+    if (editingTransaction?.wallet_id) return editingTransaction.wallet_id;
+    if (allWallets.length > 0) return allWallets[0].id;
+    return "";
+  }, [editingTransaction, allWallets]);
+
+  const [walletId, setWalletId] = useState(initialWalletId);
+
+  // Sync walletId if wallets load and we don't have one yet
+  useMemo(() => {
+    if (!walletId && allWallets.length > 0) {
+      setWalletId(allWallets[0].id);
+    }
+  }, [allWallets, walletId]);
+
   const initialType = (editingTransaction?.type === "transfer" ? "expense" : editingTransaction?.type) ?? defaultType ?? "expense";
   const [type, setType] = useState<"income" | "expense">(initialType);
   const [date, setDate] = useState(editingTransaction?.date || new Date().toISOString().split("T")[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Filter categories based on the selected transaction type
-  const filteredCategories = allCategories.filter((c) => c.type === type || c.type === "all");
+  // Fuzzy Search for Categories
+  const [catSearchQuery, setCatSearchQuery] = useState("");
+  const deferredCatQuery = useDeferredValue(catSearchQuery);
+  const searchedCategories = useCategorySearch(allCategories, deferredCatQuery, type);
+
+  // Fuzzy Search for Wallets
+  const [walletSearchQuery, setWalletSearchQuery] = useState("");
+  const deferredWalletQuery = useDeferredValue(walletSearchQuery);
+  const searchedWallets = useFuzzySearch(allWallets, deferredWalletQuery, {
+    keys: ["name"],
+    threshold: 0.3,
+  });
 
   const handleTypeChange = (newType: "income" | "expense") => {
     setType(newType);
@@ -72,11 +100,15 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
       setError("Pilih kategori transaksi terlebih dahulu");
       return;
     }
+    if (!walletId) {
+      setError("Pilih dompet terlebih dahulu");
+      return;
+    }
     setIsLoading(true);
     setError(null);
 
     try {
-      const sanitizedWalletId = (walletId && walletId !== "_none") ? walletId : null;
+      const sanitizedWalletId = walletId || null;
       const payload = { description, amount: Number(amount), category, type, date, wallet_id: sanitizedWalletId };
       const url = isEditing ? `/api/transactions/${editingTransaction.id}` : "/api/transactions";
       const res = await fetch(url, {
@@ -94,7 +126,7 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
         setDescription("");
         setAmount(0);
         setCategory("");
-        setWalletId("_none");
+        setWalletId(allWallets[0]?.id || "");
         setType("expense");
         setDate(new Date().toISOString().split("T")[0]);
       }
@@ -190,26 +222,60 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
                 <Settings2 className="w-3 h-3" /> Atur
               </Link>
             </div>
-            <Select
-              value={category}
-              onValueChange={setCategory}
-              required
-              disabled={catLoading || filteredCategories.length === 0}
-            >
-              <SelectTrigger id="category" className="h-12 rounded-2xl border-border/40 px-4">
-                <SelectValue placeholder={catLoading ? "Memuat kategori..." : "Pilih kategori"} />
-              </SelectTrigger>
-              <SelectContent className="rounded-2xl border-none shadow-2xl max-h-[300px]">
-                {filteredCategories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.name} className="text-[10px] font-medium uppercase tracking-widest">
-                    <div className="flex items-center gap-2">
-                      <CategoryIcon iconName={cat.icon} className="w-4 h-4 opacity-70" />
-                      <span>{cat.name}</span>
+            
+            <div className="relative">
+              <Select
+                value={category}
+                onValueChange={setCategory}
+                required
+                disabled={catLoading || allCategories.length === 0}
+              >
+                <SelectTrigger id="category" className="h-12 rounded-2xl border-border/40 px-4">
+                  <SelectValue placeholder={catLoading ? "Memuat kategori..." : "Pilih kategori"} />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-none shadow-2xl max-h-[350px]">
+                  {/* Category Search Input - Leveraging Fuse.js */}
+                  <div className="sticky top-0 p-2 bg-popover z-10 border-b border-border/10">
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                      <input
+                        className="w-full h-9 pl-9 pr-8 bg-muted/50 rounded-xl text-[11px] font-bold uppercase tracking-widest focus:outline-none focus:ring-1 focus:ring-primary/30"
+                        placeholder="Cari kategori..."
+                        value={catSearchQuery}
+                        onChange={(e) => setCatSearchQuery(e.target.value)}
+                        onKeyDown={(e) => e.stopPropagation()} 
+                      />
+                      {catSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setCatSearchQuery("")}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2"
+                        >
+                          <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                        </button>
+                      )}
                     </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  </div>
+
+                  <div className="p-1">
+                    {searchedCategories.length > 0 ? (
+                      searchedCategories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.name} className="text-[10px] font-medium uppercase tracking-widest py-2.5">
+                          <div className="flex items-center gap-2">
+                            <CategoryIcon iconName={cat.icon} className="w-4 h-4 opacity-70" />
+                            <span>{cat.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : deferredCatQuery ? (
+                      <div className="py-6 text-center">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Kategori tidak ditemukan</p>
+                      </div>
+                    ) : null}
+                  </div>
+                </SelectContent>
+              </Select>
+            </div>
 
            
             {catLoading && (
@@ -217,7 +283,7 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
                 <Loader2 className="w-3 h-3 animate-spin" /> Memuat daftar kategori...
               </p>
             )}
-            {!catLoading && filteredCategories.length === 0 && (
+            {!catLoading && allCategories.length === 0 && (
               <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1">
                 <AlertTriangle className="w-3 h-3" /> Belum ada kategori.
                 <Link href="/dashboard/categories" className="font-semibold underline hover:text-amber-700 dark:hover:text-amber-300 flex items-center gap-1">
@@ -239,26 +305,55 @@ export function TransactionForm({ editingTransaction, defaultType, onCancel, onS
           </div>
         </div>
 
-        {wallets.length > 0 && (
+        {allWallets.length > 0 && (
           <div className="space-y-2">
             <Label htmlFor="wallet" className="flex items-center gap-1 text-xs font-black uppercase tracking-widest ml-1">
               Dompet
-              <span className="text-[9px] text-muted-foreground font-normal tracking-normal normal-case">(opsional)</span>
             </Label>
-            <Select value={walletId} onValueChange={setWalletId}>
+            <Select value={walletId} onValueChange={setWalletId} required>
               <SelectTrigger id="wallet" className="h-12 rounded-2xl border-border/40 px-4 w-full">
                 <SelectValue placeholder="Pilih dompet..." />
               </SelectTrigger>
-              <SelectContent className="rounded-2xl border-none shadow-2xl">
-                <SelectItem value="_none" className="text-[10px] font-black uppercase tracking-widest py-3">Tanpa Dompet</SelectItem>
-                {wallets.map((w) => (
-                  <SelectItem key={w.id} value={w.id} className="text-[10px] font-medium uppercase tracking-widest py-3">
-                    <div className="flex items-center gap-2">
-                      <CategoryIcon iconName={w.icon} className="w-4 h-4 opacity-70" />
-                      <span>{w.name}</span>
+              <SelectContent className="rounded-2xl border-none shadow-2xl max-h-[350px]">
+                {/* Wallet Search Input - Leveraging Fuse.js */}
+                <div className="sticky top-0 p-2 bg-popover z-10 border-b border-border/10">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                    <input
+                      className="w-full h-9 pl-9 pr-8 bg-muted/50 rounded-xl text-[11px] font-bold uppercase tracking-widest focus:outline-none focus:ring-1 focus:ring-primary/30"
+                      placeholder="Cari dompet..."
+                      value={walletSearchQuery}
+                      onChange={(e) => setWalletSearchQuery(e.target.value)}
+                      onKeyDown={(e) => e.stopPropagation()} 
+                    />
+                    {walletSearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setWalletSearchQuery("")}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2"
+                      >
+                        <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-1">
+                  {searchedWallets.length > 0 ? (
+                    searchedWallets.map((w) => (
+                      <SelectItem key={w.id} value={w.id} className="text-[10px] font-medium uppercase tracking-widest py-3">
+                        <div className="flex items-center gap-2">
+                          <CategoryIcon iconName={w.icon} className="w-4 h-4 opacity-70" />
+                          <span>{w.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  ) : deferredWalletQuery ? (
+                    <div className="py-6 text-center">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Dompet tidak ditemukan</p>
                     </div>
-                  </SelectItem>
-                ))}
+                  ) : null}
+                </div>
               </SelectContent>
             </Select>
           </div>

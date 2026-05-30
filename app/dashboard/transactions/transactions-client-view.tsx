@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { TransactionList } from "@/components/finance/transaction-list";
 import { TransactionFilters } from "@/components/finance/transaction-filters";
-import type { DateRangePreset, SortOption } from "@/components/finance/transaction-filters";
 import { TransactionForm, type Transaction } from "@/components/finance/transaction-form";
 import { BulkTransactionForm } from "@/components/finance/bulk-transaction-form";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -34,7 +33,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/export-utils";
 import { useToast } from "@/lib/toast-context";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useFilterStore } from "@/lib/store/filter-store";
+import { useUIStore } from "@/lib/store/ui-store";
 
 interface TransactionsClientViewProps {
   initialTransactions: Transaction[];
@@ -46,27 +47,44 @@ export function TransactionsClientView({
   initialQuery = "" 
 }: TransactionsClientViewProps) {
   const router = useRouter();
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [showBulkAddForm, setShowBulkAddForm] = useState(false);
-
-  // Filters State
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [walletFilter, setWalletFilter] = useState("all");
-  const [dateRangePreset, setDateRangePreset] = useState<DateRangePreset>("all");
-  const [customDateFrom, setCustomDateFrom] = useState("");
-  const [customDateTo, setCustomDateTo] = useState("");
-  const [sortOption, setSortOption] = useState<SortOption>("newest");
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const searchParams = useSearchParams();
   const { formatCurrency } = useFormatCurrency();
   const { showToast } = useToast();
+
+  // Zustand Stores
+  const { 
+    searchQuery, setSearchQuery,
+    transactionType, 
+    selectedCategory, 
+    selectedWalletId, 
+    dateRangePreset, 
+    customDateRange,
+    sortBy,
+    resetFilters
+  } = useFilterStore();
+
+  const {
+    isAddTransactionOpen, setAddTransactionOpen,
+    isEditTransactionOpen, setEditTransactionOpen,
+    editingTransactionId, setEditingTransactionId
+  } = useUIStore();
+
+  const [showBulkAddForm, setShowBulkAddForm] = useState(false);
 
   // Pagination & Selection
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
+  // Sync URL query to store on mount
+  useEffect(() => {
+    const q = searchParams.get("q");
+    const initialVal = q || initialQuery;
+    if (initialVal && searchQuery !== initialVal) {
+      setSearchQuery(initialVal);
+    }
+  }, [searchParams, initialQuery, setSearchQuery, searchQuery]);
 
   const handleRefresh = useCallback(() => {
     router.refresh();
@@ -120,24 +138,24 @@ export function TransactionsClientView({
         to = now;
         break;
       case "custom":
-        if (customDateFrom) from = new Date(customDateFrom + "T00:00:00");
-        if (customDateTo) to = new Date(customDateTo + "T23:59:59");
+        if (customDateRange.from) from = new Date(customDateRange.from + "T00:00:00");
+        if (customDateRange.to) to = new Date(customDateRange.to + "T23:59:59");
         break;
       default:
         break;
     }
     return { from, to };
-  }, [dateRangePreset, customDateFrom, customDateTo]);
+  }, [dateRangePreset, customDateRange]);
 
   // Filtering Logic
   const filteredTransactions = useMemo(() => {
     const filtered = transactions.filter((t) => {
       const matchSearch = t.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchType = typeFilter === "all" || t.type === typeFilter;
-      const matchCategory = categoryFilter === "all" || t.category === categoryFilter;
+      const matchType = transactionType === "all" || t.type === transactionType;
+      const matchCategory = selectedCategory === "all" || t.category === selectedCategory;
       const matchWallet =
-        walletFilter === "all" ||
-        (walletFilter === "_none" ? !t.wallet_id : t.wallet_id === walletFilter);
+        selectedWalletId === "all" ||
+        (selectedWalletId === "_none" ? !t.wallet_id : t.wallet_id === selectedWalletId);
 
       let matchDate = true;
       if (dateRange.from || dateRange.to) {
@@ -151,21 +169,21 @@ export function TransactionsClientView({
 
     // Sorting
     filtered.sort((a, b) => {
-      switch (sortOption) {
-        case "oldest":
+      switch (sortBy) {
+        case "date_asc":
           return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         case "amount_desc":
           return Number(b.amount) - Number(a.amount);
         case "amount_asc":
           return Number(a.amount) - Number(b.amount);
-        case "newest":
+        case "date_desc":
         default:
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
     });
 
     return filtered;
-  }, [transactions, searchQuery, typeFilter, categoryFilter, walletFilter, dateRange, sortOption]);
+  }, [transactions, searchQuery, transactionType, selectedCategory, selectedWalletId, dateRange, sortBy]);
 
   // Stats for the current view
   const stats = useMemo(() => {
@@ -188,7 +206,12 @@ export function TransactionsClientView({
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, typeFilter, categoryFilter, walletFilter, dateRangePreset, customDateFrom, customDateTo, sortOption]);
+  }, [searchQuery, transactionType, selectedCategory, selectedWalletId, dateRangePreset, customDateRange, sortBy]);
+
+  const currentEditingTransaction = useMemo(() => {
+    if (!editingTransactionId) return null;
+    return transactions.find(t => t.id === editingTransactionId) || null;
+  }, [editingTransactionId, transactions]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 pt-10">
@@ -259,7 +282,7 @@ export function TransactionsClientView({
             </div>
 
             <Button
-              onClick={() => setShowAddForm(true)}
+              onClick={() => setAddTransactionOpen(true)}
               className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg h-16 px-10 shadow-2xl transition-all hover:scale-105 active:scale-95 group w-full lg:w-auto"
             >
               <Plus className="w-6 h-6 mr-3 stroke-[3px]" /> Transaksi Baru
@@ -284,34 +307,7 @@ export function TransactionsClientView({
 
       {/* Filters Toolbar */}
       <div className="w-full">
-        <TransactionFilters 
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          typeFilter={typeFilter}
-          onTypeChange={setTypeFilter}
-          categoryFilter={categoryFilter}
-          onCategoryChange={setCategoryFilter}
-          walletFilter={walletFilter}
-          onWalletChange={setWalletFilter}
-          dateRangePreset={dateRangePreset}
-          onDateRangePresetChange={setDateRangePreset}
-          customDateFrom={customDateFrom}
-          onCustomDateFromChange={setCustomDateFrom}
-          customDateTo={customDateTo}
-          onCustomDateToChange={setCustomDateTo}
-          sortOption={sortOption}
-          onSortChange={setSortOption}
-          onReset={() => {
-            setSearchQuery("");
-            setTypeFilter("all");
-            setCategoryFilter("all");
-            setWalletFilter("all");
-            setDateRangePreset("all");
-            setCustomDateFrom("");
-            setCustomDateTo("");
-            setSortOption("newest");
-          }}
-        />
+        <TransactionFilters />
       </div>
 
       {/* Main Content */}
@@ -319,7 +315,10 @@ export function TransactionsClientView({
         <TransactionList 
           transactions={paginatedTransactions} 
             onRefresh={handleRefresh}
-            onEdit={(tx) => setEditingTransaction(tx)}
+            onEdit={(tx) => {
+              setEditingTransactionId(tx.id);
+              setEditTransactionOpen(true);
+            }}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
           />
@@ -356,11 +355,12 @@ export function TransactionsClientView({
 
       {/* Add/Edit Transaction Dialog */}
       <Dialog 
-        open={showAddForm || !!editingTransaction} 
+        open={isAddTransactionOpen || isEditTransactionOpen} 
         onOpenChange={(open) => {
           if (!open) {
-            setShowAddForm(false);
-            setEditingTransaction(null);
+            setAddTransactionOpen(false);
+            setEditTransactionOpen(false);
+            setEditingTransactionId(null);
           }
         }}
       >
@@ -369,17 +369,19 @@ export function TransactionsClientView({
           <DialogDescription className="sr-only">
             Lengkapi detail transaksi Anda di bawah ini untuk mencatat pengeluaran atau pemasukan baru.
           </DialogDescription>
-          {(showAddForm || !!editingTransaction) && (
+          {(isAddTransactionOpen || isEditTransactionOpen) && (
             <TransactionForm 
-              editingTransaction={editingTransaction || undefined}
+              editingTransaction={currentEditingTransaction || undefined}
               onSuccess={() => { 
                 handleRefresh(); 
-                setShowAddForm(false); 
-                setEditingTransaction(null);
+                setAddTransactionOpen(false);
+                setEditTransactionOpen(false);
+                setEditingTransactionId(null);
               }}
               onCancel={() => {
-                setShowAddForm(false);
-                setEditingTransaction(null);
+                setAddTransactionOpen(false);
+                setEditTransactionOpen(false);
+                setEditingTransactionId(null);
               }}
             />
           )}

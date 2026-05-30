@@ -23,6 +23,7 @@
     "driver.js": "^1.4.0",
     "exceljs": "^3.4.0",
     "framer-motion": "^12.38.0",
+    "fuse.js": "^7.3.0",
     "json2csv": "^6.0.0-alpha.2",
     "jspdf": "^4.2.0",
     "jspdf-autotable": "^5.0.7",
@@ -42,7 +43,8 @@
     "recharts": "^3.7.0",
     "resend": "^4.8.0",
     "tailwind-merge": "^3.3.0",
-    "yahoo-finance2": "^3.14.0"
+    "yahoo-finance2": "^3.14.0",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

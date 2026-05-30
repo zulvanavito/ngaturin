@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { ProfilePageClient } from "@/components/profile/profile-page-client";
-import { getUser, getTransactions, getSubscriptionHistory, getUserProfile, getWallets } from "@/lib/dal";
+import { getUser, getTransactions, getSubscriptionHistory, getUserProfile, getWallets, getSubscription } from "@/lib/dal";
 
 export const metadata = {
   title: "Profil & Langganan | Ngaturin",
@@ -15,15 +15,13 @@ export default async function ProfilePage() {
   }
 
   // Fetch data in parallel using DAL
-  const [transactions, subscriptionHistory, userProfile, wallets] = await Promise.all([
+  const [transactions, subscriptionHistory, userProfile, wallets, activeSubscription] = await Promise.all([
     getTransactions(),
     getSubscriptionHistory(),
     getUserProfile(),
-    getWallets()
+    getWallets(),
+    getSubscription()
   ]);
-
-  // Get current active subscription (latest)
-  const subscription = subscriptionHistory?.[0] || null;
 
   return (
     <ProfilePageClient
@@ -31,7 +29,7 @@ export default async function ProfilePage() {
       userProfile={userProfile}
       wallets={wallets}
       transactions={transactions || []}
-      subscription={subscription}
+      subscription={activeSubscription}
       subscriptionHistory={subscriptionHistory || []}
     />
   );

@@ -9,7 +9,7 @@ interface Subscription {
   status: string;
   interval: string;
   amount: number;
-  expires_at: string | null;
+  current_period_end: string | null;
 }
 
 interface SubscriptionCardProps {
@@ -59,8 +59,8 @@ export function SubscriptionCard({ initialSubscription }: SubscriptionCardProps)
   const config = tierConfig[planId] || tierConfig.free;
   const Icon = config.icon;
 
-  const expiresAt = initialSubscription?.expires_at 
-    ? new Date(initialSubscription.expires_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+  const currentPeriodEnd = initialSubscription?.current_period_end 
+    ? new Date(initialSubscription.current_period_end).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
     : null;
 
   return (
@@ -103,9 +103,9 @@ export function SubscriptionCard({ initialSubscription }: SubscriptionCardProps)
                 <span className={`text-[10px] font-black ${config.textColor} opacity-60`} style={{ fontFeatureSettings: '"calt"' }}>
                   Upgrade untuk fitur lengkap →
                 </span>
-              ) : expiresAt ? (
+              ) : currentPeriodEnd ? (
                 <span className={`text-[10px] font-black ${config.textColor} opacity-60`} style={{ fontFeatureSettings: '"calt"' }}>
-                  Berlaku hingga {expiresAt}
+                  Berlaku hingga {currentPeriodEnd}
                 </span>
               ) : (
                 <span className={`text-[10px] font-black ${config.textColor} opacity-60`} style={{ fontFeatureSettings: '"calt"' }}>

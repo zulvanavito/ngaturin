@@ -25,6 +25,7 @@ export interface WalletData {
     | "debit";
   color: string;
   balance: number;
+  is_default?: boolean;
 }
 
 export interface WalletTransaction {
@@ -132,18 +133,22 @@ export function WalletCard({
                 >
                   <Eye className="w-4 h-4" /> Lihat Riwayat
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onEdit(wallet)}
-                  className="rounded-xl flex items-center gap-2 px-3 py-2 text-sm font-semibold cursor-pointer hover:bg-muted/50"
-                >
-                  <Pencil className="w-4 h-4" /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onDelete(wallet.id)}
-                  className="rounded-xl flex items-center gap-2 px-3 py-2 text-sm font-semibold text-expense cursor-pointer hover:bg-expense/10"
-                >
-                  <Trash2 className="w-4 h-4" /> Hapus
-                </DropdownMenuItem>
+                {!wallet.is_default && (
+                  <>
+                    <DropdownMenuItem
+                      onClick={() => onEdit(wallet)}
+                      className="rounded-xl flex items-center gap-2 px-3 py-2 text-sm font-semibold cursor-pointer hover:bg-muted/50"
+                    >
+                      <Pencil className="w-4 h-4" /> Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => onDelete(wallet.id)}
+                      className="rounded-xl flex items-center gap-2 px-3 py-2 text-sm font-semibold text-expense cursor-pointer hover:bg-expense/10"
+                    >
+                      <Trash2 className="w-4 h-4" /> Hapus
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

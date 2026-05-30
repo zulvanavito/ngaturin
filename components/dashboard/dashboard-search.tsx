@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Search, ArrowRight, History, Tag, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useFilterStore } from "@/lib/store/filter-store";
 
 interface QuickLink {
   label: string;
@@ -17,12 +18,18 @@ const quickLinks: QuickLink[] = [
 ];
 
 export function DashboardSearch() {
-  const [query, setQuery] = useState("");
+  const { searchQuery, setSearchQuery } = useFilterStore();
+  const [localQuery, setLocalQuery] = useState(searchQuery);
   const [isFocused, setIsFocused] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Sync local query with global store
+  useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
 
   // Load recent searches from localStorage
   useEffect(() => {
@@ -41,12 +48,15 @@ export function DashboardSearch() {
   }, [recentSearches]);
 
   const handleSearch = (searchTerm?: string) => {
-    const term = (searchTerm || query).trim();
+    const term = (searchTerm || localQuery).trim();
     if (!term) return;
     saveSearch(term);
     setIsFocused(false);
-    setQuery("");
-    // Navigate to transactions page — the search will be handled via URL  
+    
+    // Update global store
+    setSearchQuery(term);
+    
+    // Navigate to transactions page — the search will be handled via URL and store 
     router.push(`/dashboard/transactions?q=${encodeURIComponent(term)}`);
   };
 
@@ -84,8 +94,8 @@ export function DashboardSearch() {
         <input
           ref={inputRef}
           type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          value={localQuery}
+          onChange={(e) => setLocalQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onKeyDown={handleKeyDown}
           placeholder="Cari transaksi, kategori, menu..."
@@ -150,7 +160,7 @@ export function DashboardSearch() {
           )}
 
           {/* Search hint */}
-          {query.trim() && (
+          {localQuery.trim() && (
             <div className="p-3 border-t border-border/5">
               <button
                 onClick={() => handleSearch()}
@@ -158,7 +168,7 @@ export function DashboardSearch() {
               >
                 <Search className="w-3.5 h-3.5 text-primary" />
                 <span className="text-sm font-semibold text-foreground" style={{ fontFeatureSettings: '"calt"' }}>
-                  Cari &quot;{query}&quot; di transaksi
+                  Cari &quot;{localQuery}&quot; di transaksi
                 </span>
                 <ArrowRight className="w-3 h-3 text-primary ml-auto" />
               </button>

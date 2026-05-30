@@ -324,8 +324,13 @@ export function ProfileForm({ user, initialProfile, initialWallets, subscription
                   <div className="flex flex-wrap items-center gap-3 justify-center sm:justify-start">
                     <h4 className="font-black text-xl">Foto Profil</h4>
                     {subscription ? (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-wider shadow-sm">
-                        <CheckCircle2 className="w-3 h-3" /> PRO Member
+                      <span className={cn(
+                        "inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm",
+                        subscription.plan_id === "pro" 
+                          ? "bg-foreground text-background dark:bg-white dark:text-brand-dark" 
+                          : "bg-primary text-primary-foreground"
+                      )}>
+                        <CheckCircle2 className="w-3 h-3" /> {subscription.plan_id.toUpperCase()} Member
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-muted/20 text-muted-foreground text-[10px] font-black uppercase tracking-wider">

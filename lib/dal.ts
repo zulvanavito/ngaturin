@@ -341,6 +341,8 @@ export const getSubscription = cache(async () => {
     .select("*")
     .eq("user_id", user.id)
     .eq("status", "settlement")
+    // Ensure current_period_end is >= now. Column should be 'timestamptz' for absolute consistency.
+    .gte("current_period_end", new Date().toISOString())
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();

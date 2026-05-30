@@ -1,40 +1,47 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Construction, ArrowLeft } from "lucide-react";
+import { getBlogPosts } from "@/lib/dal";
+import { BlogHero } from "@/components/blog/blog-hero";
+import { BlogSearch } from "@/components/blog/blog-search";
+import { BlogGrid } from "@/components/blog/blog-grid";
 
 export const metadata = {
-  title: "Blog | Ngaturin",
-  description: "Wawasan finansial dan produktivitas dari tim Ngaturin.",
+  title: "Blog | Ngaturin - Wawasan Finansial & Produktivitas",
+  description: "Gagasan soal produktivitas, Metode PARA, dan strategi finansial kelas kakap dari tim Ngaturin.",
 };
 
-export default function BlogUnderConstruction() {
+export default async function BlogPage() {
+  const posts = await getBlogPosts();
+
   return (
-    <main className="min-h-screen flex items-center justify-center p-6 bg-background relative overflow-hidden font-sans">
-      {/* Ambient background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 dark:bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+    <main className="min-h-screen bg-[#ffffff] dark:bg-[#0e0f0c] transition-colors duration-300">
+      <BlogHero />
       
-      <div className="relative z-10 max-w-md w-full text-center p-10 rounded-[2.5rem] bg-background/50 backdrop-blur-3xl border border-border/30 shadow-ring">
+      <div className="max-w-7xl mx-auto px-6">
+        <BlogSearch />
         
-        {/* Glow behind the icon box */}
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-secondary/30 rounded-full blur-[40px] pointer-events-none" />
-
-        <div className="w-24 h-24 mx-auto bg-primary/10 text-primary border border-primary/20 rounded-[2rem] flex items-center justify-center mb-8 shadow-inner shadow-primary/20 relative">
-          <Construction className="w-10 h-10" />
+        <div className="mt-20">
+          <BlogGrid posts={posts} />
         </div>
-        
-        <h1 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4 leading-tight">
-          Halaman Sedang <br/> <span className="text-primary">Dirakit.</span>
-        </h1>
-        <p className="text-muted-foreground font-medium mb-10 leading-relaxed text-sm md:text-base">
-          Area Blog untuk menuangkan gagasan soal produktivitas, Metode PARA, dan wawasan kelas berat finansial sedang dipahat. Ditunggu, ya!
-        </p>
-
-        <Button asChild size="lg" className="w-full bg-primary hover:brightness-110 text-primary-foreground font-extrabold h-14 rounded-2xl shadow-xl shadow-primary/20 transition-transform hover:-translate-y-1 hover:shadow-primary/40 flex items-center justify-center gap-2">
-          <Link href="/">
-            <ArrowLeft className="w-5 h-5" /> Kembali Ke Beranda
-          </Link>
-        </Button>
       </div>
+      
+      {/* Footer-like call to action */}
+      <section className="py-24 px-6 border-t border-gray-100 dark:border-white/5 bg-[#f9faf9] dark:bg-[#121310]">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-black text-[#0e0f0c] dark:text-white leading-[0.9] mb-8">
+            SIAP <span className="text-[#9fe870]">MENGATUR</span> HIDUP?
+          </h2>
+          <p className="text-xl font-semibold text-gray-500 mb-12">
+            Gabung dengan ribuan orang lainnya yang sudah mulai mengelola keuangan dan produktivitas dengan cara yang benar.
+          </p>
+          <div className="flex justify-center">
+            <a 
+              href="/auth/sign-up"
+              className="px-10 py-5 bg-[#9fe870] text-[#163300] rounded-full font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#9fe870]/20"
+            >
+              MULAI GRATIS SEKARANG
+            </a>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

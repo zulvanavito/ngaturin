@@ -11,8 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", "sans-serif"],
-        display: ["var(--font-work-sans)", "sans-serif"],
+        sans: ["Wise Sans", "var(--font-inter)", "sans-serif"],
+        display: ["Wise Sans", "var(--font-work-sans)", "sans-serif"],
       },
       colors: {
         background: "hsl(var(--background))",

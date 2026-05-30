@@ -13,6 +13,19 @@ export async function PUT(
   const { name, icon, type, color } = await request.json();
   if (!name?.trim()) return NextResponse.json({ error: "Nama tidak boleh kosong" }, { status: 400 });
 
+  // Check if wallet is default
+  const { data: wallet, error: fetchError } = await supabase
+    .from("wallets")
+    .select("is_default")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (fetchError || !wallet) return NextResponse.json({ error: "Dompet tidak ditemukan" }, { status: 404 });
+  if (wallet.is_default) {
+    return NextResponse.json({ error: "Dompet utama tidak dapat diubah" }, { status: 403 });
+  }
+
   const { data, error } = await supabase.from("wallets")
     .update({ name: name.trim(), icon, type, color })
     .eq("id", id).eq("user_id", user.id)
@@ -30,6 +43,19 @@ export async function DELETE(
   const { id } = await params;
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Check if wallet is default
+  const { data: wallet, error: fetchError } = await supabase
+    .from("wallets")
+    .select("is_default")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (fetchError || !wallet) return NextResponse.json({ error: "Dompet tidak ditemukan" }, { status: 404 });
+  if (wallet.is_default) {
+    return NextResponse.json({ error: "Dompet utama tidak dapat dihapus" }, { status: 403 });
+  }
 
   const { error } = await supabase.from("wallets").delete().eq("id", id).eq("user_id", user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

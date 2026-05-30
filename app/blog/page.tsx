@@ -2,6 +2,9 @@ import { getBlogPosts } from "@/lib/dal";
 import { BlogHero } from "@/components/blog/blog-hero";
 import { BlogSearch } from "@/components/blog/blog-search";
 import { BlogGrid } from "@/components/blog/blog-grid";
+import { BlogSidebar } from "@/components/blog/blog-sidebar";
+import { BlogBreakingNews } from "@/components/blog/blog-breaking-news";
+import { NewsletterForm } from "@/components/blog/newsletter-form";
 
 export const metadata = {
   title: "Blog | Ngaturin - Wawasan Finansial & Produktivitas",
@@ -23,38 +26,38 @@ export const metadata = {
 
 export default async function BlogPage() {
   const posts = await getBlogPosts();
-  const featuredPost = posts.find((p) => p.is_featured) || posts[0];
-  const gridPosts = posts.filter((p) => p.id !== featuredPost?.id);
+  const heroPosts = posts.slice(0, 3);
+  const gridPosts = posts.slice(3);
 
   return (
     <main className="min-h-screen bg-[#ffffff] dark:bg-[#0e0f0c] transition-colors duration-300">
-      <BlogHero post={featuredPost} />
-      
-      <div className="max-w-7xl mx-auto px-6">
-        <BlogSearch />
+      <div className="max-w-[1280px] mx-auto px-6 pt-32 pb-12">
+        <BlogHero posts={heroPosts} />
         
-        <div className="mt-16">
-          <BlogGrid posts={gridPosts} />
+        <BlogBreakingNews posts={posts.slice(0, 8)} />
+        
+        <div className="flex flex-col lg:flex-row gap-12 mt-16">
+          <div className="flex-1 min-w-0">
+            <BlogSearch />
+            <BlogGrid posts={gridPosts} />
+          </div>
+          
+          <BlogSidebar posts={posts} />
         </div>
       </div>
       
-      {/* Footer-like call to action */}
-      <section className="py-24 px-6 border-t border-gray-100 dark:border-white/5 bg-[#f9faf9] dark:bg-[#121310]">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-black text-[#0e0f0c] dark:text-white leading-[0.9] mb-8">
-            SIAP <span className="text-[#9fe870]">MENGATUR</span> HIDUP?
+      {/* Newsletter CTA */}
+      <section className="py-24 px-6 bg-gradient-to-br from-[#9fe870] to-[#bbf099] relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl md:text-6xl font-black text-[#163300] leading-[0.9] mb-6 uppercase tracking-tight">
+            Jangan Lewatkan <br />
+            <span className="text-white">Artikel Terbaru</span>
           </h2>
-          <p className="text-xl font-semibold text-gray-500 mb-12">
-            Gabung dengan ribuan orang lainnya yang sudah mulai mengelola keuangan dan produktivitas dengan cara yang benar.
+          <p className="text-xl font-bold text-[#163300]/80 mb-12 max-w-2xl mx-auto">
+            Dapatkan wawasan finansial dan produktivitas eksklusif mingguan yang dirancang untuk mengubah cara kamu mengelola uang.
           </p>
-          <div className="flex justify-center">
-            <a 
-              href="/auth/sign-up"
-              className="px-10 py-5 bg-[#9fe870] text-[#163300] rounded-full font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#9fe870]/20"
-            >
-              MULAI GRATIS SEKARANG
-            </a>
-          </div>
+          <NewsletterForm />
         </div>
       </section>
     </main>

@@ -10,8 +10,8 @@ export function BlogSearch() {
   const { searchQuery, setSearchQuery, selectedCategory, setSelectedCategory } = useBlogStore();
 
   return (
-    <div className="w-full max-w-3xl mx-auto -mt-10 relative z-20 px-4 mb-16">
-      <div className="relative group shadow-2xl shadow-black/5 dark:shadow-none rounded-full overflow-hidden transition-all duration-300 focus-within:ring-4 focus-within:ring-[#9fe870]/30 border border-gray-200 dark:border-white/10">
+    <div className="w-full relative z-20 mb-10">
+      <div className="relative group shadow-sm dark:shadow-none rounded-full overflow-hidden transition-all duration-300 focus-within:ring-4 focus-within:ring-[#9fe870]/30 border border-gray-200 dark:border-white/10">
         <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
           <Search className="w-6 h-6 text-gray-400 group-focus-within:text-[#9fe870] transition-colors" />
         </div>
@@ -32,7 +32,7 @@ export function BlogSearch() {
         )}
       </div>
       
-      <div className="mt-8 flex justify-center flex-wrap gap-3">
+      <div className="mt-6 flex flex-wrap gap-2">
         {CATEGORIES.map((cat) => (
           <button
             key={cat}

@@ -57,7 +57,7 @@ export function BlogGrid({ posts }: BlogGridProps) {
         <Link
           key={post.id}
           href={`/blog/${post.slug}`}
-          className="group flex flex-col h-full bg-[#f9faf9] dark:bg-[#121310] rounded-[30px] border border-gray-200 dark:border-white/10 overflow-hidden transition-all duration-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-none hover:-translate-y-1 hover:shadow-[0_12px_30px_-10px_rgba(159,232,112,0.3)] hover:border-[#9fe870]/40"
+          className="group flex flex-col h-full bg-[#f9faf9] dark:bg-[#121310] rounded-[30px] border border-gray-100 dark:border-white/5 overflow-hidden transition-all duration-200 shadow-sm hover:-translate-y-1 hover:shadow-[0_12px_30px_-10px_rgba(159,232,112,0.3)] hover:border-[#9fe870]/40"
         >
           <div className="relative aspect-[16/9] w-full overflow-hidden shrink-0 border-b border-gray-100 dark:border-white/5">
             {post.cover_image_url ? (

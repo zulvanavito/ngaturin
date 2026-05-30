@@ -9,9 +9,9 @@ interface BlogContentRendererProps {
 export function BlogContentRenderer({ content }: BlogContentRendererProps) {
   return (
     <div 
-      className="prose prose-lg max-w-none 
-        prose-headings:font-black prose-headings:tracking-tight prose-headings:text-brand-dark
-        prose-p:text-brand-dark/80 prose-p:leading-relaxed
+      className="prose max-w-none text-[18px] leading-[1.8] [font-feature-settings:'calt'_1]
+        prose-headings:font-[800] prose-headings:tracking-tight prose-headings:text-brand-dark
+        prose-p:text-brand-dark/80 prose-p:leading-[1.8]
         prose-img:rounded-[2rem] prose-img:shadow-xl
         prose-a:text-brand-dark prose-a:font-bold prose-a:underline decoration-brand-green decoration-4 underline-offset-4 hover:decoration-brand-dark
         prose-strong:text-brand-dark prose-strong:font-black

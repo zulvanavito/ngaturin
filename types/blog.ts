@@ -13,6 +13,7 @@ export interface BlogPost {
   published_at?: string | null;
   created_at: string;
   updated_at: string;
+  reading_time?: number;
 }
 
 export type BlogPostMetadata = Omit<BlogPost, 'content'> & {

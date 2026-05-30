@@ -364,10 +364,14 @@ export const getBlogPosts = cache(async (): Promise<BlogPostMetadata[]> => {
     return [];
   }
 
-  return (data || []).map(post => ({
-    ...post,
-    reading_time: Math.ceil((post.excerpt?.length || 0) / 200)
-  }));
+  return (data || []).map(post => {
+    const wordCount = (post.excerpt || "").split(/\s+/).filter(Boolean).length;
+    return {
+      ...post,
+      // Heuristic: estimate total words by assuming excerpt is roughly 20% of the content
+      reading_time: Math.ceil((wordCount * 5) / 200) || 1
+    };
+  });
 });
 
 export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
@@ -383,5 +387,11 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | 
     console.error("DAL: Error fetching post by slug:", error);
     return null;
   }
+
+  if (data) {
+    const wordCount = (data.content || "").split(/\s+/).filter(Boolean).length;
+    data.reading_time = Math.ceil(wordCount / 200) || 1;
+  }
+
   return data;
 });

@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { 
   Pencil, Trash2, TrendingUp, TrendingDown, 
-  MoreHorizontal, Download, ChevronLeft, ChevronRight,
+  MoreHorizontal, ChevronLeft, ChevronRight,
   Trash
 } from "lucide-react";
 import { 
@@ -22,7 +22,6 @@ import {
 import { useToast } from "@/lib/toast-context";
 import { TransactionForm } from "./transaction-form";
 import type { Transaction } from "@/types/finance";
-import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/export-utils";
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -127,20 +126,7 @@ export function TransactionTable({ transactions, onRefresh }: TransactionTablePr
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="rounded-full gap-2 text-xs font-bold">
-                <Download className="w-3.5 h-3.5" /> Ekspor
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-xl">
-              <DropdownMenuItem onClick={() => exportToCSV(transactions, "ngaturin-transaksi")} className="text-xs cursor-pointer">Export CSV</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => exportToExcel(transactions, "ngaturin-transaksi")} className="text-xs cursor-pointer">Export Excel</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => exportToPDF(transactions, "ngaturin-transaksi")} className="text-xs cursor-pointer">Export PDF</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+
       </div>
 
       {/* Table Section */}

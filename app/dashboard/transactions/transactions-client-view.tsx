@@ -14,9 +14,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 import {
   Download, 
-  FileSpreadsheet, 
-  FileText, 
-  FileCode, 
   Trash2, 
   ChevronLeft as ChevronLeftIcon, 
   ChevronRight as ChevronRightIcon,
@@ -32,7 +29,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/export-utils";
 import { useToast } from "@/lib/toast-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useFilterStore } from "@/lib/store/filter-store";
@@ -257,28 +253,16 @@ export function TransactionsClientView({
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline"
-                    className="h-14 px-6 rounded-full border-border/40 font-bold text-xs uppercase tracking-widest gap-2 transition-all hover:scale-105 active:scale-95"
-                  >
-                    <Download className="w-4 h-4" /> 
-                    <span>Export</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="rounded-2xl p-2 border-border/40 min-w-[200px]">
-                  <DropdownMenuItem onClick={() => exportToCSV(filteredTransactions, "ngaturin-transaksi")} className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
-                    <FileCode className="w-4 h-4" /> Export CSV
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => exportToExcel(filteredTransactions, "ngaturin-transaksi")} className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
-                    <FileSpreadsheet className="w-4 h-4" /> Export Excel
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => exportToPDF(filteredTransactions, "ngaturin-transaksi")} className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
-                    <FileText className="w-4 h-4" /> Export PDF
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button 
+                asChild
+                variant="outline"
+                className="h-14 px-6 rounded-full border-border/40 font-bold text-xs uppercase tracking-widest gap-2 transition-all hover:scale-105 active:scale-95"
+              >
+                <Link href="/dashboard/reports">
+                  <Download className="w-4 h-4" /> 
+                  <span>Export Laporan</span>
+                </Link>
+              </Button>
             </div>
 
             <Button
@@ -452,28 +436,7 @@ export function TransactionsClientView({
                 <span className="sm:hidden">{selectedIds.length === filteredTransactions.length ? "Batal" : "Semua"}</span>
               </Button>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 sm:h-10 sm:w-10 rounded-full text-white hover:bg-white/10 hover:text-white shrink-0"
-                  >
-                    <Download className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="rounded-2xl p-2 border-border/40">
-                  <DropdownMenuItem onClick={() => exportToCSV(filteredTransactions.filter(t => selectedIds.includes(t.id)), "ngaturin-transaksi-terpilih")} className="rounded-xl font-bold gap-2 cursor-pointer">
-                    <FileCode className="w-4 h-4" /> Export CSV Terpilih
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => exportToExcel(filteredTransactions.filter(t => selectedIds.includes(t.id)), "ngaturin-transaksi-terpilih")} className="rounded-xl font-bold gap-2 cursor-pointer">
-                    <FileSpreadsheet className="w-4 h-4" /> Export Excel Terpilih
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => exportToPDF(filteredTransactions.filter(t => selectedIds.includes(t.id)), "ngaturin-transaksi-terpilih")} className="rounded-xl font-bold gap-2 cursor-pointer">
-                    <FileText className="w-4 h-4" /> Export PDF Terpilih
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
 
               <Button
                 onClick={handleBulkDelete}
@@ -514,24 +477,11 @@ export function TransactionsClientView({
             exit={{ scale: 0, opacity: 0 }}
             className="fixed bottom-6 right-4 md:hidden flex flex-col gap-3 z-40"
           >
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="icon" className="h-14 w-14 rounded-full shadow-2xl bg-white dark:bg-card text-foreground border border-border/40 hover:bg-muted">
-                  <Download className="w-6 h-6 text-foreground/80" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" side="left" className="rounded-2xl p-2 border-border/40 min-w-[200px] mb-2">
-                <DropdownMenuItem onClick={() => exportToCSV(filteredTransactions, "ngaturin-transaksi")} className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
-                  <FileCode className="w-4 h-4" /> Export CSV
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => exportToExcel(filteredTransactions, "ngaturin-transaksi")} className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
-                  <FileSpreadsheet className="w-4 h-4" /> Export Excel
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => exportToPDF(filteredTransactions, "ngaturin-transaksi")} className="rounded-xl font-bold gap-2 p-3 cursor-pointer">
-                  <FileText className="w-4 h-4" /> Export PDF
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button asChild size="icon" className="h-14 w-14 rounded-full shadow-2xl bg-white dark:bg-card text-foreground border border-border/40 hover:bg-muted">
+              <Link href="/dashboard/reports">
+                <Download className="w-6 h-6 text-foreground/80" />
+              </Link>
+            </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Camera, Save, KeyRound, Loader2, Eye, EyeOff, CheckCircle2, AlertTriangle, Trash2, RefreshCw, ShieldCheck, CalendarDays, Wallet, Bot, HelpCircle } from "lucide-react";
+import { Camera, Save, KeyRound, Loader2, Eye, EyeOff, CheckCircle2, AlertTriangle, Trash2, RefreshCw, ShieldCheck, CalendarDays, Wallet, Bot, HelpCircle, PieChart } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -29,6 +29,9 @@ interface UserProfile {
   last_email_change_at?: string | null;
   show_decimals?: boolean;
   accent_color?: string;
+  budget_needs_target?: number;
+  budget_wants_target?: number;
+  budget_savings_target?: number;
 }
 
 interface ProfileFormProps {
@@ -66,6 +69,14 @@ export function ProfileForm({ user, initialProfile, initialWallets, subscription
   const [isSavingAutoSave, setIsSavingAutoSave] = useState(false);
   const [lastEmailChangeAt, setLastEmailChangeAt] = useState<string | null>(initialProfile?.last_email_change_at || null);
   
+  // Custom Budget Rules state
+  const [needsTarget, setNeedsTarget] = useState<number>(initialProfile?.budget_needs_target ?? 50);
+  const [wantsTarget, setWantsTarget] = useState<number>(initialProfile?.budget_wants_target ?? 30);
+  const [savingsTarget, setSavingsTarget] = useState<number>(initialProfile?.budget_savings_target ?? 20);
+  const [isSavingBudgetRules, setIsSavingBudgetRules] = useState(false);
+  const totalBudgetTarget = needsTarget + wantsTarget + savingsTarget;
+  const isBudgetTargetValid = totalBudgetTarget === 100;
+  
   const supabase = createClient();
   const { showToast } = useToast();
   const router = useRouter();
@@ -91,6 +102,35 @@ export function ProfileForm({ user, initialProfile, initialWallets, subscription
       showToast("error", error.message || "Gagal menyimpan pengaturan auto-save");
     } finally {
       setIsSavingAutoSave(false);
+    }
+  };
+
+  const handleSaveBudgetRules = async () => {
+    if (!isBudgetTargetValid) return;
+    setIsSavingBudgetRules(true);
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          budget_needs_target: needsTarget,
+          budget_wants_target: wantsTarget,
+          budget_savings_target: savingsTarget,
+        }),
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.error || "Gagal menyimpan");
+      }
+      showToast("success", "Rasio anggaran berhasil disimpan!");
+      
+      // Update the browser to reflect new state on dashboard widget
+      router.refresh();
+    } catch (err: unknown) {
+      const error = err as Error;
+      showToast("error", error.message || "Gagal menyimpan rasio anggaran");
+    } finally {
+      setIsSavingBudgetRules(false);
     }
   };
 
@@ -588,6 +628,94 @@ export function ProfileForm({ user, initialProfile, initialWallets, subscription
                 {isSavingAutoSave ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Bot className="w-5 h-5 mr-2" />}
                 {isSavingAutoSave ? 'Menyimpan...' : 'Simpan Pengaturan'}
               </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Aturan Anggaran Kustom Section */}
+      <section>
+        <h2 className="text-3xl font-black tracking-tight mb-6 flex items-center gap-3">
+          Rasio <span className="text-primary">Anggaran.</span>
+        </h2>
+        <Card className="border border-border/40 bg-white dark:bg-card shadow-sm rounded-[2.5rem] overflow-hidden relative">
+          <CardContent className="p-8 md:p-10">
+            <div className="space-y-8">
+              <div className="flex items-start gap-4 p-5 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/10">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                  <PieChart className="w-5 h-5 text-emerald-600 dark:text-emerald-500" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-foreground">Kustomisasi Aturan 50/30/20</p>
+                  <p className="text-xs text-muted-foreground font-medium">Tentukan rasio pengeluaran yang ideal untuk gaya hidup Anda. Pastikan total penjumlahan ketiganya adalah persis 100%.</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid gap-2.5">
+                  <Label className="font-bold text-sm ml-1 flex items-center justify-between text-emerald-600 dark:text-emerald-500">
+                    <span>Kebutuhan</span>
+                    <span>{needsTarget}%</span>
+                  </Label>
+                  <Input 
+                    type="number" 
+                    min={0} max={100}
+                    value={needsTarget} 
+                    onChange={(e) => setNeedsTarget(Number(e.target.value) || 0)}
+                    className="h-14 rounded-2xl border-border/40 font-black text-xl px-5"
+                  />
+                </div>
+                <div className="grid gap-2.5">
+                  <Label className="font-bold text-sm ml-1 flex items-center justify-between text-amber-600 dark:text-amber-500">
+                    <span>Keinginan</span>
+                    <span>{wantsTarget}%</span>
+                  </Label>
+                  <Input 
+                    type="number" 
+                    min={0} max={100}
+                    value={wantsTarget} 
+                    onChange={(e) => setWantsTarget(Number(e.target.value) || 0)}
+                    className="h-14 rounded-2xl border-border/40 font-black text-xl px-5"
+                  />
+                </div>
+                <div className="grid gap-2.5">
+                  <Label className="font-bold text-sm ml-1 flex items-center justify-between text-blue-600 dark:text-blue-400">
+                    <span>Tabungan</span>
+                    <span>{savingsTarget}%</span>
+                  </Label>
+                  <Input 
+                    type="number" 
+                    min={0} max={100}
+                    value={savingsTarget} 
+                    onChange={(e) => setSavingsTarget(Number(e.target.value) || 0)}
+                    className="h-14 rounded-2xl border-border/40 font-black text-xl px-5"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "px-4 py-2 rounded-full font-black text-sm transition-colors",
+                    isBudgetTargetValid ? "bg-primary/10 text-primary" : "bg-red-500/10 text-red-600"
+                  )}>
+                    Total: {totalBudgetTarget}%
+                  </div>
+                  {!isBudgetTargetValid && (
+                    <p className="text-xs font-bold text-red-500">Total harus tepat 100%!</p>
+                  )}
+                </div>
+                
+                <Button
+                  type="button"
+                  onClick={handleSaveBudgetRules}
+                  className="wise-button-pill bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98] h-12 px-8 text-sm font-black shadow-lg shadow-primary/20"
+                  disabled={!isBudgetTargetValid || isSavingBudgetRules}
+                >
+                  {isSavingBudgetRules ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                  {isSavingBudgetRules ? 'Menyimpan...' : 'Simpan Rasio'}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -20,7 +20,9 @@ import {
   getGamification, 
   getSubscription, 
   getRecurringBills, 
-  getBudgets 
+  getBudgets,
+  getCategories,
+  getUserProfile
 } from "@/lib/dal";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,6 +31,7 @@ export default async function DashboardPage() {
   // Parallel fetching at the top level
   const [
     user,
+    userProfile,
     wallets,
     allTransactions,
     debts,
@@ -37,8 +40,10 @@ export default async function DashboardPage() {
     subscription,
     bills,
     budgets,
+    categories,
   ] = await Promise.all([
     getUser(),
+    getUserProfile(),
     getWallets(),
     getTransactions(), // All transactions for various widgets
     getDebts(),
@@ -47,6 +52,7 @@ export default async function DashboardPage() {
     getSubscription(),
     getRecurringBills(),
     getBudgets(),
+    getCategories(),
   ]);
 
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Pengguna";
@@ -99,6 +105,8 @@ export default async function DashboardPage() {
         <BudgetHealthBar 
           initialMonthlyIncome={monthlyIncome} 
           initialExpenses={monthlyTx.filter(t => t.type === "expense")} 
+          categories={categories}
+          userProfile={userProfile}
         />
         <SubscriptionCard initialSubscription={subscription} />
       </div>

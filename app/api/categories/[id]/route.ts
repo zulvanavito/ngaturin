@@ -10,14 +10,15 @@ export async function PUT(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, icon, type } = await request.json();
+  const { name, icon, type, budget_group } = await request.json();
   if (!name || name.trim().length === 0) {
     return NextResponse.json({ error: "Nama kategori tidak boleh kosong" }, { status: 400 });
   }
+  const validBudgetGroup = ["needs", "wants", "savings"].includes(budget_group) ? budget_group : "wants";
 
   const { data, error } = await supabase
     .from("categories")
-    .update({ name: name.trim(), icon: icon || "📦", type })
+    .update({ name: name.trim(), icon: icon || "📦", type, budget_group: validBudgetGroup })
     .eq("id", id)
     .eq("user_id", user.id)
     .select()

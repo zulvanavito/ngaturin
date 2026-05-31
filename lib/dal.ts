@@ -355,7 +355,7 @@ export const getBlogPosts = cache(async (): Promise<BlogPostMetadata[]> => {
   const supabase = createStaticClient();
   const { data, error } = await supabase
     .from("blog_posts")
-    .select("id, slug, title, excerpt, category, tags, cover_image_url, published_at, status, is_featured, author_id, created_at, updated_at")
+    .select("id, slug, title, excerpt, category, tags, cover_image_url, published_at, status, is_featured, author_id, created_at, updated_at, view_count, blog_authors(name, avatar_url, bio)")
     .eq("status", "published")
     .order("published_at", { ascending: false });
 
@@ -366,8 +366,10 @@ export const getBlogPosts = cache(async (): Promise<BlogPostMetadata[]> => {
 
   return (data || []).map(post => {
     const wordCount = (post.excerpt || "").split(/\s+/).filter(Boolean).length;
+    const authorData = Array.isArray(post.blog_authors) ? post.blog_authors[0] : post.blog_authors;
     return {
       ...post,
+      blog_authors: authorData,
       // Heuristic: estimate total words by assuming excerpt is roughly 20% of the content
       reading_time: Math.ceil((wordCount * 5) / 200) || 1
     };
@@ -378,7 +380,7 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | 
   const supabase = createStaticClient();
   const { data, error } = await supabase
     .from("blog_posts")
-    .select("*")
+    .select("*, blog_authors(name, avatar_url, bio)")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
@@ -391,9 +393,36 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | 
   if (data) {
     const wordCount = (data.content || "").split(/\s+/).filter(Boolean).length;
     data.reading_time = Math.ceil(wordCount / 200) || 1;
+    data.blog_authors = Array.isArray(data.blog_authors) ? data.blog_authors[0] : data.blog_authors;
   }
 
   return data;
+});
+
+export const getPopularBlogPosts = cache(async (limit = 5): Promise<BlogPostMetadata[]> => {
+  const supabase = createStaticClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("id, slug, title, excerpt, category, tags, cover_image_url, published_at, status, is_featured, author_id, created_at, updated_at, view_count, blog_authors(name, avatar_url, bio)")
+    .eq("status", "published")
+    .order("view_count", { ascending: false })
+    .order("published_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("DAL: Error fetching popular blog posts:", error);
+    return [];
+  }
+
+  return (data || []).map(post => {
+    const wordCount = (post.excerpt || "").split(/\s+/).filter(Boolean).length;
+    const authorData = Array.isArray(post.blog_authors) ? post.blog_authors[0] : post.blog_authors;
+    return {
+      ...post,
+      blog_authors: authorData,
+      reading_time: Math.ceil((wordCount * 5) / 200) || 1
+    };
+  });
 });
 
 export const getBlogComments = cache(async (slug: string) => {

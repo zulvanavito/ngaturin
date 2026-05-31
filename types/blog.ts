@@ -14,6 +14,12 @@ export interface BlogPost {
   created_at: string;
   updated_at: string;
   reading_time?: number;
+  view_count?: number;
+  blog_authors?: {
+    name: string;
+    avatar_url?: string | null;
+    bio?: string | null;
+  };
 }
 
 export type BlogPostMetadata = Omit<BlogPost, 'content'> & {

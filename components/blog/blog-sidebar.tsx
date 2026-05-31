@@ -12,7 +12,15 @@ import { subscribeNewsletter } from "@/app/actions/newsletter";
 import { useToast } from "@/lib/toast-context";
 
 
-export function BlogSidebar({ posts, categories }: { posts: BlogPostMetadata[], categories: string[] }) {
+export function BlogSidebar({ 
+  posts, 
+  categories,
+  popularPosts 
+}: { 
+  posts: BlogPostMetadata[], 
+  categories: string[],
+  popularPosts?: BlogPostMetadata[] 
+}) {
   const { selectedCategory, setSelectedCategory } = useBlogStore();
   const { showToast } = useToast();
   const [newsletterState, newsletterAction, isPending] = useActionState(subscribeNewsletter, null);
@@ -32,8 +40,8 @@ export function BlogSidebar({ posts, categories }: { posts: BlogPostMetadata[], 
     count: posts.filter((p) => p.category === cat).length,
   }));
 
-  // Get top 5 recent posts for "Popular"
-  const popularPosts = posts.slice(0, 5);
+  // Get top 5 recent posts for fallback
+  const displayPosts = popularPosts || posts.slice(0, 5);
 
   return (
     <aside className="w-full lg:w-[320px] shrink-0 space-y-12">
@@ -90,10 +98,10 @@ export function BlogSidebar({ posts, categories }: { posts: BlogPostMetadata[], 
       {/* Popular Articles Widget */}
       <div className="bg-[#f9faf9] dark:bg-[#121310] rounded-[30px] p-8 border border-gray-100 dark:border-white/5 shadow-[rgba(14,15,12,0.12)_0px_0px_0px_1px]">
         <h3 className="font-black text-2xl text-[#0e0f0c] dark:text-white mb-6 uppercase tracking-tight">
-          Pilihan Editor
+          {popularPosts ? "Artikel Terpopuler" : "Pilihan Editor"}
         </h3>
         <div className="space-y-6">
-          {popularPosts.map((post, index) => (
+          {displayPosts.map((post, index) => (
             <Link
               key={post.id}
               href={`/blog/${post.slug}`}

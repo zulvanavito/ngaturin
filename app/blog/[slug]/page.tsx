@@ -13,6 +13,7 @@ import { BlogGrid } from "@/components/blog/blog-grid";
 import { BlogAuthor } from "@/components/blog/blog-author";
 import { BlogComments } from "@/components/blog/blog-comments";
 import { BlogShareSidebar } from "@/components/blog/blog-share-sidebar";
+import { BlogViewCounter } from "@/components/blog/blog-view-counter";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -42,6 +43,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   return {
     title,
     description,
+    authors: [{ name: post.blog_authors?.name || "Ngaturin Team" }],
     alternates: {
       canonical: `/blog/${slug}`,
     },
@@ -53,7 +55,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       publishedTime: post.published_at || undefined,
       modifiedTime: post.updated_at || undefined,
       section: post.category,
-      authors: ["Ngaturin Team"],
+      authors: [post.blog_authors?.name || "Ngaturin Team"],
       tags: post.tags || [],
     },
     twitter: {
@@ -90,13 +92,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     dateModified: post.updated_at || post.published_at,
     author: {
       "@type": "Organization",
-      name: "Ngaturin Team",
+      name: post.blog_authors?.name || "Ngaturin Team",
     },
     description: post.excerpt,
   };
 
   return (
     <div className="min-h-screen bg-[#ffffff] dark:bg-[#0e0f0c] pb-20">
+      <BlogViewCounter slug={post.slug} />
       <ReadingProgressBar />
 
       <div className="container mx-auto px-6 pt-28 lg:pt-32">
@@ -178,7 +181,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               )}
 
               {/* Author Box */}
-              <BlogAuthor />
+              <BlogAuthor author={post.blog_authors} />
 
               {/* Comments Section */}
               <BlogComments postSlug={post.slug} initialComments={comments} />

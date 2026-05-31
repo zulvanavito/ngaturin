@@ -3,7 +3,7 @@
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 import { Info, Wallet, TrendingUp, HandCoins, ChevronRight, CalendarDays } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 interface WalletData {
   id: string;
@@ -44,7 +44,6 @@ export function DashboardHero({
   monthlyExpense,
 }: DashboardHeroProps) {
   const { formatCurrency } = useFormatCurrency();
-  const [showTooltip, setShowTooltip] = useState(false);
 
   const totalWalletBalance = wallets.reduce((s, w) => s + Number(w.balance), 0);
   const totalInvestmentValue = investments.reduce((s, i) => s + Number(i.current_value), 0);
@@ -113,23 +112,24 @@ export function DashboardHero({
           <h2 className="text-[10px] sm:text-xs font-black text-muted-foreground/60 uppercase tracking-widest" style={{ fontFeatureSettings: '"calt"' }}>
             Total Kekayaan
           </h2>
-          <button
-            className="relative group"
-            onClick={() => setShowTooltip(!showTooltip)}
-            onMouseEnter={() => setShowTooltip(true)}
-            onMouseLeave={() => setShowTooltip(false)}
-            aria-label="Lihat rumus perhitungan"
-          >
-            <Info className="w-3.5 h-3.5 text-muted-foreground/60 hover:text-primary transition-colors" />
-            {showTooltip && (
-              <div className="absolute left-0 top-6 z-50 w-72 p-4 bg-card border border-border/20 rounded-[1.5rem] shadow-xl text-left animate-in fade-in zoom-in-95 duration-150">
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className="relative group focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-full"
+                  aria-label="Lihat rumus perhitungan"
+                >
+                  <Info className="w-3.5 h-3.5 text-muted-foreground/60 hover:text-primary transition-colors" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" align="start" className="w-72">
                 <p className="text-xs font-black text-foreground mb-1" style={{ fontFeatureSettings: '"calt"' }}>Bagaimana angka ini dihitung?</p>
                 <p className="text-xs font-semibold text-muted-foreground leading-relaxed" style={{ fontFeatureSettings: '"calt"' }}>
                   Total Kas (Dompet) + Total Nilai Investasi + Piutang (uang di orang lain) − Hutang (uang yang harus dikembalikan)
                 </p>
-              </div>
-            )}
-          </button>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <h1
           className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tighter leading-[0.85]"

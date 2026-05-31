@@ -21,8 +21,6 @@ const profileUpdateSchema = z.object({
   budget_savings_target: z.number().min(0).max(100).optional(),
 });
 
-type ProfileUpdate = z.infer<typeof profileUpdateSchema>;
-
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -128,7 +126,8 @@ export async function PUT(request: Request) {
     revalidatePath("/dashboard", "layout");
     
     return NextResponse.json(data);
-  } catch (err) {
+  } catch (error) {
+    console.error("API Profile Update Error:", error);
     return NextResponse.json({ error: "Gagal memproses request" }, { status: 400 });
   }
 }

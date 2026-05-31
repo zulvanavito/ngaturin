@@ -14,7 +14,7 @@ import {
   LogOut,
   Menu,
   Bell,
-  Sparkles,
+  BarChart,
   LifeBuoy,
   Target,
   PieChart,
@@ -36,7 +36,6 @@ import { useState } from "react";
 const mainLinks = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Transaksi", href: "/dashboard/transactions", icon: History },
-  { name: "Smart Analytics", href: "/dashboard/insights", icon: Sparkles },
   { name: "Kategori", href: "/dashboard/categories", icon: Tag },
   { name: "Dompet", href: "/dashboard/wallets", icon: Wallet },
   { name: "Anggaran", href: "/dashboard/budgets", icon: PieChart },
@@ -44,6 +43,7 @@ const mainLinks = [
   { name: "Tagihan", href: "/dashboard/bills", icon: Bell },
   { name: "Utang/Piutang", href: "/dashboard/debts", icon: HandCoins },
   { name: "Investasi", href: "/dashboard/investments", icon: TrendingUp },
+  { name: "Laporan", href: "/dashboard/reports", icon: BarChart },
   { name: "Pencapaian", href: "/dashboard/rewards", icon: Award },
 ];
 

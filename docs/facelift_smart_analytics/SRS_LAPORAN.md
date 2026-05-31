@@ -2162,3 +2162,12 @@ Fitur Laporan dianggap selesai jika seluruh kondisi berikut terpenuhi:
 28. Kode lolos linting sesuai standar project.
 29. Dokumentasi SRS dan PRD tersedia di repository.
 30. Fitur siap masuk tahap review atau PR implementasi.
+
+
+## Export Modal Reference
+
+Spesifikasi detail untuk configurable export modal, format behavior, dataset selection, transaction field selection, paywall Free/Plus/Pro, entitlement validation, usage tracking, dan acceptance criteria export mengacu pada:
+
+`docs/REPORTS_EXPORT_SPECIFICATION.md`
+
+Dokumen tersebut menjadi source of truth untuk kebutuhan Export Laporan. Jika terdapat konflik antara bagian Export di SRS ini dan dokumen tersebut, maka `REPORTS_EXPORT_SPECIFICATION.md` harus diprioritaskan untuk detail export.

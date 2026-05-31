@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { PieChart, Info } from "lucide-react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,7 +62,7 @@ export function BudgetFormModal({ open, onClose, onSuccess, budget }: BudgetForm
     setError("");
 
     try {
-      const currentMonth = new Date().toISOString().substring(0, 7);
+      const currentMonth = format(new Date(), "yyyy-MM");
       const url = budget ? `/api/budgets/${budget.id}` : "/api/budgets";
       const method = budget ? "PUT" : "POST";
       

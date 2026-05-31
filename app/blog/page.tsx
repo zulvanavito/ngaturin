@@ -4,7 +4,11 @@ import { BlogSearch } from "@/components/blog/blog-search";
 import { BlogGrid } from "@/components/blog/blog-grid";
 import { BlogSidebar } from "@/components/blog/blog-sidebar";
 import { BlogBreakingNews } from "@/components/blog/blog-breaking-news";
-import { NewsletterForm } from "@/components/blog/newsletter-form";
+import dynamic from "next/dynamic";
+
+const NewsletterForm = dynamic(() => import("@/components/blog/newsletter-form").then(mod => mod.NewsletterForm), {
+  loading: () => <div className="h-[76px] w-full max-w-lg mx-auto bg-white/20 rounded-full animate-pulse" />
+});
 
 export const metadata = {
   title: "Blog | Ngaturin - Wawasan Finansial & Produktivitas",

@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Fuse from "fuse.js";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { Clock, Tag, ChevronRight } from "lucide-react";
+import { Clock, ChevronRight } from "lucide-react";
 import { BlogPostMetadata } from "@/types/blog";
 import { useBlogStore } from "@/lib/store/use-blog-store";
 
@@ -38,6 +38,14 @@ export function BlogGrid({ posts }: BlogGridProps) {
     return result;
   }, [posts, searchQuery, selectedCategory, fuse]);
 
+  const [visibleCount, setVisibleCount] = useState(6);
+
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [searchQuery, selectedCategory]);
+
+  const displayedPosts = filteredPosts.slice(0, visibleCount);
+
   if (filteredPosts.length === 0) {
     return (
       <div className="py-20 text-center">
@@ -52,9 +60,10 @@ export function BlogGrid({ posts }: BlogGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-20">
-      {filteredPosts.map((post, index) => (
-        <Link
+    <div className="flex flex-col gap-12 pb-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {displayedPosts.map((post, index) => (
+          <Link
           key={post.id}
           href={`/blog/${post.slug}`}
           className="group flex flex-col h-full bg-[#f9faf9] dark:bg-[#121310] rounded-[30px] border border-gray-100 dark:border-white/5 overflow-hidden transition-all duration-200 shadow-sm hover:-translate-y-1 hover:shadow-[0_12px_30px_-10px_rgba(159,232,112,0.3)] hover:border-[#9fe870]/40"
@@ -113,6 +122,18 @@ export function BlogGrid({ posts }: BlogGridProps) {
           </div>
         </Link>
       ))}
+      </div>
+      
+      {visibleCount < filteredPosts.length && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={() => setVisibleCount((prev) => prev + 6)}
+            className="px-8 py-4 bg-[#f9faf9] dark:bg-[#1a1b18] text-[#0e0f0c] dark:text-white border border-gray-200 dark:border-white/10 rounded-full font-black uppercase tracking-widest text-sm hover:border-[#9fe870] hover:bg-[#9fe870] hover:text-[#163300] transition-all shadow-sm hover:scale-105 active:scale-95"
+          >
+            Tampilkan Lebih Banyak
+          </button>
+        </div>
+      )}
     </div>
   );
 }

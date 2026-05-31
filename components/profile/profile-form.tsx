@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -22,9 +22,18 @@ import { useToast } from "@/lib/toast-context";
 import { useUserPreferences, ACCENT_COLORS } from "@/components/providers/user-preferences-provider";
 import { Subscription } from "./profile-subscription-tab";
 
+interface UserProfile {
+  id: string;
+  payday_day?: number | null;
+  primary_wallet_id?: string | null;
+  last_email_change_at?: string | null;
+  show_decimals?: boolean;
+  accent_color?: string;
+}
+
 interface ProfileFormProps {
   user: User;
-  initialProfile: any;
+  initialProfile: UserProfile | null;
   initialWallets: {id: string, name: string, icon: string, color: string}[];
   subscription: Subscription | null;
 }

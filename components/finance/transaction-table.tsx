@@ -20,7 +20,8 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle 
 } from "@/components/ui/dialog";
 import { useToast } from "@/lib/toast-context";
-import { Transaction, TransactionForm } from "./transaction-form";
+import type { Transaction } from "@/types/finance";
+import { TransactionForm } from "./transaction-form";
 import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/export-utils";
 
 interface TransactionTableProps {
@@ -296,15 +297,15 @@ export function TransactionTable({ transactions, onRefresh }: TransactionTablePr
       <Dialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
         <DialogContent className="rounded-[2rem]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-black text-rose-500">Hapus {selectedIds.length} Transaksi?</DialogTitle>
+            <DialogTitle className="text-xl font-black text-destructive">Hapus {selectedIds.length} Transaksi?</DialogTitle>
             <DialogDescription>
-              Semua transaksi yang terpilih akan dihapus secara permanen. Apakah Anda yakin?
+              Tindakan ini akan menghapus semua transaksi terpilih secara permanen. Anda yakin ingin melanjutkan?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
             <Button variant="outline" className="rounded-full font-bold" onClick={() => setIsBulkDeleteDialogOpen(false)}>Batal</Button>
             <Button variant="destructive" className="rounded-full font-bold" onClick={handleDeleteBulk} disabled={isDeleting}>
-              {isDeleting ? "Menghapus..." : `Hapus ${selectedIds.length} Item`}
+              {isDeleting ? "Menghapus..." : "Ya, Hapus Semua"}
             </Button>
           </DialogFooter>
         </DialogContent>

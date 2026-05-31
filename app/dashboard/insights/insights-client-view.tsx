@@ -372,7 +372,7 @@ export function InsightsClientView({ initialTransactions: transactions }: Insigh
                     ))}
                   </Pie>
                   <Tooltip 
-                    formatter={(value: number | string) => formatCurrency(Number(value))}
+                    formatter={(value: number | string | undefined) => formatCurrency(Number(value ?? 0))}
                     contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                   />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" />
@@ -489,7 +489,7 @@ export function InsightsClientView({ initialTransactions: transactions }: Insigh
                             tickFormatter={(val) => `Rp${(val/1000)}k`}
                           />
                           <Tooltip 
-                            formatter={(val: number | string) => formatCurrency(Number(val || 0))}
+                            formatter={(val: number | string | undefined) => formatCurrency(Number(val ?? 0))}
                             contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                           />
                           <Line 

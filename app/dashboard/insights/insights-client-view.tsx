@@ -13,8 +13,6 @@ import {
   FileSpreadsheet,
   FileIcon,
   DownloadCloud,
-  ChevronRight,
-  RefreshCw,
   HandCoins,
   Briefcase,
   Bell
@@ -33,7 +31,7 @@ import ExcelJS from "exceljs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Link from "next/link";
-import type { Transaction } from "@/components/finance/transaction-form";
+import type { Transaction } from "@/types/finance";
 
 // Vibrant Premium Palette
 const CHART_COLORS = [
@@ -374,7 +372,7 @@ export function InsightsClientView({ initialTransactions: transactions }: Insigh
                     ))}
                   </Pie>
                   <Tooltip 
-                    formatter={(value: any) => formatCurrency(Number(value))}
+                    formatter={(value: number | string) => formatCurrency(Number(value))}
                     contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                   />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" />
@@ -475,7 +473,9 @@ export function InsightsClientView({ initialTransactions: transactions }: Insigh
                                   const date = new Date(Number(year), Number(month) - 1);
                                   return date.toLocaleDateString("id-ID", { month: 'short', year: 'numeric' });
                                 }
-                              } catch(e) {}
+                              } catch {
+                                // ignore
+                              }
                               return val;
                             }}
                             axisLine={false}
@@ -489,7 +489,7 @@ export function InsightsClientView({ initialTransactions: transactions }: Insigh
                             tickFormatter={(val) => `Rp${(val/1000)}k`}
                           />
                           <Tooltip 
-                            formatter={(val: any) => formatCurrency(Number(val || 0))}
+                            formatter={(val: number | string) => formatCurrency(Number(val || 0))}
                             contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                           />
                           <Line 
@@ -607,7 +607,7 @@ export function InsightsClientView({ initialTransactions: transactions }: Insigh
                         >
                           {investments.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
                         </Pie>
-                        <Tooltip formatter={(v: any) => formatCurrency(Number(v))} />
+                        <Tooltip formatter={(v: number | string | undefined) => formatCurrency(Number(v ?? 0))} />
                       </PieChart>
                     </ResponsiveContainer>
                     )}

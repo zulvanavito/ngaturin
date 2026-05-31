@@ -31,6 +31,7 @@ export function CategoryFormModal({ open, onClose, onSuccess, category }: Catego
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("Package");
   const [type, setType] = useState("expense");
+  const [budgetGroup, setBudgetGroup] = useState("wants");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [iconSearch, setIconSearch] = useState("");
@@ -40,10 +41,12 @@ export function CategoryFormModal({ open, onClose, onSuccess, category }: Catego
       setName(category.name);
       setIcon(category.icon);
       setType(category.type);
+      setBudgetGroup(category.budget_group || "wants");
     } else {
       setName("");
       setIcon("Package");
       setType("expense");
+      setBudgetGroup("wants");
     }
     setError("");
     setIconSearch("");
@@ -73,7 +76,7 @@ export function CategoryFormModal({ open, onClose, onSuccess, category }: Catego
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), icon, type }),
+        body: JSON.stringify({ name: name.trim(), icon, type, budget_group: budgetGroup }),
       });
 
       if (!res.ok) {
@@ -179,6 +182,38 @@ export function CategoryFormModal({ open, onClose, onSuccess, category }: Catego
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs font-black uppercase tracking-widest ml-1">Kelompok Anggaran (50/30/20)</Label>
+            <Select value={budgetGroup} onValueChange={setBudgetGroup}>
+              <SelectTrigger className="h-12 rounded-2xl border-border/40 font-semibold w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-border/40">
+                <SelectItem value="needs" className="rounded-xl cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                    <span>Kebutuhan (Needs) - Target 50%</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="wants" className="rounded-xl cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                    <span>Keinginan (Wants) - Target 30%</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="savings" className="rounded-xl cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                    <span>Tabungan (Savings) - Target 20%</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-muted-foreground font-medium ml-1">
+              Menentukan letak kategori ini pada grafik Progres Pengeluaran di Dashboard.
+            </p>
           </div>
 
           {error && (

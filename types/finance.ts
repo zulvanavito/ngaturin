@@ -38,6 +38,7 @@ export interface Category {
   name: string;
   icon: string;
   type: TransactionType | "all";
+  budget_group?: "needs" | "wants" | "savings";
   created_at: string;
 }
 
@@ -86,4 +87,19 @@ export interface Investment {
   total_invested: number;
   current_value: number;
   created_at: string;
+}
+
+export interface UserProfile {
+  id: string;
+  user_id: string;
+  payday_day?: number | null;
+  primary_wallet_id?: string | null;
+  last_email_change_at?: string | null;
+  show_decimals?: boolean;
+  accent_color?: string;
+  budget_needs_target?: number;
+  budget_wants_target?: number;
+  budget_savings_target?: number;
+  created_at: string;
+  updated_at: string;
 }

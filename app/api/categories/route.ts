@@ -21,17 +21,18 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, icon, type } = await request.json();
+  const { name, icon, type, budget_group } = await request.json();
   if (!name || name.trim().length === 0) {
     return NextResponse.json({ error: "Nama kategori tidak boleh kosong" }, { status: 400 });
   }
   if (!["expense", "income", "all"].includes(type)) {
     return NextResponse.json({ error: "Tipe tidak valid" }, { status: 400 });
   }
+  const validBudgetGroup = ["needs", "wants", "savings"].includes(budget_group) ? budget_group : "wants";
 
   const { data, error } = await supabase
     .from("categories")
-    .insert({ user_id: user.id, name: name.trim(), icon: icon || "📦", type })
+    .insert({ user_id: user.id, name: name.trim(), icon: icon || "📦", type, budget_group: validBudgetGroup })
     .select()
     .single();
 

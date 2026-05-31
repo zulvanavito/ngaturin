@@ -7,6 +7,7 @@ export interface Category {
   name: string;
   icon: string;
   type: "expense" | "income" | "all";
+  budget_group?: "needs" | "wants" | "savings";
 }
 
 let cachedCategories: Category[] | null = null;

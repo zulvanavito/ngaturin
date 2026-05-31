@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 /**
@@ -15,6 +16,9 @@ const profileUpdateSchema = z.object({
   accent_color: z.string().optional(),
   showDecimals: z.boolean().optional(),
   accentColor: z.string().optional(),
+  budget_needs_target: z.number().min(0).max(100).optional(),
+  budget_wants_target: z.number().min(0).max(100).optional(),
+  budget_savings_target: z.number().min(0).max(100).optional(),
 });
 
 type ProfileUpdate = z.infer<typeof profileUpdateSchema>;
@@ -38,7 +42,10 @@ export async function GET() {
     payday_day: null, 
     primary_wallet_id: null,
     show_decimals: false,
-    accent_color: 'wise-green'
+    accent_color: 'wise-green',
+    budget_needs_target: 50,
+    budget_wants_target: 30,
+    budget_savings_target: 20
   });
 }
 
@@ -55,7 +62,10 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Invalid request data", details: result.error.format() }, { status: 400 });
     }
 
-    const { payday_day, primary_wallet_id, show_decimals, accent_color, showDecimals, accentColor } = result.data;
+    const { 
+      payday_day, primary_wallet_id, show_decimals, accent_color, showDecimals, accentColor,
+      budget_needs_target, budget_wants_target, budget_savings_target
+    } = result.data;
 
     // Map camelCase to snake_case for backward compatibility and frontend consistency
     const finalShowDecimals = show_decimals !== undefined ? show_decimals : showDecimals;
@@ -96,6 +106,15 @@ export async function PUT(request: Request) {
       updateData.accent_color = finalAccentColor;
     }
 
+    if (budget_needs_target !== undefined && budget_wants_target !== undefined && budget_savings_target !== undefined) {
+      if (budget_needs_target + budget_wants_target + budget_savings_target !== 100) {
+        return NextResponse.json({ error: "Total persentase anggaran harus tepat 100%" }, { status: 400 });
+      }
+      updateData.budget_needs_target = budget_needs_target;
+      updateData.budget_wants_target = budget_wants_target;
+      updateData.budget_savings_target = budget_savings_target;
+    }
+
     // Upsert the profile
     const { data, error } = await supabase
       .from("user_profiles")
@@ -104,6 +123,10 @@ export async function PUT(request: Request) {
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    
+    // Purge the cache for the entire dashboard layout to ensure fresh data on navigation
+    revalidatePath("/dashboard", "layout");
+    
     return NextResponse.json(data);
   } catch (err) {
     return NextResponse.json({ error: "Gagal memproses request" }, { status: 400 });

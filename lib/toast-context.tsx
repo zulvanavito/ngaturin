@@ -30,32 +30,31 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const icons: Record<ToastType, React.ReactNode> = {
-    success: <CheckCircle2 className="w-4 h-4 shrink-0" />,
-    error: <XCircle className="w-4 h-4 shrink-0" />,
-    info: <Info className="w-4 h-4 shrink-0" />,
+    success: <CheckCircle2 className="w-5 h-5 shrink-0 opacity-80" />,
+    error: <XCircle className="w-5 h-5 shrink-0 opacity-80" />,
+    info: <Info className="w-5 h-5 shrink-0 opacity-80" />,
   };
 
-  const colors: Record<ToastType, string> = {
-    success: "bg-emerald-500 text-white",
-    error: "bg-red-500 text-white",
-    info: "bg-blue-500 text-white",
+  const wrapperStyles: Record<ToastType, string> = {
+    success: "bg-primary text-[#163300] shadow-[0px_8px_40px_rgba(159,232,112,0.4)]",
+    error: "bg-red-500 text-white shadow-[0px_8px_40px_rgba(239,68,68,0.4)]",
+    info: "bg-blue-500 text-white shadow-[0px_8px_40px_rgba(59,130,246,0.4)]",
   };
 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
       {toasts.length > 0 && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 pointer-events-none">
-          <div className="absolute inset-0 bg-black/5 backdrop-blur-[2px] transition-opacity" />
-          <div className="relative flex flex-col gap-3 pointer-events-auto">
+        <div className="fixed inset-0 z-[999999] flex items-end justify-center p-6 sm:p-10 pointer-events-none">
+          <div className="relative flex flex-col items-center gap-4 pointer-events-auto w-full">
             {toasts.map((t) => (
               <div
                 key={t.id}
-                className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl text-base font-medium w-max max-w-sm sm:max-w-md ${colors[t.type]}`}
-                style={{ animation: "popUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
+                className={`flex items-center gap-5 px-6 py-4 rounded-[2rem] text-sm sm:text-base font-black w-max max-w-[90vw] sm:max-w-md ring-1 ring-black/5 dark:ring-white/10 ${wrapperStyles[t.type]}`}
+                style={{ fontFeatureSettings: '"calt"', animation: "toastPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
               >
                 {icons[t.type]}
-                {t.text}
+                <span className="leading-relaxed">{t.text}</span>
               </div>
             ))}
           </div>
@@ -63,8 +62,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       )}
 
       <style dangerouslySetInnerHTML={{__html: `
-        @keyframes popUp {
-          from { opacity: 0; transform: scale(0.9) translateY(10px); }
+        @keyframes toastPop {
+          from { opacity: 0; transform: scale(0.9) translateY(20px); }
           to { opacity: 1; transform: scale(1) translateY(0); }
         }
       `}} />

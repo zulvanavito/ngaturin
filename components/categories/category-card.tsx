@@ -15,6 +15,7 @@ export interface Category {
   name: string;
   icon: string;
   type: string;
+  budget_group?: "needs" | "wants" | "savings";
 }
 
 interface CategoryCardProps {
@@ -27,6 +28,12 @@ const TYPE_STYLES: Record<string, { label: string; bg: string; text: string }> =
   expense: { label: "Pengeluaran", bg: "bg-expense/10", text: "text-expense" },
   income: { label: "Pemasukan", bg: "bg-income/10", text: "text-income" },
   all: { label: "Keduanya", bg: "bg-blue-500/10", text: "text-blue-600" },
+};
+
+const BUDGET_GROUP_STYLES: Record<string, { label: string; bg: string; text: string }> = {
+  needs: { label: "Kebutuhan", bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400" },
+  wants: { label: "Keinginan", bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
+  savings: { label: "Tabungan", bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400" },
 };
 
 export function CategoryCard({ category, onEdit, onDelete }: CategoryCardProps) {
@@ -59,9 +66,16 @@ export function CategoryCard({ category, onEdit, onDelete }: CategoryCardProps) 
             <h3 className="font-bold text-base sm:text-lg text-foreground tracking-tight leading-tight truncate">
               {category.name}
             </h3>
-            <span className={`inline-block mt-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${style.bg} ${style.text}`}>
-              {style.label}
-            </span>
+            <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+              <span className={`inline-block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${style.bg} ${style.text}`}>
+                {style.label}
+              </span>
+              {category.budget_group && BUDGET_GROUP_STYLES[category.budget_group] && (
+                <span className={`inline-block text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${BUDGET_GROUP_STYLES[category.budget_group].bg} ${BUDGET_GROUP_STYLES[category.budget_group].text}`}>
+                  {BUDGET_GROUP_STYLES[category.budget_group].label}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

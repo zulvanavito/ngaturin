@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, ElementType } from "react";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 import { AlertTriangle, CheckCircle2, Bell, ChevronRight, X } from "lucide-react";
 import Link from "next/link";
@@ -159,7 +159,7 @@ export function SmartAlerts({
     <section className="space-y-3">
       {visibleAlerts.slice(0, 3).map((alert) => {
         const style = styleMap[alert.type];
-        const Wrapper = alert.href ? Link : "div";
+        const Wrapper = (alert.href ? Link : "div") as ElementType;
         const wrapperProps = alert.href ? { href: alert.href } : {};
 
         return (
@@ -168,7 +168,7 @@ export function SmartAlerts({
             className={`relative flex items-start gap-3 p-4 rounded-2xl border ${style.bg} ${style.border} transition-all duration-200 group`}
           >
             <div className="mt-0.5 shrink-0">{style.icon}</div>
-            <Wrapper {...(wrapperProps as any)} className="flex-1 min-w-0">
+            <Wrapper {...wrapperProps} className="flex-1 min-w-0">
               <p className={`text-sm font-black ${style.titleColor}`} style={{ fontFeatureSettings: '"calt"' }}>
                 {alert.title}
               </p>

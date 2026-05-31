@@ -25,7 +25,7 @@ export function useInsights(
       const date = new Date(tx.date);
       const txMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
       const monthMatch = selectedMonth === "all" || txMonth === selectedMonth;
-      const walletMatch = selectedWallet === "all" || (tx as any).wallet_id === selectedWallet;
+      const walletMatch = selectedWallet === "all" || tx.wallet_id === selectedWallet;
       return monthMatch && walletMatch;
     });
   }, [transactions, selectedMonth, selectedWallet]);
@@ -56,10 +56,10 @@ export function useInsights(
 
     const categoryTotals = txs
       .filter(t => t.type === "expense")
-      .reduce((acc, t) => {
+      .reduce<Record<string, number>>((acc, t) => {
         acc[t.category] = (acc[t.category] || 0) + Number(t.amount || 0);
         return acc;
-      }, {} as Record<string, number>);
+      }, {});
 
     let topCat = "Belum ada";
     let topAmt = 0;

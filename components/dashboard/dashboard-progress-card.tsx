@@ -6,12 +6,7 @@ import type { Budget } from "@/types/finance";
 import { createClient } from "@/lib/supabase/client";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 
-interface CategoryProgress {
-  name: string;
-  spent: number;
-  total: number;
-  colorClass: string;
-}
+
 
 interface DashboardProgressCardProps {
   transactions: Transaction[];
@@ -22,7 +17,7 @@ export function DashboardProgressCard({ transactions }: DashboardProgressCardPro
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const supabase = createClient();
   
-  const today = new Date();
+  const today = useMemo(() => new Date(), []);
   const day = today.getDate();
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   
@@ -55,7 +50,7 @@ export function DashboardProgressCard({ transactions }: DashboardProgressCardPro
     }, {} as Record<string, number>);
 
     return expensesMap;
-  }, [transactions, today.getMonth(), today.getFullYear()]);
+  }, [transactions, today]);
 
   // Map into display data, sorting by highest spent
   const topCategories = useMemo(() => {
@@ -87,7 +82,7 @@ export function DashboardProgressCard({ transactions }: DashboardProgressCardPro
     }
     
     return cats;
-  }, [categoryExpenses]);
+  }, [categoryExpenses, budgets]);
 
   const calculatePercentage = (spent: number, total: number) => {
     if (total === 0) return 0;

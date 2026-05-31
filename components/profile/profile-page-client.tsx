@@ -18,10 +18,19 @@ import { ProfilePurchaseHistoryTab } from "@/components/profile/profile-purchase
 import { DataManagementCard } from "@/components/profile/data-management-card";
 import type { Transaction } from "@/types/finance";
 
+interface UserProfile {
+  id: string;
+  payday_day?: number | null;
+  primary_wallet_id?: string | null;
+  last_email_change_at?: string | null;
+  show_decimals?: boolean;
+  accent_color?: string;
+}
+
 interface ProfilePageClientProps {
   user: User;
-  userProfile: any;
-  wallets: any[];
+  userProfile: UserProfile | null;
+  wallets: { id: string; name: string; icon: string; color: string; balance: number }[];
   transactions: Transaction[];
   subscription: Subscription | null;
   subscriptionHistory: Subscription[];

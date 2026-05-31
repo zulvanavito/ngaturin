@@ -60,8 +60,7 @@ export function TransactionsClientView({
     selectedWalletId, 
     dateRangePreset, 
     customDateRange,
-    sortBy,
-    resetFilters
+    sortBy
   } = useFilterStore();
 
   const {

@@ -74,12 +74,14 @@ export interface RecurringBill {
   created_at: string;
 }
 
+export type InvestmentType = "saham" | "reksadana" | "kripto" | "emas" | "deposito" | "lainnya";
+
 export interface Investment {
   id: string;
   user_id: string;
   name: string;
-  symbol: string;
-  type: string;
+  symbol: string | null;
+  type: InvestmentType;
   amount: number;
   total_invested: number;
   current_value: number;

@@ -72,17 +72,7 @@ import Link from "next/link";
 import { useToast } from "@/lib/toast-context";
 import { AssetDetails } from "@/components/investments/asset-details";
 import { useRouter } from "next/navigation";
-
-interface Investment {
-  id: string;
-  name: string;
-  type: "saham" | "reksadana" | "kripto" | "emas" | "deposito" | "lainnya";
-  symbol: string | null;
-  amount: number;
-  total_invested: number;
-  current_value: number;
-  created_at: string;
-}
+import type { Investment } from "@/types/finance";
 
 interface InvestmentsClientViewProps {
   initialInvestments: Investment[];
@@ -237,8 +227,8 @@ export function InvestmentsClientView({
     );
 
     return Object.entries(grouped)
-      .filter(([, val]) => val > 0)
-      .map(([type, val]) => ({
+      .filter(([, val]: [string, number]) => val > 0)
+      .map(([type, val]: [string, number]) => ({
         name: type.charAt(0).toUpperCase() + type.slice(1),
         value: val,
         color: TYPE_CONFIG[type as keyof typeof TYPE_CONFIG].fill,

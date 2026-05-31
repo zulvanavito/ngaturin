@@ -8,22 +8,17 @@ import {
   HardDrive, 
   RefreshCw,
   Package,
-  AlertTriangle,
-  CheckCircle2,
-  XCircle,
   HelpCircle,
   Sparkles
 } from "lucide-react";
 import type { Transaction } from "@/types/finance";
-import { useRouter } from "next/navigation";
 import { useToast } from "@/lib/toast-context";
 
 interface DataManagementCardProps {
   transactions: Transaction[];
 }
 
-export function DataManagementCard({ transactions }: DataManagementCardProps) {
-  const router = useRouter();
+export function DataManagementCard({}: DataManagementCardProps) {
   const { showToast } = useToast();
   const [backupLoading, setBackupLoading] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
@@ -174,8 +169,9 @@ export function DataManagementCard({ transactions }: DataManagementCardProps) {
                       const result = await res.json();
                       if (!res.ok) throw new Error(result.error);
                       setImportResult(`Berhasil mengimpor ${result.imported} transaksi!`);
-                    } catch (err: any) {
-                      setImportResult(`Gagal: ${err.message}`);
+                    } catch (err: unknown) {
+                      const message = err instanceof Error ? err.message : "Terjadi kesalahan";
+                      setImportResult(`Gagal: ${message}`);
                     } finally {
                       setImportLoading(false);
                       e.target.value = "";

@@ -20,7 +20,8 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle 
 } from "@/components/ui/dialog";
 import { useToast } from "@/lib/toast-context";
-import { Transaction, TransactionForm } from "./transaction-form";
+import { TransactionForm } from "./transaction-form";
+import type { Transaction } from "@/types/finance";
 import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/export-utils";
 
 interface TransactionTableProps {

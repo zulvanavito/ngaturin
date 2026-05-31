@@ -14,7 +14,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
-import type { Transaction } from "@/components/finance/transaction-form";
+import type { Transaction } from "@/types/finance";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/lib/toast-context";
 import {

@@ -1,6 +1,6 @@
 import { getTransactions } from "@/lib/dal";
 import { TransactionsClientView } from "./transactions-client-view";
-import { Transaction } from "@/components/finance/transaction-form";
+import type { Transaction } from "@/types/finance";
 
 export default async function TransactionsPage(props: {
   searchParams: Promise<{ q?: string }>;

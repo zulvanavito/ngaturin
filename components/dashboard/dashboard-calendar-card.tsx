@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Transaction } from "@/components/finance/transaction-form";
+import type { Transaction } from "@/types/finance";
 
 interface DashboardCalendarProps {
   transactions: Transaction[];

@@ -1,4 +1,4 @@
-import { getBlogPosts, getBlogCategoriesList } from "@/lib/dal";
+import { getBlogPosts, getBlogCategoriesList, getPopularBlogPosts } from "@/lib/dal";
 import { BlogHero } from "@/components/blog/blog-hero";
 import { BlogSearch } from "@/components/blog/blog-search";
 import { BlogGrid } from "@/components/blog/blog-grid";
@@ -35,6 +35,8 @@ export default async function BlogPage() {
 
   const dbCategories = await getBlogCategoriesList();
   const uniqueCategories = ["All", ...dbCategories.map(c => c.name)];
+  
+  const popularPosts = await getPopularBlogPosts(5);
 
   return (
     <main className="min-h-screen bg-[#ffffff] dark:bg-[#0e0f0c] transition-colors duration-300">
@@ -49,7 +51,7 @@ export default async function BlogPage() {
             <BlogGrid posts={posts} />
           </div>
           
-          <BlogSidebar posts={posts} categories={uniqueCategories} />
+          <BlogSidebar posts={posts} categories={uniqueCategories} popularPosts={popularPosts} />
         </div>
       </div>
       

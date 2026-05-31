@@ -81,6 +81,20 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   const comments = await getBlogComments(slug);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    image: post.cover_image_url ? [post.cover_image_url] : [],
+    datePublished: post.published_at,
+    dateModified: post.updated_at || post.published_at,
+    author: {
+      "@type": "Organization",
+      name: "Ngaturin Team",
+    },
+    description: post.excerpt,
+  };
+
   return (
     <div className="min-h-screen bg-[#ffffff] dark:bg-[#0e0f0c] pb-20">
       <ReadingProgressBar />
@@ -95,6 +109,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </Link>
 
         <article className="max-w-[896px] mx-auto">
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
           {/* Header */}
           <header className="mb-12">
             <div className="flex flex-wrap gap-2 mb-6">

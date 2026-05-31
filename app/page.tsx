@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { LandingNavbar } from "@/components/layout/landing-navbar";
 import { LandingFooter } from "@/components/layout/landing-footer";
 import { PricingCard } from "@/components/pricing/pricing-card";

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { format } from "date-fns";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -10,7 +11,7 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const currentMonth = new Date().toISOString().substring(0, 7);
+  const currentMonth = format(new Date(), "yyyy-MM");
   const month = searchParams.get("month") || currentMonth;
 
   const { data, error } = await supabase

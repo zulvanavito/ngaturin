@@ -183,15 +183,18 @@ export const getBudgets = cache(async (month?: string) => {
   const user = await getUser();
   if (!user) return [];
 
-  const currentMonth = new Date().toISOString().substring(0, 7);
-  const targetMonth = month || currentMonth;
-
-  const { data, error } = await supabase
+  let query = supabase
     .from("budgets")
     .select("*")
     .eq("user_id", user.id)
-    .eq("month", targetMonth)
     .order("category", { ascending: true });
+
+  if (month !== "all") {
+    const targetMonth = month || new Date().toISOString().substring(0, 7);
+    query = query.eq("month", targetMonth);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("DAL: Error fetching budgets:", error);
@@ -268,16 +271,20 @@ export const getInvestmentHistory = cache(async () => {
 
   const { data, error } = await supabase
     .from("investment_history")
-    .select("date, value, invested")
+    .select("recorded_date, current_value, total_invested")
     .eq("user_id", user.id)
-    .order("date", { ascending: true });
+    .order("recorded_date", { ascending: true });
 
   if (error) {
     console.error("DAL: Error fetching investment history:", error);
     return [];
   }
 
-  return data || [];
+  return (data || []).map(row => ({
+    date: row.recorded_date,
+    value: Number(row.current_value),
+    invested: Number(row.total_invested)
+  }));
 });
 
 export const getBadges = cache(async () => {

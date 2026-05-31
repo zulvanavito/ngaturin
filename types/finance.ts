@@ -16,6 +16,7 @@ export interface Transaction {
   date: string;
   wallet_id?: string | null;
   wallets?: { name: string } | null;
+  bill_id?: string | null;
   debt_id?: string | null;
   created_at: string;
   updated_at: string;
@@ -87,6 +88,23 @@ export interface Investment {
   total_invested: number;
   current_value: number;
   created_at: string;
+}
+
+export interface Goal {
+  id: string;
+  user_id: string;
+  title: string;
+  description?: string | null;
+  target_amount: number;
+  current_amount: number;
+  deadline?: string | null;
+  category?: string | null;
+  color?: string | null;
+  is_completed: boolean;
+  is_auto_save?: boolean;
+  auto_save_amount?: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface UserProfile {

@@ -93,13 +93,13 @@ interface CategoryIconProps {
 }
 
 export function CategoryIcon({ iconName, className = "w-5 h-5" }: CategoryIconProps) {
-  const IconComponent = ICON_MAP[iconName];
-
-  if (!IconComponent) {
-    // Fallback: use Package icon
-    const Fallback = ICON_MAP["Package"];
-    return <Fallback className={className} />;
-  }
+  // Normalize icon name to handle kebab-case, snake-case, or lower case
+  const normalizedSearch = iconName?.replace(/[-_]/g, "").toLowerCase() || "";
+  const matchedKey = Object.keys(ICON_MAP).find(
+    (key) => key.toLowerCase() === normalizedSearch
+  );
+  
+  const IconComponent = matchedKey ? ICON_MAP[matchedKey] : ICON_MAP["Package"];
 
   return <IconComponent className={className} />;
 }

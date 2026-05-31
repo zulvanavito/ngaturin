@@ -5,8 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Target, ChevronRight } from "lucide-react";
-
-interface Budget { id: string; category: string; amount: number; }
+import type { Transaction, Budget } from "@/types/finance";
 
 function formatK(n: number) {
   if (n >= 1_000_000) return `Rp ${(n / 1_000_000).toFixed(1)}jt`;
@@ -15,7 +14,7 @@ function formatK(n: number) {
 }
 
 interface Props {
-  transactions: any[];
+  transactions: Transaction[];
   onSeeAll: () => void;
 }
 

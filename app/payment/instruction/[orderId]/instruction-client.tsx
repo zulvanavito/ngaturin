@@ -6,8 +6,28 @@ import { useRouter } from "next/navigation";
 import { Copy, Clock, CheckCircle2, ArrowRight } from "lucide-react";
 import { useToast } from "@/lib/toast-context";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export function InstructionClient({ initialData }: { initialData: any }) {
+interface PaymentAction {
+  name: string;
+  url: string;
+}
+
+interface PaymentDetails {
+  actions?: PaymentAction[];
+  bill_key?: string;
+  biller_code?: string;
+  va_numbers?: { va_number: string; bank: string }[];
+}
+
+interface InstructionData {
+  id: string;
+  midtrans_order_id: string;
+  amount: number;
+  payment_type: string;
+  payment_details: PaymentDetails;
+  created_at: string;
+}
+
+export function InstructionClient({ initialData }: { initialData: InstructionData }) {
   const router = useRouter();
   const { showToast } = useToast();
   const [timeLeft, setTimeLeft] = useState<string>("");
@@ -111,8 +131,8 @@ export function InstructionClient({ initialData }: { initialData: any }) {
     // 1. E-Wallet (GoPay/QRIS)
     if (initialData.payment_type === "gopay" || initialData.payment_type === "qris") {
       const actions = details.actions || [];
-      const qrAction = actions.find((a: any) => a.name === "generate-qr-code");
-      const deeplinkAction = actions.find((a: any) => a.name === "deeplink-redirect");
+      const qrAction = actions.find((a) => a.name === "generate-qr-code");
+      const deeplinkAction = actions.find((a) => a.name === "deeplink-redirect");
 
       return (
         <div className="flex flex-col items-center space-y-6">
@@ -146,7 +166,7 @@ export function InstructionClient({ initialData }: { initialData: any }) {
             <p className="text-sm text-muted-foreground font-medium mb-1">Company Code</p>
             <div className="flex items-center justify-between p-4 bg-muted/30 border border-border/40 rounded-2xl">
               <span className="font-black text-base sm:text-lg tracking-widest break-all">{details.biller_code}</span>
-              <button onClick={() => handleCopy(details.biller_code)} className="text-primary hover:text-primary/80 transition-colors">
+              <button onClick={() => handleCopy(details.biller_code!)} className="text-primary hover:text-primary/80 transition-colors">
                 <Copy className="w-5 h-5" />
               </button>
             </div>
@@ -155,7 +175,7 @@ export function InstructionClient({ initialData }: { initialData: any }) {
             <p className="text-sm text-muted-foreground font-medium mb-1">Virtual Account Number</p>
             <div className="flex items-center justify-between p-4 bg-muted/30 border border-border/40 rounded-2xl">
               <span className="font-black text-base sm:text-lg tracking-widest break-all">{details.bill_key}</span>
-              <button onClick={() => handleCopy(details.bill_key)} className="text-primary hover:text-primary/80 transition-colors">
+              <button onClick={() => handleCopy(details.bill_key!)} className="text-primary hover:text-primary/80 transition-colors">
                 <Copy className="w-5 h-5" />
               </button>
             </div>

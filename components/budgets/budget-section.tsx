@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Plus, Target, Loader2, Pencil, Trash2, AlertTriangle, Circle, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
+import type { Transaction } from "@/types/finance";
 
 interface Budget {
   id: string;
@@ -21,7 +22,7 @@ interface Budget {
 }
 
 interface BudgetSectionProps {
-  transactions: any[];
+  transactions: Transaction[];
   itemsPerPage?: number;
 }
 

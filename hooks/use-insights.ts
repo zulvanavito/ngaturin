@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import type { Transaction } from "@/components/finance/transaction-form";
+import type { Transaction, Investment, Debt, RecurringBill } from "@/types/finance";
 
 export interface InsightSummary {
   totalIncome: number;
@@ -85,9 +85,9 @@ export function useInsights(
   const summary = useMemo(() => calculateSummary(filteredTxs), [filteredTxs]);
 
   // 3. Holistic Data States (Real-time, independent of filters)
-  const [investments, setInvestments] = useState<any[]>([]);
-  const [debts, setDebts] = useState<any[]>([]);
-  const [bills, setBills] = useState<any[]>([]);
+  const [investments, setInvestments] = useState<Investment[]>([]);
+  const [debts, setDebts] = useState<Debt[]>([]);
+  const [bills, setBills] = useState<RecurringBill[]>([]);
   const [isHolisticLoading, setIsHolisticLoading] = useState(false);
 
   const fetchHolisticData = async () => {

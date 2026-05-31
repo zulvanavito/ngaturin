@@ -6,10 +6,20 @@ import { BillingDetails, type Subscription } from "./billing-details";
 import { useToast } from "@/lib/toast-context";
 import { useRouter } from "next/navigation";
 
+interface SnapPayOptions {
+  onSuccess?: (result: any) => void;
+  onPending?: (result: any) => void;
+  onError?: (result: any) => void;
+  onClose?: () => void;
+}
+
+interface Snap {
+  pay: (token: string, options?: SnapPayOptions) => void;
+}
+
 declare global {
   interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    snap: any;
+    snap: Snap;
   }
 }
 

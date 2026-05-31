@@ -17,22 +17,7 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { useCategorySearch } from "@/hooks/use-category-search";
 import { useFuzzySearch } from "@/hooks/use-fuzzy-search";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-
-export interface Transaction {
-  id: string;
-  user_id: string;
-  description: string;
-  amount: number;
-  category: string;
-  category_icon?: string;
-  type: "income" | "expense" | "transfer";
-  date: string;
-  wallet_id?: string;
-  wallets?: { name: string } | null;
-  debt_id?: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import type { Transaction, TransactionType } from "@/types/finance";
 
 interface TransactionFormProps {
   editingTransaction?: Transaction | null;

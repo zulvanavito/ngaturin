@@ -27,12 +27,22 @@ export function BlogGrid({ posts }: BlogGridProps) {
   const filteredPosts = useMemo(() => {
     let result = posts;
 
-    if (selectedCategory !== "All") {
-      result = result.filter((post) => post.category === selectedCategory);
-    }
+    // Jika sedang dalam state default (tidak cari & tidak difilter kategori),
+    // kita hilangkan 3 post pertama karena sudah ditampilkan di bagian Hero/Berita Terbaru.
+    const isDefaultState = selectedCategory === "All" && !searchQuery;
+    
+    if (isDefaultState) {
+      result = result.slice(3);
+    } else {
+      // Jika ada filter kategori
+      if (selectedCategory !== "All") {
+        result = result.filter((post) => post.category === selectedCategory);
+      }
 
-    if (searchQuery) {
-      result = fuse.search(searchQuery).map((r) => r.item);
+      // Jika ada pencarian
+      if (searchQuery) {
+        result = fuse.search(searchQuery).map((r) => r.item);
+      }
     }
 
     return result;
@@ -46,7 +56,13 @@ export function BlogGrid({ posts }: BlogGridProps) {
 
   const displayedPosts = filteredPosts.slice(0, visibleCount);
 
+  const isDefaultState = selectedCategory === "All" && !searchQuery;
+
   if (filteredPosts.length === 0) {
+    if (isDefaultState) {
+      return null; // Jangan tampilkan apa-apa jika artikel sudah masuk ke hero semua
+    }
+    
     return (
       <div className="py-20 text-center">
         <h3 className="text-2xl font-black text-[#0e0f0c] dark:text-white mb-2 uppercase italic">

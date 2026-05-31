@@ -12,10 +12,11 @@ import { BudgetCard, type Budget } from "@/components/budgets/budget-card";
 import { BudgetFormModal } from "@/components/budgets/budget-form-modal";
 import { useToast } from "@/lib/toast-context";
 import { useRouter } from "next/navigation";
+import type { Transaction } from "@/types/finance";
 
 interface BudgetsClientViewProps {
   initialBudgets: Budget[];
-  initialTransactions: any[];
+  initialTransactions: Transaction[];
 }
 
 export function BudgetsClientView({ 

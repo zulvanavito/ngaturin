@@ -411,3 +411,18 @@ export const getBlogComments = cache(async (slug: string) => {
 
   return data || [];
 });
+
+export const getBlogCategoriesList = cache(async () => {
+  const supabase = createStaticClient();
+  const { data, error } = await supabase
+    .from("blog_categories")
+    .select("name, slug")
+    .order("name", { ascending: true });
+
+  if (error) {
+    console.error("DAL: Error fetching blog categories:", error);
+    return [];
+  }
+
+  return data || [];
+});

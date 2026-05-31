@@ -2,6 +2,10 @@ import { getGamification, getBadges, getUserBadges, getUser } from "@/lib/dal";
 import { RewardsClientView } from "./rewards-client-view";
 import { redirect } from "next/navigation";
 
+interface UserBadge {
+  badge_id: string;
+}
+
 export default async function RewardsPage() {
   const user = await getUser();
   if (!user) redirect("/auth/login");
@@ -13,7 +17,7 @@ export default async function RewardsPage() {
     getUserBadges()
   ]);
 
-  const earnedBadgeIds = earnedBadges.map((b: any) => b.badge_id);
+  const earnedBadgeIds = (earnedBadges as UserBadge[]).map((b) => b.badge_id);
 
   return (
     <RewardsClientView 

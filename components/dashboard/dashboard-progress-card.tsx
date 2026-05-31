@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect, useCallback } from "react";
-import type { Transaction } from "@/components/finance/transaction-form";
+import type { Transaction } from "@/types/finance";
 import type { Budget } from "@/types/finance";
 import { createClient } from "@/lib/supabase/client";
 import { useFormatCurrency } from "@/hooks/use-format-currency";

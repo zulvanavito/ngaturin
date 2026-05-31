@@ -1,7 +1,7 @@
 import { getTransactions, getUser } from "@/lib/dal";
 import { InsightsClientView } from "./insights-client-view";
 import { redirect } from "next/navigation";
-import { Transaction } from "@/components/finance/transaction-form";
+import type { Transaction } from "@/types/finance";
 
 export default async function InsightsPage() {
   const user = await getUser();

@@ -14,7 +14,7 @@ import {
   HelpCircle,
   Sparkles
 } from "lucide-react";
-import type { Transaction } from "@/components/finance/transaction-form";
+import type { Transaction } from "@/types/finance";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/lib/toast-context";
 

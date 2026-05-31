@@ -16,7 +16,7 @@ import { ProfileForm } from "@/components/profile/profile-form";
 import { ProfileSubscriptionTab, type Subscription } from "@/components/profile/profile-subscription-tab";
 import { ProfilePurchaseHistoryTab } from "@/components/profile/profile-purchase-history-tab";
 import { DataManagementCard } from "@/components/profile/data-management-card";
-import type { Transaction } from "@/components/finance/transaction-form";
+import type { Transaction } from "@/types/finance";
 
 interface ProfilePageClientProps {
   user: User;

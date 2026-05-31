@@ -1,6 +1,6 @@
 "use client";
 
-import { type Transaction } from "@/components/finance/transaction-form";
+import type { Transaction } from "@/types/finance";
 import { useFormatCurrency } from "@/hooks/use-format-currency";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";

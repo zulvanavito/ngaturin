@@ -92,6 +92,128 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            '--tw-prose-body': '#454745',
+            '--tw-prose-headings': '#0e0f0c',
+            '--tw-prose-links': '#0e0f0c',
+            '--tw-prose-bold': '#0e0f0c',
+            '--tw-prose-quotes': '#454745',
+            '--tw-prose-quote-borders': '#9fe870',
+            maxWidth: 'none',
+            fontFeatureSettings: '"calt" 1',
+            lineHeight: '1.8',
+            fontSize: '18px',
+            h1: {
+              fontWeight: '900',
+              letterSpacing: '-0.02em',
+              lineHeight: '1.1',
+              fontFamily: 'Wise Sans, var(--font-work-sans), sans-serif',
+            },
+            h2: {
+              fontWeight: '800',
+              letterSpacing: '-0.02em',
+              lineHeight: '1.15',
+              fontFamily: 'Wise Sans, var(--font-work-sans), sans-serif',
+              marginTop: '2.5em',
+            },
+            h3: {
+              fontWeight: '800',
+              letterSpacing: '-0.01em',
+              lineHeight: '1.2',
+              fontFamily: 'Wise Sans, var(--font-work-sans), sans-serif',
+              marginTop: '2em',
+            },
+            h4: {
+              fontWeight: '700',
+              lineHeight: '1.3',
+            },
+            a: {
+              fontWeight: '700',
+              textDecorationColor: '#9fe870',
+              textDecorationThickness: '3px',
+              textUnderlineOffset: '4px',
+              '&:hover': {
+                textDecorationColor: '#0e0f0c',
+              },
+            },
+            img: {
+              borderRadius: '2rem',
+              boxShadow: '0 20px 50px rgba(14, 15, 12, 0.08)',
+            },
+            blockquote: {
+              borderLeftWidth: '6px',
+              borderLeftColor: '#9fe870',
+              backgroundColor: 'rgba(159, 232, 112, 0.05)',
+              borderRadius: '0 1rem 1rem 0',
+              paddingTop: '0.75rem',
+              paddingBottom: '0.75rem',
+              paddingRight: '1.5rem',
+              fontWeight: '500',
+              fontStyle: 'italic',
+            },
+            code: {
+              fontWeight: '600',
+              backgroundColor: '#f9faf9',
+              padding: '0.15em 0.4em',
+              borderRadius: '0.375rem',
+              border: '1px solid rgba(14, 15, 12, 0.08)',
+              '&::before': { content: 'none' },
+              '&::after': { content: 'none' },
+            },
+            pre: {
+              borderRadius: '1.5rem',
+              backgroundColor: '#1a1b18',
+            },
+            hr: {
+              borderColor: 'rgba(14, 15, 12, 0.08)',
+              marginTop: '3em',
+              marginBottom: '3em',
+            },
+            table: {
+              borderRadius: '1rem',
+              overflow: 'hidden',
+            },
+            th: {
+              fontWeight: '800',
+              fontSize: '0.75rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              backgroundColor: 'rgba(159, 232, 112, 0.1)',
+            },
+            td: {
+              fontSize: '0.9375rem',
+            },
+          },
+        },
+        invert: {
+          css: {
+            '--tw-prose-body': '#d1d5d0',
+            '--tw-prose-headings': '#e8ebe6',
+            '--tw-prose-links': '#e8ebe6',
+            '--tw-prose-bold': '#e8ebe6',
+            '--tw-prose-quotes': '#a8aba6',
+            '--tw-prose-quote-borders': '#9fe870',
+            code: {
+              backgroundColor: '#1a1b18',
+              borderColor: 'rgba(232, 235, 230, 0.1)',
+              color: '#e8ebe6',
+            },
+            blockquote: {
+              backgroundColor: 'rgba(159, 232, 112, 0.08)',
+            },
+            th: {
+              backgroundColor: 'rgba(159, 232, 112, 0.15)',
+            },
+            a: {
+              '&:hover': {
+                textDecorationColor: '#e8ebe6',
+              },
+            },
+          },
+        },
+      },
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],

@@ -1,6 +1,7 @@
 import { getInvestments, getInvestmentHistory, getUser } from "@/lib/dal";
 import { InvestmentsClientView } from "./investments-client-view";
 import { redirect } from "next/navigation";
+import type { Investment } from "@/types/finance";
 
 export default async function InvestmentsPage() {
   const user = await getUser();
@@ -12,7 +13,7 @@ export default async function InvestmentsPage() {
     getInvestmentHistory()
   ]);
 
-  const parsedInvestments = investments.map((item: any) => ({
+  const parsedInvestments = (investments as Investment[]).map((item) => ({
     ...item,
     total_invested: Number(item.total_invested || 0),
     current_value: Number(item.current_value || 0),

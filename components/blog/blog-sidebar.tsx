@@ -11,17 +11,8 @@ import { cn } from "@/lib/utils";
 import { subscribeNewsletter } from "@/app/actions/newsletter";
 import { useToast } from "@/lib/toast-context";
 
-const CATEGORIES = [
-  "Keuangan",
-  "Budgeting",
-  "Investasi",
-  "Produktivitas",
-  "Karir",
-  "Bisnis",
-  "Pengembangan Diri",
-];
 
-export function BlogSidebar({ posts }: { posts: BlogPostMetadata[] }) {
+export function BlogSidebar({ posts, categories }: { posts: BlogPostMetadata[], categories: string[] }) {
   const { selectedCategory, setSelectedCategory } = useBlogStore();
   const { showToast } = useToast();
   const [newsletterState, newsletterAction, isPending] = useActionState(subscribeNewsletter, null);
@@ -36,8 +27,7 @@ export function BlogSidebar({ posts }: { posts: BlogPostMetadata[] }) {
     }
   }, [newsletterState, showToast]);
 
-  // Calculate category counts
-  const categoryCounts = CATEGORIES.map((cat) => ({
+  const categoryCounts = categories.filter(c => c !== "All").map((cat) => ({
     name: cat,
     count: posts.filter((p) => p.category === cat).length,
   }));

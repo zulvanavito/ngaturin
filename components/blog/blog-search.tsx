@@ -4,9 +4,11 @@ import { Search, X } from "lucide-react";
 import { useBlogStore } from "@/lib/store/use-blog-store";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES = ["All", "Keuangan", "Budgeting", "Investasi", "Produktivitas", "Karir", "Bisnis", "Pengembangan Diri"];
+interface BlogSearchProps {
+  categories: string[];
+}
 
-export function BlogSearch() {
+export function BlogSearch({ categories }: BlogSearchProps) {
   const { searchQuery, setSearchQuery, selectedCategory, setSelectedCategory } = useBlogStore();
 
   return (
@@ -33,7 +35,7 @@ export function BlogSearch() {
       </div>
       
       <div className="mt-6 flex flex-wrap gap-2">
-        {CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}

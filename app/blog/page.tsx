@@ -1,4 +1,4 @@
-import { getBlogPosts } from "@/lib/dal";
+import { getBlogPosts, getBlogCategoriesList } from "@/lib/dal";
 import { BlogHero } from "@/components/blog/blog-hero";
 import { BlogSearch } from "@/components/blog/blog-search";
 import { BlogGrid } from "@/components/blog/blog-grid";
@@ -33,6 +33,9 @@ export default async function BlogPage() {
   const heroPosts = posts.slice(0, 3);
   const gridPosts = posts.slice(3);
 
+  const dbCategories = await getBlogCategoriesList();
+  const uniqueCategories = ["All", ...dbCategories.map(c => c.name)];
+
   return (
     <main className="min-h-screen bg-[#ffffff] dark:bg-[#0e0f0c] transition-colors duration-300">
       <div className="max-w-[1280px] mx-auto px-6 pt-32 pb-12">
@@ -42,11 +45,11 @@ export default async function BlogPage() {
         
         <div className="flex flex-col lg:flex-row gap-12 mt-16">
           <div className="flex-1 min-w-0">
-            <BlogSearch />
-            <BlogGrid posts={gridPosts} />
+            <BlogSearch categories={uniqueCategories} />
+            <BlogGrid posts={posts} />
           </div>
           
-          <BlogSidebar posts={posts} />
+          <BlogSidebar posts={posts} categories={uniqueCategories} />
         </div>
       </div>
       

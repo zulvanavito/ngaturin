@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import type { Transaction } from "@/components/finance/transaction-form";
+import type { Transaction, Investment, Debt, RecurringBill } from "@/types/finance";
 
 export interface InsightSummary {
   totalIncome: number;
@@ -25,7 +25,7 @@ export function useInsights(
       const date = new Date(tx.date);
       const txMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
       const monthMatch = selectedMonth === "all" || txMonth === selectedMonth;
-      const walletMatch = selectedWallet === "all" || (tx as any).wallet_id === selectedWallet;
+      const walletMatch = selectedWallet === "all" || tx.wallet_id === selectedWallet;
       return monthMatch && walletMatch;
     });
   }, [transactions, selectedMonth, selectedWallet]);
@@ -56,10 +56,10 @@ export function useInsights(
 
     const categoryTotals = txs
       .filter(t => t.type === "expense")
-      .reduce((acc, t) => {
+      .reduce<Record<string, number>>((acc, t) => {
         acc[t.category] = (acc[t.category] || 0) + Number(t.amount || 0);
         return acc;
-      }, {} as Record<string, number>);
+      }, {});
 
     let topCat = "Belum ada";
     let topAmt = 0;
@@ -85,9 +85,9 @@ export function useInsights(
   const summary = useMemo(() => calculateSummary(filteredTxs), [filteredTxs]);
 
   // 3. Holistic Data States (Real-time, independent of filters)
-  const [investments, setInvestments] = useState<any[]>([]);
-  const [debts, setDebts] = useState<any[]>([]);
-  const [bills, setBills] = useState<any[]>([]);
+  const [investments, setInvestments] = useState<Investment[]>([]);
+  const [debts, setDebts] = useState<Debt[]>([]);
+  const [bills, setBills] = useState<RecurringBill[]>([]);
   const [isHolisticLoading, setIsHolisticLoading] = useState(false);
 
   const fetchHolisticData = async () => {

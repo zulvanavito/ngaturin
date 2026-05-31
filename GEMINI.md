@@ -35,9 +35,18 @@ For searching large datasets like historical transactions:
 
 ---
 
-## Development Standards
+### 🛡️ Development Standards
 
-### 🎨 UI/UX (The "Wise" Aesthetic)
+#### 🟦 TypeScript & Type Safety
+To maintain high code quality and prevent runtime errors, follow these strict rules:
+1. **No Escape Hatches:** NEVER use `as any`, `as unknown as ...`, or `@ts-ignore`. If a type is difficult, solve it; don't bypass it.
+2. **Explicit Definitions:** Always define interfaces or types for data shapes that are not immediately clear or are coming from outside the immediate scope.
+3. **Narrowing & Guards:** Use type guards (`typeof`, `instanceof`, or custom predicates) and type narrowing to handle runtime checks and satisfy the compiler.
+4. **Validation over Assertion:** Prefer the `satisfies` operator over type assertions (`as`) for validating object literals against a type.
+5. **External Data:** For data from external sources (APIs, user input), use a validation library like **Zod** to ensure type safety at the boundary.
+6. **Documentation:** Briefly explain complex type choices or why a specific interface structure was chosen.
+
+#### 🎨 UI/UX (The "Wise" Aesthetic)
 - **Border Radius:** Mandatory `rounded-[2rem]` or `rounded-[2.5rem]` for main containers, cards, and sections.
 - **Buttons:** Prefer pill-style buttons (`rounded-full`) or `wise-button-pill` class for primary actions.
 - **Headings:** Use `font-black` and `tracking-tight` for a bold, modern look (aligned with Wise style).

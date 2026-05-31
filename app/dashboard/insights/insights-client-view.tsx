@@ -602,7 +602,7 @@ export function InsightsClientView({ initialTransactions: transactions }: Insigh
                           data={Object.entries(investments.reduce((acc, i) => {
                             acc[i.type] = (acc[i.type] || 0) + Number(i.current_value);
                             return acc;
-                          }, {} as any)).map(([name, value]) => ({ name, value }))}
+                          }, {} as Record<string, number>)).map(([name, value]) => ({ name, value }))}
                           cx="50%" cy="50%" innerRadius={40} outerRadius={60} dataKey="value"
                         >
                           {investments.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}

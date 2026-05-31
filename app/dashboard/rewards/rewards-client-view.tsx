@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Flame, Trophy, Zap, Award, Crown, Star, ChevronLeft } from "lucide-react";
+import { Flame, Trophy, Zap, Award, Crown, Star, ChevronLeft, LucideIcon } from "lucide-react";
 import Link from "next/link";
 
-const IconMap: Record<string, any> = {
+const IconMap: Record<string, LucideIcon> = {
   Zap,
   Award,
   Trophy,

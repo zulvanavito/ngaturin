@@ -2,6 +2,41 @@ import { createClient } from "@/lib/supabase/server";
 import { coreApi } from "@/lib/midtrans";
 import { NextResponse } from "next/server";
 import { nanoid } from "nanoid";
+import { z } from "zod";
+
+/**
+ * TypeScript Safety Rationale:
+ * Using Zod to validate checkout requests (Mandate #5).
+ * Removing 'any' from Midtrans parameters using explicit interfaces.
+ */
+
+const checkoutSchema = z.object({
+  planId: z.enum(["plus", "pro"]),
+  interval: z.enum(["monthly", "yearly"]),
+  payment_type: z.string(),
+  bank: z.string().optional(),
+});
+
+interface MidtransChargeParameter {
+  payment_type: string;
+  transaction_details: {
+    order_id: string;
+    gross_amount: number;
+  };
+  customer_details: {
+    email?: string;
+    first_name: string;
+  };
+  item_details: Array<{
+    id: string;
+    price: number;
+    quantity: number;
+    name: string;
+  }>;
+  bank_transfer?: {
+    bank: string;
+  };
+}
 
 const PRICING = {
   plus: {
@@ -23,16 +58,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { planId, interval, payment_type, bank } = await request.json();
+    const rawBody = await request.json();
+    const result = checkoutSchema.safeParse(rawBody);
 
-    if (!PRICING[planId as keyof typeof PRICING]) {
-      return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+    if (!result.success) {
+      return NextResponse.json({ error: "Invalid request data" }, { status: 400 });
     }
 
-    const amount = PRICING[planId as keyof typeof PRICING][interval as 'monthly' | 'yearly'];
+    const { planId, interval, payment_type, bank } = result.data;
+
+    const amount = PRICING[planId][interval];
     const orderId = `SUBS-${planId.toUpperCase()}-${nanoid(8)}`;
 
-    const parameter: any = {
+    const parameter: MidtransChargeParameter = {
       payment_type: payment_type,
       transaction_details: {
         order_id: orderId,
@@ -40,7 +78,7 @@ export async function POST(request: Request) {
       },
       customer_details: {
         email: user.email,
-        first_name: user.user_metadata?.name || user.email?.split('@')[0],
+        first_name: (user.user_metadata?.name as string) || user.email?.split('@')[0] || "Customer",
       },
       item_details: [
         {
@@ -52,7 +90,7 @@ export async function POST(request: Request) {
       ],
     };
 
-    if (payment_type === 'bank_transfer') {
+    if (payment_type === 'bank_transfer' && bank) {
       parameter.bank_transfer = { bank: bank };
     }
 

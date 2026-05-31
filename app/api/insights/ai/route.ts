@@ -1,24 +1,59 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
+import type { Transaction, Investment, Debt, RecurringBill } from "@/types/finance";
+
+/**
+ * TypeScript Safety Rationale:
+ * Using Zod to validate the AI insights request body (Mandate #5).
+ * This ensures the complex relationship between transactions, summary, 
+ * and holistic data is type-safe before processing.
+ */
+
+const aiInsightSchema = z.object({
+  transactions: z.array(z.any()), // Transactions are complex, we'll type the processed versions
+  summary: z.object({
+    totalIncome: z.number(),
+    totalExpense: z.number(),
+    netCashflow: z.number(),
+    topCategory: z.string(),
+  }).optional(),
+  investments: z.array(z.any()).optional(),
+  debts: z.array(z.any()).optional(),
+  bills: z.array(z.any()).optional(),
+});
 
 export async function POST(req: Request) {
   try {
-    const { transactions, summary, investments, debts, bills } = await req.json();
+    const rawBody = await req.json();
+    const result = aiInsightSchema.safeParse(rawBody);
+
+    if (!result.success) {
+      return NextResponse.json({ error: "Invalid request data" }, { status: 400 });
+    }
+
+    const { transactions, summary, investments, debts, bills } = result.data as {
+      transactions: Transaction[];
+      summary: { totalIncome: number; totalExpense: number; netCashflow: number; topCategory: string };
+      investments: Investment[];
+      debts: Debt[];
+      bills: RecurringBill[];
+    };
 
     const totalExpense = summary?.totalExpense || 0;
     const topCategory = summary?.topCategory || "Belum ada";
     const netCashflow = summary?.netCashflow || 0;
 
     // Debt reasoning
-    const activeDebts = debts?.filter((d: any) => !d.is_settled && d.type === 'hutang') || [];
-    const totalDebtAmount = activeDebts.reduce((sum: number, d: any) => sum + d.amount, 0);
+    const activeDebts = debts?.filter((d) => !d.is_settled && d.type === 'hutang') || [];
+    const totalDebtAmount = activeDebts.reduce((sum: number, d) => sum + Number(d.amount), 0);
     
     // Bills reasoning
     const today = new Date().getDate();
-    const upcomingBills = bills?.filter((b: any) => b.is_active && Math.abs(b.due_day - today) <= 3) || [];
-    const totalUpcomingBills = upcomingBills.reduce((sum: number, b: any) => sum + b.amount, 0);
+    const upcomingBills = bills?.filter((b) => b.is_active && Math.abs(Number(b.due_day) - today) <= 3) || [];
+    const totalUpcomingBills = upcomingBills.reduce((sum: number, b) => sum + Number(b.amount), 0);
 
     // Investment reasoning
-    const totalInvestment = investments?.reduce((sum: number, i: any) => sum + i.current_value, 0) || 0;
+    const totalInvestment = investments?.reduce((sum: number, i) => sum + Number(i.current_value), 0) || 0;
 
     let aiNarrative = "";
 

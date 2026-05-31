@@ -167,7 +167,6 @@ useEffect(() => {
 ```
 
 Anda sekarang bisa mengurutkan artikel berdasarkan popularitas:
-
 ```typescript
 const { data: popularPosts } = await supabase
   .from('blog_posts')
@@ -196,7 +195,6 @@ const { data: post } = await supabase
 ```
 
 Jangan lupa untuk menambahkan metadata author di `generateMetadata`:
-
 ```typescript
 return {
   title: post.meta_title || post.title,
@@ -204,3 +202,19 @@ return {
   // ...
 }
 ```
+
+
+## 9. Visual Consistency (Syncing Styles)
+
+Agar tampilan di User App identik dengan Admin Editor, ikuti langkah berikut:
+
+1.  **Install Tailwind Typography:** `npm install -D @tailwindcss/typography`.
+2.  **Config Tailwind:** Tambahkan plugin `typography` di `tailwind.config.ts`.
+3.  **Custom Styles:** Sesuaikan radius gambar dan font di dalam objek `typography` di config agar match dengan aesthetic "Wise".
+4.  **CSS Global:** Pastikan mendukung `text-align` dengan menambahkan class helper di CSS global jika diperlukan.
+
+Daftar Class Wajib pada Wrapper Artikel:
+- `prose`: Mengaktifkan styling otomatis.
+- `prose-slate`: (Atau warna lain) menentukan palet warna dasar.
+- `max-w-none`: Mencegah pemotongan lebar otomatis oleh plugin prose.
+- `font-wise`: (Opsional) jika Anda menggunakan font kustom.

@@ -13,6 +13,8 @@ export interface Transaction {
   category: string;
   category_icon?: string | null;
   type: TransactionType;
+  transfer_direction?: "in" | "out" | null;
+  transfer_group_id?: string | null;
   date: string;
   wallet_id?: string | null;
   wallets?: { name: string } | null;

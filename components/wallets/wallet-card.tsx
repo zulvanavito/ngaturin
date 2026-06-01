@@ -34,6 +34,7 @@ export interface WalletTransaction {
   description: string;
   amount: number;
   type: string;
+  transfer_direction?: "in" | "out" | null;
   category: string;
   date: string;
 }

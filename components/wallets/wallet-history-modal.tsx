@@ -50,7 +50,10 @@ export function WalletHistoryModal({ open, onClose, wallet }: WalletHistoryModal
     let totalIn = 0;
     let totalOut = 0;
     transactions.forEach(tx => {
-      if (tx.type === "income" || tx.description?.endsWith("→ masuk")) {
+      const isIncome = tx.type === "income" || 
+        (tx.type === "transfer" && (tx.transfer_direction === "in" || tx.description?.endsWith("→ masuk")));
+      
+      if (isIncome) {
         totalIn += tx.amount;
       } else {
         totalOut += tx.amount;
@@ -127,7 +130,8 @@ export function WalletHistoryModal({ open, onClose, wallet }: WalletHistoryModal
           ) : (
             <div className="space-y-2">
               {transactions.map((tx) => {
-                const isIncome = tx.type === "income" || tx.description?.endsWith("→ masuk");
+                const isIncome = tx.type === "income" || 
+                  (tx.type === "transfer" && (tx.transfer_direction === "in" || tx.description?.endsWith("→ masuk")));
                 return (
                   <div key={tx.id} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-muted/20 transition-colors">
                     <div className="w-9 h-9 rounded-xl bg-muted/30 flex items-center justify-center shrink-0">

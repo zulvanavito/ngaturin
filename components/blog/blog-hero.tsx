@@ -15,7 +15,7 @@ export function BlogHero({ posts }: { posts: BlogPostMetadata[] }) {
         {/* Main Featured Post (65%) */}
         <Link href={`/blog/${mainPost.slug}`} className="group relative flex-[0.65] bg-[#121310] rounded-[30px] overflow-hidden min-h-[500px] border border-gray-200 dark:border-white/10 shadow-[rgba(14,15,12,0.12)_0px_0px_0px_1px]">
           {mainPost.cover_image_url && (
-            <Image src={mainPost.cover_image_url} alt={mainPost.title} fill priority className="object-cover transition-transform duration-700 group-hover:scale-105" />
+            <Image src={mainPost.cover_image_url} alt={mainPost.title} fill sizes="(max-width: 1024px) 100vw, 65vw" priority className="object-cover transition-transform duration-700 group-hover:scale-105" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-8 md:p-12">
             <span className="bg-[#9fe870] text-[#163300] px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest w-fit mb-4">

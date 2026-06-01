@@ -65,7 +65,7 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-8 w-full max-w-sm mx-auto", className)} {...props}>
       <div className="flex flex-col items-center text-center space-y-3 mb-2">
         <div className="relative w-12 h-12 mb-2 lg:hidden">
-          <Image src="/logo.png" alt="Ngaturin Logo" fill className="object-contain" />
+          <Image src="/logo.png" alt="Ngaturin Logo" fill sizes="48px" className="object-contain" />
         </div>
         <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Halo Lagi!</h2>
         <p className="text-muted-foreground font-medium text-sm px-4">

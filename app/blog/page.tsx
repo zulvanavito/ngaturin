@@ -57,7 +57,6 @@ export default async function BlogPage() {
       
       {/* Newsletter CTA */}
       <section className="py-24 px-6 bg-gradient-to-br from-[#9fe870] to-[#bbf099] relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-4xl md:text-6xl font-black text-[#163300] leading-[0.9] mb-6 uppercase tracking-tight">
             Jangan Lewatkan <br />

@@ -25,6 +25,7 @@ const ERROR_MAP: Record<string, { message: string; status: number; code?: string
   // Postgres / PostgREST Error Codes
   "23505": { message: "Data ini sudah ada dalam sistem.", status: 409, code: "DUPLICATE_ENTRY" },
   "23503": { message: "Data tidak dapat diproses karena masih terkait dengan data lain.", status: 409, code: "FOREIGN_KEY_VIOLATION" },
+  "23514": { message: "Data tidak memenuhi syarat validasi sistem.", status: 400, code: "CONSTRAINT_VIOLATION" },
   "PGRST116": { message: "Data yang Anda cari tidak ditemukan.", status: 404, code: "NOT_FOUND" },
 };
 
@@ -36,10 +37,12 @@ export function handleApiError(error: any) {
   console.error("[API Error]:", error);
 
   // 1. Handle Zod Validation Errors
-  if (error instanceof ZodError) {
+  if (error instanceof ZodError || error?.name === "ZodError") {
     const details: Record<string, string[]> = {};
-    error.errors.forEach((err) => {
-      const path = err.path.join(".");
+    const issues = error.issues ?? error.errors ?? [];
+    
+    issues.forEach((err: any) => {
+      const path = err.path?.join(".") || "field";
       if (!details[path]) details[path] = [];
       details[path].push(err.message);
     });
@@ -49,6 +52,17 @@ export function handleApiError(error: any) {
         error: "Validasi input gagal.",
         code: "VALIDATION_ERROR",
         details,
+      } as ApiErrorResponse,
+      { status: 400 }
+    );
+  }
+
+  // 1.5. Handle JSON Parsing Errors
+  if (error instanceof SyntaxError && error.message.includes("JSON")) {
+    return NextResponse.json(
+      {
+        error: "Format JSON tidak valid.",
+        code: "INVALID_JSON",
       } as ApiErrorResponse,
       { status: 400 }
     );

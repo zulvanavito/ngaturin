@@ -1,141 +1,102 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { handleGamifiedAction } from "@/lib/gamification-service";
+import { handleApiError } from "@/lib/utils/api-error";
+import { TransactionCreateSchema, TransactionQuerySchema } from "@/lib/validations/finance";
 
 export async function GET(request: Request) {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // 1. Validate Query Parameters
+    const { searchParams } = new URL(request.url);
+    const queryParams = Object.fromEntries(searchParams.entries());
+    const filters = TransactionQuerySchema.parse(queryParams);
+
+    // 2. Build Query
+    let query = supabase
+      .from("transactions")
+      .select("*, wallets(name), debt_id")
+      .eq("user_id", user.id);
+
+    if (filters.category) query = query.eq("category", filters.category);
+    if (filters.type) query = query.eq("type", filters.type);
+    if (filters.keyword) query = query.ilike("description", `%${filters.keyword}%`);
+
+    if (filters.month) {
+      // month is in "YYYY-MM" format
+      const startDate = `${filters.month}-01`;
+      const [yearStr, monthStr] = filters.month.split('-');
+      const nextMonth = new Date(Number(yearStr), Number(monthStr), 1);
+      const endDate = new Date(nextMonth.getTime() - 1).toISOString().split('T')[0];
+      query = query.gte("date", startDate).lte("date", endDate);
+    }
+
+    if (filters.wallet_id) {
+      query = query.eq("wallet_id", filters.wallet_id);
+    }
+
+    // 3. Execute Query
+    const { data, error } = await query
+      .order("date", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return NextResponse.json(data);
+
+  } catch (error) {
+    return handleApiError(error);
   }
-
-  const { searchParams } = new URL(request.url);
-  const category = searchParams.get("category");
-  const type = searchParams.get("type");
-  const keyword = searchParams.get("keyword");
-  const month = searchParams.get("month");
-  const walletId = searchParams.get("wallet_id");
-
-  let query = supabase
-    .from("transactions")
-    .select("*, wallets(name), debt_id")
-    .eq("user_id", user.id);
-
-  if (category) {
-    query = query.eq("category", category);
-  }
-  
-  if (type) {
-    query = query.eq("type", type);
-  }
-
-  if (keyword) {
-    query = query.ilike("description", `%${keyword}%`);
-  }
-
-  if (month) {
-    // month is expected to be in "YYYY-MM" format
-    const startDate = `${month}-01`;
-    // Create a date for the 1st of the next month to handle days correctly
-    const [yearStr, monthStr] = month.split('-');
-    const nextMonth = new Date(Number(yearStr), Number(monthStr), 1);
-    const endDate = new Date(nextMonth.getTime() - 1).toISOString().split('T')[0];
-    
-    query = query.gte("date", startDate).lte("date", endDate);
-  }
-
-  if (walletId) {
-    query = query.eq("wallet_id", walletId);
-  }
-
-  const { data, error } = await query
-    .order("date", { ascending: false })
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json(data);
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const body = await request.json();
-  const { description, amount, category, type, date, wallet_id, bill_id, debt_id } = body;
-
-  // Validation
-  if (!description || !amount || !category || !type) {
-    return NextResponse.json(
-      { error: "Semua field harus diisi" },
-      { status: 400 }
-    );
-  }
-
-  // Allow any non-empty category (supports custom categories from user)
-  if (typeof category !== "string" || category.trim().length === 0) {
-    return NextResponse.json(
-      { error: "Kategori tidak boleh kosong" },
-      { status: 400 }
-    );
-  }
-
-  if (!["income", "expense"].includes(type)) {
-    return NextResponse.json(
-      { error: "Tipe harus 'income' atau 'expense'" },
-      { status: 400 }
-    );
-  }
-
-  if (isNaN(Number(amount)) || Number(amount) <= 0) {
-    return NextResponse.json(
-      { error: "Jumlah harus angka positif" },
-      { status: 400 }
-    );
-  }
-
-  // Sanitize wallet_id: treat "_none" or empty string as null
-  const sanitizedWalletId = (wallet_id && wallet_id !== "_none") ? wallet_id : null;
-
-  const { data, error } = await supabase
-    .from("transactions")
-    .insert({
-      user_id: user.id,
-      description,
-      amount: Number(amount),
-      category,
-      type,
-      date: date || new Date().toISOString().split("T")[0],
-      wallet_id: sanitizedWalletId,
-      bill_id: bill_id || null,
-      debt_id: debt_id || null,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  // Trigger gamification
   try {
-    await handleGamifiedAction(user.id);
-  } catch (err) {
-    console.error("Failed to update gamification stats:", err);
-  }
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  return NextResponse.json(data, { status: 201 });
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    // 1. Validate Request Body
+    const body = await request.json();
+    const validated = TransactionCreateSchema.parse(body);
+
+    // 2. Execute Insert
+    const { data, error } = await supabase
+      .from("transactions")
+      .insert({
+        user_id: user.id,
+        description: validated.description,
+        amount: validated.amount,
+        category: validated.category,
+        type: validated.type,
+        date: validated.date || new Date().toISOString().split("T")[0],
+        wallet_id: validated.wallet_id,
+        bill_id: validated.bill_id,
+        debt_id: validated.debt_id,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // 3. Trigger Gamification
+    try {
+      await handleGamifiedAction(user.id);
+    } catch (err) {
+      console.error("Gamification error (non-blocking):", err);
+    }
+
+    return NextResponse.json(data, { status: 201 });
+
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

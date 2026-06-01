@@ -41,10 +41,11 @@ export async function GET(request: Request) {
       query = query.eq("wallet_id", filters.wallet_id);
     }
 
-    // 3. Execute Query
+    // 3. Execute Query with Pagination
     const { data, error } = await query
       .order("date", { ascending: false })
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(filters.offset, filters.offset + filters.limit - 1);
 
     if (error) throw error;
 

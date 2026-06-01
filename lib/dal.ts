@@ -1,4 +1,5 @@
 import { createClient, createStaticClient } from "@/lib/supabase/server";
+import { createPublicStaticClient } from "@/lib/supabase/static";
 import { cache } from "react";
 import { BlogPost, BlogPostMetadata } from "@/types/blog";
 
@@ -57,6 +58,8 @@ export const getTransactions = cache(async (filters: {
   keyword?: string; 
   month?: string; 
   walletId?: string;
+  limit?: number;
+  offset?: number;
 } = {}) => {
   const supabase = await createClient();
   const user = await getUser();
@@ -81,9 +84,18 @@ export const getTransactions = cache(async (filters: {
 
   if (filters.walletId) query = query.eq("wallet_id", filters.walletId);
 
-  const { data, error } = await query
+  // Sorting
+  query = query
     .order("date", { ascending: false })
     .order("created_at", { ascending: false });
+
+  // Apply range only if limit is provided to avoid breaking reports
+  if (filters.limit !== undefined) {
+    const offset = filters.offset ?? 0;
+    query = query.range(offset, offset + filters.limit - 1);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("DAL: Error fetching transactions:", error);
@@ -331,7 +343,7 @@ export const getSubscription = cache(async () => {
 });
 
 export const getBlogPosts = cache(async (): Promise<BlogPostMetadata[]> => {
-  const supabase = createStaticClient();
+  const supabase = createPublicStaticClient();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("id, slug, title, excerpt, category, tags, cover_image_url, published_at, status, is_featured, author_id, created_at, updated_at, view_count, blog_authors(name, avatar_url, bio)")
@@ -356,7 +368,7 @@ export const getBlogPosts = cache(async (): Promise<BlogPostMetadata[]> => {
 });
 
 export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
-  const supabase = createStaticClient();
+  const supabase = createPublicStaticClient();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("*, blog_authors(name, avatar_url, bio)")
@@ -379,7 +391,7 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | 
 });
 
 export const getPopularBlogPosts = cache(async (limit = 5): Promise<BlogPostMetadata[]> => {
-  const supabase = createStaticClient();
+  const supabase = createPublicStaticClient();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("id, slug, title, excerpt, category, tags, cover_image_url, published_at, status, is_featured, author_id, created_at, updated_at, view_count, blog_authors(name, avatar_url, bio)")
@@ -405,7 +417,7 @@ export const getPopularBlogPosts = cache(async (limit = 5): Promise<BlogPostMeta
 });
 
 export const getBlogComments = cache(async (slug: string) => {
-  const supabase = createStaticClient();
+  const supabase = createPublicStaticClient();
   const { data, error } = await supabase
     .from("blog_comments")
     .select("*")
@@ -421,7 +433,7 @@ export const getBlogComments = cache(async (slug: string) => {
 });
 
 export const getBlogCategoriesList = cache(async () => {
-  const supabase = createStaticClient();
+  const supabase = createPublicStaticClient();
   const { data, error } = await supabase
     .from("blog_categories")
     .select("name, slug")

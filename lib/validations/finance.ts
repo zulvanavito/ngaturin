@@ -31,6 +31,8 @@ export const TransactionQuerySchema = z.object({
   keyword: z.string().max(100, "Kata kunci terlalu panjang").optional(),
   month: z.string().regex(/^\d{4}-\d{2}$/, "Format bulan harus YYYY-MM").optional(),
   wallet_id: z.string().uuid("ID Dompet tidak valid").optional(),
+  limit: z.coerce.number().int().min(1).max(500).default(100),
+  offset: z.coerce.number().int().min(0).default(0),
 });
 
 /**

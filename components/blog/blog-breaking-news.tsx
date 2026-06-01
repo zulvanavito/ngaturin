@@ -18,7 +18,7 @@ export function BlogBreakingNews({ posts }: { posts: BlogPostMetadata[] }) {
           <Link key={post.id} href={`/blog/${post.slug}`} className="group snap-start shrink-0 w-[320px] bg-white dark:bg-[#1a1b18] p-4 rounded-[24px] border border-gray-100 dark:border-white/5 hover:-translate-y-1 transition-all duration-300 shadow-[rgba(14,15,12,0.12)_0px_0px_0px_1px] hover:border-[#9fe870]/50 hover:shadow-md flex gap-4 items-center">
             <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10">
               {post.cover_image_url ? (
-                <Image src={post.cover_image_url} alt={post.title} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+                <Image src={post.cover_image_url} alt={post.title} fill sizes="64px" className="object-cover transition-transform duration-500 group-hover:scale-110" />
               ) : (
                 <div className="w-full h-full bg-[#163300] flex items-center justify-center">
                    <span className="text-xs font-black text-[#9fe870]/50">N</span>

@@ -48,35 +48,7 @@ export const getWallets = cache(async () => {
     return [];
   }
 
-  // Fetch ALL transactions to calculate per-wallet balance
-  // Optimization: In a real large app, you'd store balance on the wallet table and update via triggers.
-  const { data: txs } = await supabase
-    .from("transactions")
-    .select("wallet_id, type, amount, description")
-    .eq("user_id", user.id);
-
-  const balanceMap: Record<string, number> = {};
-  for (const tx of txs ?? []) {
-    if (!tx.wallet_id) continue;
-    if (!balanceMap[tx.wallet_id]) balanceMap[tx.wallet_id] = 0;
-
-    if (tx.type === "income") {
-      balanceMap[tx.wallet_id] += Number(tx.amount);
-    } else if (tx.type === "expense") {
-      balanceMap[tx.wallet_id] -= Number(tx.amount);
-    } else if (tx.type === "transfer") {
-      if (tx.description?.endsWith("→ masuk")) {
-        balanceMap[tx.wallet_id] += Number(tx.amount);
-      } else if (tx.description?.endsWith("→ keluar")) {
-        balanceMap[tx.wallet_id] -= Number(tx.amount);
-      }
-    }
-  }
-
-  return (wallets ?? []).map((w) => ({
-    ...w,
-    balance: balanceMap[w.id] ?? 0,
-  }));
+  return wallets ?? [];
 });
 
 export const getTransactions = cache(async (filters: { 

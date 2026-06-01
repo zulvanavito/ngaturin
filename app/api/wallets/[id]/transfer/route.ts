@@ -26,49 +26,16 @@ export async function POST(
     return NextResponse.json({ error: "Dompet tidak ditemukan" }, { status: 404 });
   }
 
-  // Calculate source wallet balance securely on the server
-  const { data: sourceTx } = await supabase.from("transactions")
-    .select("amount, type, description")
-    .eq("wallet_id", fromWalletId);
-  
-  const currentBalance = (sourceTx || []).reduce((acc, t) => {
-    if (t.type === "income") return acc + t.amount;
-    if (t.type === "expense") return acc - t.amount;
-    if (t.type === "transfer") {
-      if (t.description?.endsWith("→ masuk")) return acc + t.amount;
-      if (t.description?.endsWith("→ keluar")) return acc - t.amount;
-    }
-    return acc;
-  }, 0);
-
-  if (currentBalance < Number(amount)) {
-    return NextResponse.json({ error: "Saldo dompet asal tidak mencukupi" }, { status: 400 });
-  }
-
   const transferDate = date || new Date().toISOString().split("T")[0];
   const transferDesc = description || "Transfer Antar Dompet";
 
-
-  const { error } = await supabase.from("transactions").insert([
-    {
-      user_id: user.id,
-      wallet_id: fromWalletId,
-      type: "transfer",
-      amount: Number(amount),
-      category: "Transfer",
-      description: `${transferDesc} → keluar`,
-      date: transferDate,
-    },
-    {
-      user_id: user.id,
-      wallet_id: toWalletId,
-      type: "transfer",
-      amount: Number(amount),
-      category: "Transfer",
-      description: `${transferDesc} → masuk`,
-      date: transferDate,
-    },
-  ]);
+  const { error } = await supabase.rpc("transfer_funds", {
+    p_from_wallet_id: fromWalletId,
+    p_to_wallet_id: toWalletId,
+    p_amount: Number(amount),
+    p_description: transferDesc,
+    p_date: transferDate,
+  });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

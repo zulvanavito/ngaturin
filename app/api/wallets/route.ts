@@ -6,50 +6,12 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { searchParams } = new URL(request.url);
-  const includeBalance = searchParams.get("balance") !== "false";
-
   const { data: wallets, error } = await supabase
     .from("wallets").select("*").eq("user_id", user.id)
     .order("created_at", { ascending: true });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  if (!includeBalance) {
-    return NextResponse.json(wallets?.map(w => ({ ...w, balance: 0 })) || []);
-  }
-
-  // Fetch ALL transactions (including transfers) to calculate per-wallet balance
-  const { data: txs } = await supabase
-    .from("transactions")
-    .select("wallet_id, type, amount, description")
-    .eq("user_id", user.id);
-
-  // Build balance map: wallet_id → net balance
-  const balanceMap: Record<string, number> = {};
-  for (const tx of txs ?? []) {
-    if (!tx.wallet_id) continue;
-    if (!balanceMap[tx.wallet_id]) balanceMap[tx.wallet_id] = 0;
-
-    if (tx.type === "income") {
-      balanceMap[tx.wallet_id] += Number(tx.amount);
-    } else if (tx.type === "expense") {
-      balanceMap[tx.wallet_id] -= Number(tx.amount);
-    } else if (tx.type === "transfer") {
-      // Direction determined by description suffix set in the transfer API
-      if (tx.description?.endsWith("→ masuk")) {
-        balanceMap[tx.wallet_id] += Number(tx.amount); // incoming
-      } else if (tx.description?.endsWith("→ keluar")) {
-        balanceMap[tx.wallet_id] -= Number(tx.amount); // outgoing
-      }
-    }
-  }
-
-  const walletsWithBalance = (wallets ?? []).map((w) => ({
-    ...w,
-    balance: balanceMap[w.id] ?? 0,
-  }));
-
-  return NextResponse.json(walletsWithBalance);
+  return NextResponse.json(wallets || []);
 }
 
 export async function POST(request: Request) {
